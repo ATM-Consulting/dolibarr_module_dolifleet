@@ -148,7 +148,9 @@ class moddoliFleet extends DolibarrModules
 		$this->dictionaries=array(
 			'langs'=>'dolifleet@dolifleet',
 			'tabname'=>array(
-				MAIN_DB_PREFIX."c_dolifleet_contract_type"
+				MAIN_DB_PREFIX."c_dolifleet_contract_type",
+				MAIN_DB_PREFIX."c_dolifleet_vehicule_type",
+				MAIN_DB_PREFIX."c_dolifleet_vehicule_mark"
 			),
 			'tablib'=>array(
 				"c_dolifleet_contract_type",

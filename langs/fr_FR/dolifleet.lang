@@ -16,8 +16,12 @@ LinkToThirparty=Lien vers le tiers
 km_date=Date de relevè kilométrique
 date_customer_exploit=Date de mise en exploitation
 date_customer_exploit_help=Mise en exploitation chez le client
+date_end_contract=Date fin de contrat
+contractType=Type de contrat
 
-c_dolifleet_contract_type=DoliFleet - Type de contrat véhicule
+c_dolifleet_contract_type=DoliFleet - Types de contrat véhicule
+c_dolifleet_vehicule_type=DoliFleet - Types de véhicule
+c_dolifleet_vehicule_mark=DoliFleet - Marques de véhicule
 
 # DROITS
 vehicule_read=Voir les véhicules

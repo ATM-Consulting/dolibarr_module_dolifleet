@@ -106,7 +106,7 @@ class doliFleetVehicule extends SeedObject
             'type' => 'integer',
             'label' => 'Status',
             'enabled' => 1,
-            'visible' => 0,
+            'visible' => 1,
             'notnull' => 1,
             'default' => 0,
             'index' => 1,
@@ -173,6 +173,32 @@ class doliFleetVehicule extends SeedObject
 			'enabled' => 1,
 			'position' => 90
         ),
+
+        'fk_contract_type' => array(
+			'type' => 'sellist:c_dolifleet_contract_type:label:rowid::active=1',
+			'label' => 'contractType',
+			'visible' => 1,
+			'enabled' => 1,
+			'position' => 100,
+			'index' => 1,
+        ),
+
+        'date_end_contract' => array(
+			'type' => 'date',
+			'label' => 'date_end_contract',
+			'visible' => 1,
+			'enabled' => 1,
+			'position' => 110
+        ),
+
+		'fk_vehicule_type' => array(
+			'type' => 'sellist:c_dolifleet_vehicule_type:label:rowid::active=1',
+			'label' => 'Type',
+			'visible' => 1,
+			'enabled' => 1,
+			'position' => 100,
+			'index' => 1,
+		),
 
 //        'description' => array(
 //            'type' => 'text', // or html for WYSWYG
