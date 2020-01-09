@@ -151,27 +151,43 @@ class moddoliFleet extends DolibarrModules
 				MAIN_DB_PREFIX."c_dolifleet_contract_type"
 			),
 			'tablib'=>array(
-				"c_dolifleet_contract_type"
+				"c_dolifleet_contract_type",
+				"c_dolifleet_vehicule_type",
+				"c_dolifleet_vehicule_mark"
 			),
 			'tabsql'=>array(
-				'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_dolifleet_contract_type as f'
+				'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_dolifleet_contract_type as f',
+				'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_dolifleet_vehicule_type as f',
+				'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_dolifleet_vehicule_mark as f'
 			),
 			'tabsqlsort'=>array(
+				"label ASC",
+				"label ASC",
 				"label ASC"
 			),
 			'tabfield'=>array(
+				"code,label",
+				"code,label",
 				"code,label"
 			),
 			'tabfieldvalue'=>array(
+				"code,label",
+				"code,label",
 				"code,label"
 			),																				// List of fields (list of fields to edit a record)
 			'tabfieldinsert'=>array(
+				"code,label",
+				"code,label",
 				"code,label"
 			),																			// List of fields (list of fields for insert)
 			'tabrowid'=>array(
+				"rowid",
+				"rowid",
 				"rowid"
 			),																									// Name of columns with primary key (try to always name it 'rowid')
 			'tabcond'=>array(
+				$conf->dolifleet->enabled,
+				$conf->dolifleet->enabled,
 				$conf->dolifleet->enabled
 			)
 
