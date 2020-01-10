@@ -150,19 +150,23 @@ class moddoliFleet extends DolibarrModules
 			'tabname'=>array(
 				MAIN_DB_PREFIX."c_dolifleet_contract_type",
 				MAIN_DB_PREFIX."c_dolifleet_vehicule_type",
-				MAIN_DB_PREFIX."c_dolifleet_vehicule_mark"
+				MAIN_DB_PREFIX."c_dolifleet_vehicule_mark",
+				MAIN_DB_PREFIX."c_dolifleet_vehicule_activity_type"
 			),
 			'tablib'=>array(
 				"c_dolifleet_contract_type",
 				"c_dolifleet_vehicule_type",
-				"c_dolifleet_vehicule_mark"
+				"c_dolifleet_vehicule_mark",
+				"c_dolifleet_vehicule_activity_type"
 			),
 			'tabsql'=>array(
 				'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_dolifleet_contract_type as f',
 				'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_dolifleet_vehicule_type as f',
-				'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_dolifleet_vehicule_mark as f'
+				'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_dolifleet_vehicule_mark as f',
+				'SELECT f.rowid as rowid, f.code, f.label, f.active FROM '.MAIN_DB_PREFIX.'c_dolifleet_vehicule_activity_type as f'
 			),
 			'tabsqlsort'=>array(
+				"label ASC",
 				"label ASC",
 				"label ASC",
 				"label ASC"
@@ -170,9 +174,11 @@ class moddoliFleet extends DolibarrModules
 			'tabfield'=>array(
 				"code,label",
 				"code,label",
+				"code,label",
 				"code,label"
 			),
 			'tabfieldvalue'=>array(
+				"code,label",
 				"code,label",
 				"code,label",
 				"code,label"
@@ -180,14 +186,17 @@ class moddoliFleet extends DolibarrModules
 			'tabfieldinsert'=>array(
 				"code,label",
 				"code,label",
+				"code,label",
 				"code,label"
 			),																			// List of fields (list of fields for insert)
 			'tabrowid'=>array(
 				"rowid",
 				"rowid",
+				"rowid",
 				"rowid"
 			),																									// Name of columns with primary key (try to always name it 'rowid')
 			'tabcond'=>array(
+				$conf->dolifleet->enabled,
 				$conf->dolifleet->enabled,
 				$conf->dolifleet->enabled,
 				$conf->dolifleet->enabled

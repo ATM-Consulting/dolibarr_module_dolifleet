@@ -113,11 +113,13 @@ if (empty($reshook))
 			}
 
 			$res = $object->save($user);
+
             if ($res < 0)
             {
                 setEventMessage($object->errors, 'errors');
                 if (empty($object->id)) $action = 'create';
                 else $action = 'edit';
+                break;
             }
             else
             {
@@ -298,10 +300,49 @@ else
 
             // Other attributes
             include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php';
-
             print '</table>';
 
-            print '</div></div>'; // Fin fichehalfright & ficheaddleft
+			// Activités véhicule
+			print '<form id="activityForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+			print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+			print '<input type="hidden" name="action" value="update">';
+			print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
+			print '<input type="hidden" name="id" value="'.$object->id.'">';
+
+			print '<table class="border" width="100%">'."\n";
+			print '<tr class="liste_titre"><td align="center">'.$langs->trans('ActivityType').'</td><td align="center">'.$langs->trans('DateStart').'</td><td align="center">'.$langs->trans('DateEnd').'</td></tr>';
+
+			$ret = $object->getActivities();
+			if ($ret == 0)
+			{
+				print '<tr><td colspan="3">'.$langs->trans('NodoliFleetActivity').'</td></tr>';
+			}
+			else if ($ret > 0)
+			{
+				foreach ($object->activities as $activity)
+				{
+					print '<tr>';
+					print '<td align="center">'.$activity->getType().'</td>';
+					print '<td align="center">'.dol_print_date($activity->date_start, "%d/%m/%Y").'</td>';
+					print '<td align="center">'.dol_print_date($activity->date_end, "%d/%m/%Y").'</td>';
+					print '</tr>';
+				}
+			}
+
+			// ligne nouvelle activité
+			print '<tr>';
+			print '<td align="center">';
+
+			print '</td>';
+			print '<td align="center"></td>';
+			print '<td align="center"></td>';
+			print '</tr>';
+
+			print '</table>';
+
+			print '</form>';
+
+			print '</div></div>'; // Fin fichehalfright & ficheaddleft
             print '</div>'; // Fin fichecenter
 
             print '<div class="clearboth"></div><br />';

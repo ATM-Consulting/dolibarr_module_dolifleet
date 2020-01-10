@@ -159,7 +159,7 @@ abstract class dictionary extends SeedObject
 		}
 	}
 
-	public function getValueFromId($id, $field)
+	public function getValueFromId($id, $field = 'label')
 	{
 		$dict = new static($this->db);
 		$ret = $dict->fetch($id);

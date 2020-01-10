@@ -49,8 +49,16 @@ dol_include_once('/dolifleet/class/dictionaryVehiculeMark.class.php');
 $o=new dictionaryVehiculeMark($db);
 $o->init_db_by_vars();
 
+dol_include_once('/dolifleet/class/dictionaryVehiculeActivityType.class.php');
+$o=new dictionaryVehiculeActivityType($db);
+$o->init_db_by_vars();
+
 /* Objects */
 
 dol_include_once('/dolifleet/class/vehicule.class.php');
 $o=new doliFleetVehicule($db);
+$o->init_db_by_vars();
+
+dol_include_once('/dolifleet/class/vehiculeActivity.class.php');
+$o=new doliFleetVehiculeActivity($db);
 $o->init_db_by_vars();

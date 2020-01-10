@@ -24,7 +24,6 @@ if (!class_exists('SeedObject'))
 	require_once dirname(__FILE__).'/../config.php';
 }
 
-
 class doliFleetVehicule extends SeedObject
 {
 
@@ -246,13 +245,6 @@ class doliFleetVehicule extends SeedObject
 	/** @var int $status Object status */
 	public $status;
 
-    /** @var string $label Object label */
-    public $label;
-
-    /** @var string $description Object description */
-    public $description;
-
-
 
     /**
      * doliFleetVehicule constructor.
@@ -276,6 +268,24 @@ class doliFleetVehicule extends SeedObject
      */
     public function save($user)
     {
+    	global $langs;
+
+    	if (empty($this->vin))
+		{
+			$this->errors[] = $langs->trans("ErrNoVinNumber");
+			return -1;
+		}
+		else
+		{
+			$veh = new static($this->db);
+			$ret = $veh->fetchBy($this->vin, 'vin', false);
+			if ($ret > 0 && $veh->id != $this->id)
+			{
+				$this->errors[] = $langs->trans('ErrVinAlreadyUsed', html_entity_decode($veh->getNomUrl()));
+				return -1;
+			}
+		}
+
         if (!empty($this->is_clone))
         {
             // TODO determinate if auto generate
@@ -422,6 +432,36 @@ class doliFleetVehicule extends SeedObject
         return 0;
     }
 
+    public function getActivities()
+	{
+		$this->activities = array();
+
+		dol_include_once('/dolifleet/class/vehiculeActivity.class.php');
+		$act = new doliFleetVehiculeActivity($this->db);
+
+		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX.$act->table_element;
+		$sql.= " WHERE fk_vehicule = ".$this->id;
+
+		$resql = $this->db->query($sql);
+		if ($resql)
+		{
+			$num = $this->db->num_rows($resql);
+			if ($num)
+			{
+				while ($obj = $this->db->fetch_object($resql))
+				{
+					$act = new doliFleetVehiculeActivity($this->db);
+
+					$ret = $act->fetch($obj->rowid);
+					if ($ret > 0) $this->activities[$obj->rowid] = $act;
+				}
+			}
+
+			return $num;
+		}
+
+		return -1;
+	}
 
     /**
      * @param int    $withpicto     Add picto into link
