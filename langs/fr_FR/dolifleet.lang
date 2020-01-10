@@ -13,7 +13,7 @@ doliFleetVehicule=Véhicule
 NewdoliFleet=Nouveau véhicule
 immatriculation_date=date de première mise en circulation
 LinkToThirparty=Lien vers le tiers
-km_date=Date de relevè kilométrique
+km_date=Date de relevé kilométrique
 date_customer_exploit=Date de mise en exploitation
 date_customer_exploit_help=Mise en exploitation chez le client
 date_end_contract=Date fin de contrat
@@ -49,9 +49,11 @@ LeftMenudoliFleetVehiculeList=Liste de véhicule
 # STATUS
 doliFleetVehiculeStatusDraft=Inactif
 doliFleetVehiculeStatusActivated=Actif
+doliFleetVehiculeStatusValidate=Actif
 
 doliFleetVehiculeStatusShortDraft=Inactif
 doliFleetVehiculeStatusShortActivated=Actif
+doliFleetVehiculeStatusShortValidate=Actif
 
 # LIST
 doliFleetVehiculeList=Liste de véhicules

@@ -16,6 +16,7 @@
  */
 
 require 'config.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 dol_include_once('dolifleet/class/vehicule.class.php');
 dol_include_once('dolifleet/class/dictionaryContractType.class.php');
 dol_include_once('dolifleet/class/dictionaryVehiculeType.class.php');
@@ -26,6 +27,7 @@ if(empty($user->rights->dolifleet->read)) accessforbidden();
 $langs->load('abricot@abricot');
 $langs->load('dolifleet@dolifleet');
 
+$socid = GETPOST('socid', 'int');
 
 $massaction = GETPOST('massaction', 'alpha');
 $confirmmassaction = GETPOST('confirmmassaction', 'alpha');
@@ -57,6 +59,10 @@ if (!GETPOST('confirmmassaction', 'alpha') && $massaction != 'presend' && $massa
     $massaction = '';
 }
 
+if (GETPOST('button_removefilter_x','alpha') || GETPOST('button_removefilter.x','alpha') || GETPOST('button_removefilter','alpha'))
+{
+	unset($socid);
+}
 
 if (empty($reshook))
 {
@@ -110,6 +116,7 @@ $sql.=$hookmanager->resPrint;
 //print $sql;
 
 $formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_dolifleet', 'GET');
+$form = new Form($db);
 
 $nbLine = GETPOST('limit');
 if (empty($nbLine)) $nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : $conf->global->MAIN_SIZE_LISTE_LIMIT;
@@ -129,7 +136,7 @@ if (!empty(array_keys($extralabels)))
 {
 	$TTitle = array_merge($TTitle, $extralabels);
 }
-var_dump($TTitle);
+
 $listConfig = array(
 	'view_type' => 'list' // default = [list], [raw], [chart]
 	,'allow-fields-select' => true
@@ -154,6 +161,9 @@ $listConfig = array(
 		'date_creation' => 'date' // [datetime], [hour], [money], [number], [integer]
 		,'tms' => 'date'
 		,'date_immat'=>'date'
+		,'date_customer_exploit'=>'date'
+		,'km_date'=>'date'
+		,'date_end_contract'=>'date'
 	)
 	,'search' => array(
 //		'date_creation' => array('search_type' => 'calendars', 'allow_is_null' => true)
@@ -164,7 +174,12 @@ $listConfig = array(
 		,'fk_vehicule_mark' => array('search_type' => $dictVM->getAllActiveArray('label'))
 		,'immatriculation' => array('search_type' => true, 'table' => 't', 'field' => 'immatriculation')
 		,'date_immat' => array('search_type' => 'calendars', 'allow_is_null' => false)
+		,'fk_soc' => array('search_type' => 'override', 'override'=> $form->select_company($socid))
+		,'date_customer_exploit' => array('search_type' => 'calendars', 'allow_is_null' => false)
+		,'km' => array('search_type' => true, 'table' => 't', 'field' => 'km')
+		,'km_date' => array('search_type' => 'calendars', 'allow_is_null' => false)
 		,'fk_contract_type' => array('search_type' => $dictCT->getAllActiveArray('label'))
+		,'date_end_contract' => array('search_type' => 'calendars', 'allow_is_null' => false)
 		,'status' => array('search_type' => doliFleetVehicule::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
 	)
 	,'translate' => array()
@@ -176,8 +191,9 @@ $listConfig = array(
 		'vin' => '_getObjectNomUrl(\'@rowid@\', \'@val@\')'
 		,'fk_vehicule_type' => '_getValueFromId("@val@", "dictionaryVehiculeType")'
 		,'fk_vehicule_mark' => '_getValueFromId("@val@", "dictionaryVehiculeMark")'
+		,'fk_soc'			=> '_getSocieteNomUrl("@val@")'
 		,'fk_contract_type' => '_getValueFromId("@val@", "dictionaryContractType")'
-//		,'fk_user' => '_getUserNomUrl(@val@)' // Si on a un fk_user dans notre requête
+		,'status' => 'doliFleetVehicule::LibStatut("@val@", 5)' // Si on a un fk_user dans notre requête
 	)
 );
 
@@ -213,14 +229,14 @@ function _getObjectNomUrl($id)
 /**
  * TODO remove if unused
  */
-function _getUserNomUrl($fk_user)
+function _getSocieteNomUrl($fk_soc)
 {
 	global $db;
 
-	$u = new User($db);
-	if ($u->fetch($fk_user) > 0)
+	$soc = new Societe($db);
+	if ($soc->fetch($fk_soc) > 0)
 	{
-		return $u->getNomUrl(1);
+		return $soc->getNomUrl(1);
 	}
 
 	return '';
