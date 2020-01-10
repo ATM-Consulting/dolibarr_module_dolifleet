@@ -133,4 +133,41 @@ abstract class dictionary extends SeedObject
 	{
 		return $this->create($user);
 	}
+
+	public function getAllActiveArray($field = '')
+	{
+		$Tab = array();
+
+		$sql = 'SELECT rowid';
+		if (!empty($field)) $sql.= ', '.$field;
+		$sql.= ' FROM '.MAIN_DB_PREFIX.$this->table_element;
+		$sql.= ' WHERE active=1';
+		$sql.= ' AND entity IN ('.getEntity('dolifleet').')';
+
+		$resql = $this->db->query($sql);
+		if ($resql)
+		{
+			while ($obj = $this->db->fetch_object($resql))
+			{
+				$Tab[$obj->rowid] = empty($field) ? $obj->rowid : $obj->{$field};
+			}
+			return $Tab;
+		}
+		else
+		{
+			return -1;
+		}
+	}
+
+	public function getValueFromId($id, $field)
+	{
+		$dict = new static($this->db);
+		$ret = $dict->fetch($id);
+		if ($ret > 0 && isset($dict->{$field}))
+		{
+			return $dict->{$field};
+		}
+
+		return '';
+	}
 }

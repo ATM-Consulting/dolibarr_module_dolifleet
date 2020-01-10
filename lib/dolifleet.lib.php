@@ -38,10 +38,10 @@ function dolifleetAdminPrepareHead()
 //    $head[$h][1] = $langs->trans("Parameters");
 //    $head[$h][2] = 'settings';
 //    $h++;
-//    $head[$h][0] = dol_buildpath("/dolifleet/admin/dolifleet_extrafields.php", 1);
-//    $head[$h][1] = $langs->trans("ExtraFields");
-//    $head[$h][2] = 'extrafields';
-//    $h++;
+    $head[$h][0] = dol_buildpath("/dolifleet/admin/vehicule_extrafields.php", 1);
+    $head[$h][1] = $langs->trans("ExtraFields");
+    $head[$h][2] = 'extrafields';
+    $h++;
     $head[$h][0] = dol_buildpath("/dolifleet/admin/dolifleet_about.php", 1);
     $head[$h][1] = $langs->trans("About");
     $head[$h][2] = 'about';
@@ -63,16 +63,16 @@ function dolifleetAdminPrepareHead()
 /**
  * Return array of tabs to used on pages for third parties cards.
  *
- * @param 	doliFleet	$object		Object company shown
+ * @param 	doliFleetVehicule	$object		Object company shown
  * @return 	array				Array of tabs
  */
-function dolifleet_prepare_head(doliFleet $object)
+function vehicule_prepare_head(doliFleetVehicule $object)
 {
     global $langs, $conf;
     $h = 0;
     $head = array();
-    $head[$h][0] = dol_buildpath('/dolifleet/card.php', 1).'?id='.$object->id;
-    $head[$h][1] = $langs->trans("doliFleetCard");
+    $head[$h][0] = dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id;
+    $head[$h][1] = $langs->trans("doliFleetVehiculeCard");
     $head[$h][2] = 'card';
     $h++;
 
@@ -102,10 +102,10 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
         $body = $langs->trans('ConfirmActivatedoliFleetVehiculeBody', $object->ref);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmActivatedoliFleetVehiculeTitle'), $body, 'confirm_validate', '', 0, 1);
     }
-    elseif ($action === 'reopen' && !empty($user->rights->dolifleet->write))
+    elseif ($action === 'modif' && !empty($user->rights->dolifleet->write))
     {
         $body = $langs->trans('ConfirmReopendoliFleetVehiculeBody', $object->ref);
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmReopendoliFleetVehiculeTitle'), $body, 'confirm_refuse', '', 0, 1);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmReopendoliFleetVehiculeTitle'), $body, 'confirm_modif', '', 0, 1);
     }
     elseif ($action === 'delete' && !empty($user->rights->dolifleet->delete))
     {

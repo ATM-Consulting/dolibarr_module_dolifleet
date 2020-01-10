@@ -106,7 +106,7 @@ class doliFleetVehicule extends SeedObject
             'type' => 'integer',
             'label' => 'Status',
             'enabled' => 1,
-            'visible' => 1,
+            'visible' => 0,
             'notnull' => 1,
             'default' => 0,
             'index' => 1,
@@ -117,12 +117,30 @@ class doliFleetVehicule extends SeedObject
             )
         ),
 
+		'fk_vehicule_type' => array(
+			'type' => 'sellist:c_dolifleet_vehicule_type:label:rowid::active=1',
+			'label' => 'vehiculeType',
+			'visible' => 1,
+			'enabled' => 1,
+			'position' => 40,
+			'index' => 1,
+		),
+
+		'fk_vehicule_mark' => array(
+			'type' => 'sellist:c_dolifleet_vehicule_mark:label:rowid::active=1',
+			'label' => 'vehiculeMark',
+			'visible' => 1,
+			'enabled' => 1,
+			'position' => 50,
+			'index' => 1,
+		),
+
         'immatriculation' => array(
             'type' => 'varchar(20)',
             'label' => 'immatriculation',
             'enabled' => 1,
             'visible' => 1,
-            'position' => 40,
+            'position' => 60,
             'searchall' => 1,
             'css' => 'minwidth200',
             'help' => 'Help text',
@@ -134,7 +152,7 @@ class doliFleetVehicule extends SeedObject
 			'label' => 'immatriculation_date',
 			'enabled' => 1,
 			'visible' => 1,
-			'position' => 50,
+			'position' => 70,
 			'searchall' => 1,
         ),
 
@@ -143,7 +161,7 @@ class doliFleetVehicule extends SeedObject
             'label' => 'ThirdParty',
             'visible' => 1,
             'enabled' => 1,
-            'position' => 60,
+            'position' => 80,
             'index' => 1,
             'help' => 'LinkToThirparty'
         ),
@@ -153,7 +171,7 @@ class doliFleetVehicule extends SeedObject
 			'label' => 'date_customer_exploit',
             'visible' => 1,
             'enabled' => 1,
-            'position' => 70,
+            'position' => 90,
             'index' => 1,
             'help' => 'date_customer_exploit_help'
         ),
@@ -163,7 +181,7 @@ class doliFleetVehicule extends SeedObject
 			'label' => 'kilometrage',
 			'visible' => 1,
 			'enabled' => 1,
-			'position' => 80
+			'position' => 100
         ),
 
         'km_date' => array(
@@ -171,7 +189,7 @@ class doliFleetVehicule extends SeedObject
 			'label' => 'km_date',
 			'visible' => 1,
 			'enabled' => 1,
-			'position' => 90
+			'position' => 110
         ),
 
         'fk_contract_type' => array(
@@ -179,7 +197,7 @@ class doliFleetVehicule extends SeedObject
 			'label' => 'contractType',
 			'visible' => 1,
 			'enabled' => 1,
-			'position' => 100,
+			'position' => 120,
 			'index' => 1,
         ),
 
@@ -188,17 +206,8 @@ class doliFleetVehicule extends SeedObject
 			'label' => 'date_end_contract',
 			'visible' => 1,
 			'enabled' => 1,
-			'position' => 110
+			'position' => 130
         ),
-
-		'fk_vehicule_type' => array(
-			'type' => 'sellist:c_dolifleet_vehicule_type:label:rowid::active=1',
-			'label' => 'Type',
-			'visible' => 1,
-			'enabled' => 1,
-			'position' => 100,
-			'index' => 1,
-		),
 
 //        'description' => array(
 //            'type' => 'text', // or html for WYSWYG
@@ -425,10 +434,10 @@ class doliFleetVehicule extends SeedObject
 
         $result='';
         $label = '<u>' . $langs->trans("ShowdoliFleetVehicule") . '</u>';
-        if (! empty($this->ref)) $label.= '<br><b>'.$langs->trans('Ref').':</b> '.$this->ref;
+        if (! empty($this->ref)) $label.= '<br><b>'.$langs->trans('VIN').':</b> '.$this->vin;
 
         $linkclose = '" title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip">';
-        $link = '<a href="'.dol_buildpath('/dolifleet/card.php', 1).'?id='.$this->id.urlencode($moreparams).$linkclose;
+        $link = '<a href="'.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$this->id.urlencode($moreparams).$linkclose;
 
         $linkend='</a>';
 
@@ -438,7 +447,7 @@ class doliFleetVehicule extends SeedObject
         if ($withpicto) $result.=($link.img_object($label, $picto, 'class="classfortooltip"').$linkend);
         if ($withpicto && $withpicto != 2) $result.=' ';
 
-        $result.=$link.$this->ref.$linkend;
+        $result.=$link.$this->vin.$linkend;
 
         return $result;
     }
@@ -482,11 +491,8 @@ class doliFleetVehicule extends SeedObject
 		$langs->load('dolifleet@dolifleet');
         $res = '';
 
-        if ($status==self::STATUS_CANCELED) { $statusType='status9'; $statusLabel=$langs->trans('doliFleetVehiculeStatusCancel'); $statusLabelShort=$langs->trans('doliFleetVehiculeStatusShortCancel'); }
-        elseif ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('doliFleetVehiculeStatusDraft'); $statusLabelShort=$langs->trans('doliFleetVehiculeStatusShortDraft'); }
-        elseif ($status==self::STATUS_VALIDATED) { $statusType='status1'; $statusLabel=$langs->trans('doliFleetVehiculeStatusValidated'); $statusLabelShort=$langs->trans('doliFleetVehiculeStatusShortValidate'); }
-        elseif ($status==self::STATUS_REFUSED) { $statusType='status5'; $statusLabel=$langs->trans('doliFleetVehiculeStatusRefused'); $statusLabelShort=$langs->trans('doliFleetVehiculeStatusShortRefused'); }
-        elseif ($status==self::STATUS_ACCEPTED) { $statusType='status6'; $statusLabel=$langs->trans('doliFleetVehiculeStatusAccepted'); $statusLabelShort=$langs->trans('doliFleetVehiculeStatusShortAccepted'); }
+        if ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('doliFleetVehiculeStatusDraft'); $statusLabelShort=$langs->trans('doliFleetVehiculeStatusShortDraft'); }
+        elseif ($status==self::STATUS_ACTIVE) { $statusType='status1'; $statusLabel=$langs->trans('doliFleetVehiculeStatusActivated'); $statusLabelShort=$langs->trans('doliFleetVehiculeStatusShortValidate'); }
 
         if (function_exists('dolGetStatus'))
         {

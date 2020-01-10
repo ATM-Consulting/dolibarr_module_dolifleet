@@ -31,10 +31,10 @@ if (! $res) {
  * Config of extrafield page for doliFleet
  */
 require_once '../lib/dolifleet.lib.php';
-require_once '../class/dolifleet.class.php';
+require_once '../class/vehicule.class.php';
 $langs->loadLangs(array('dolifleet@dolifleet', 'admin', 'other'));
 
-$dolifleet = new doliFleet($db);
+$dolifleet = new doliFleetVehicule($db);
 $elementtype=$dolifleet->table_element;  //Must be the $table_element of the class that manage extrafield
 
 // Page title and texts elements

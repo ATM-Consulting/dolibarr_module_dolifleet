@@ -16,7 +16,10 @@
  */
 
 require 'config.php';
-dol_include_once('dolifleet/class/dolifleet.class.php');
+dol_include_once('dolifleet/class/vehicule.class.php');
+dol_include_once('dolifleet/class/dictionaryContractType.class.php');
+dol_include_once('dolifleet/class/dictionaryVehiculeType.class.php');
+dol_include_once('dolifleet/class/dictionaryVehiculeMark.class.php');
 
 if(empty($user->rights->dolifleet->read)) accessforbidden();
 
@@ -28,9 +31,12 @@ $massaction = GETPOST('massaction', 'alpha');
 $confirmmassaction = GETPOST('confirmmassaction', 'alpha');
 $toselect = GETPOST('toselect', 'array');
 
-$object = new doliFleet($db);
+$object = new doliFleetVehicule($db);
+$dictCT = new dictionaryContractType($db);
+$dictVT = new dictionaryVehiculeType($db);
+$dictVM = new dictionaryVehiculeMark($db);
 
-$hookmanager->initHooks(array('dolifleetlist'));
+$hookmanager->initHooks(array('vehiculelist'));
 
 if ($object->isextrafieldmanaged)
 {
@@ -85,15 +91,15 @@ $parameters=array('sql' => $sql);
 $reshook=$hookmanager->executeHooks('printFieldListSelect', $parameters, $object);    // Note that $action and $object may have been modified by hook
 $sql.=$hookmanager->resPrint;
 
-$sql.= ' FROM '.MAIN_DB_PREFIX.'dolifleet t ';
+$sql.= ' FROM '.MAIN_DB_PREFIX.$object->table_element.' t ';
 
-if (!empty($object->isextrafieldmanaged))
+if (!empty($object->isextrafieldmanaged) && array_keys($extralabels))
 {
-    $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'dolifleet_extrafields et ON (et.fk_object = t.rowid)';
+    $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.$object->table_element.'_extrafields et ON (et.fk_object = t.rowid)';
 }
 
 $sql.= ' WHERE 1=1';
-//$sql.= ' AND t.entity IN ('.getEntity('doliFleet', 1).')';
+$sql.= ' AND t.entity IN ('.getEntity('doliFleet', 1).')';
 //if ($type == 'mine') $sql.= ' AND t.fk_user = '.$user->id;
 
 // Add where from hooks
@@ -101,59 +107,82 @@ $parameters=array('sql' => $sql);
 $reshook=$hookmanager->executeHooks('printFieldListWhere', $parameters, $object);    // Note that $action and $object may have been modified by hook
 $sql.=$hookmanager->resPrint;
 
+//print $sql;
+
 $formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_dolifleet', 'GET');
 
 $nbLine = GETPOST('limit');
 if (empty($nbLine)) $nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : $conf->global->MAIN_SIZE_LISTE_LIMIT;
 
-$r = new Listview($db, 'dolifleet');
-echo $r->render($sql, array(
+// configuration listView
+
+$TTitle = array();
+
+foreach ($object->fields as $fieldKey => $infos)
+{
+	if (isset($infos['label']) && $infos['visible'] > 0) $TTitle[$fieldKey] = $langs->trans($infos['label']);
+}
+
+$TTitle['status'] = $langs->trans('Status');
+
+if (!empty(array_keys($extralabels)))
+{
+	$TTitle = array_merge($TTitle, $extralabels);
+}
+var_dump($TTitle);
+$listConfig = array(
 	'view_type' => 'list' // default = [list], [raw], [chart]
-    ,'allow-fields-select' => true
+	,'allow-fields-select' => true
 	,'limit'=>array(
 		'nbLine' => $nbLine
 	)
-    ,'list' => array(
-        'title' => $langs->trans('doliFleetVehiculeList')
-        ,'image' => 'title_generic.png'
-        ,'picto_precedent' => '<'
-        ,'picto_suivant' => '>'
-        ,'noheader' => 0
-        ,'messageNothing' => $langs->trans('NodoliFleet')
-        ,'picto_search' => img_picto('', 'search.png', '', 0)
-        ,'massactions'=>array(
-            'yourmassactioncode'  => $langs->trans('YourMassActionLabel')
-        )
-    )
+	,'list' => array(
+		'title' => $langs->trans('doliFleetVehiculeList')
+		,'image' => 'title_generic.png'
+		,'picto_precedent' => '<'
+		,'picto_suivant' => '>'
+		,'noheader' => 0
+		,'messageNothing' => $langs->trans('NodoliFleet')
+		,'picto_search' => img_picto('', 'search.png', '', 0)
+		,'massactions'=>array(
+//			'yourmassactioncode'  => $langs->trans('YourMassActionLabel')
+		)
+	)
 	,'subQuery' => array()
 	,'link' => array()
 	,'type' => array(
 		'date_creation' => 'date' // [datetime], [hour], [money], [number], [integer]
 		,'tms' => 'date'
+		,'date_immat'=>'date'
 	)
 	,'search' => array(
-		'date_creation' => array('search_type' => 'calendars', 'allow_is_null' => true)
-		,'tms' => array('search_type' => 'calendars', 'allow_is_null' => false)
-		,'ref' => array('search_type' => true, 'table' => 't', 'field' => 'ref')
-		,'label' => array('search_type' => true, 'table' => array('t', 't'), 'field' => array('label')) // input text de recherche sur plusieurs champs
-		,'status' => array('search_type' => doliFleet::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
+//		'date_creation' => array('search_type' => 'calendars', 'allow_is_null' => true)
+//		,'tms' => array('search_type' => 'calendars', 'allow_is_null' => false)
+//		,'label' => array('search_type' => true, 'table' => array('t', 't'), 'field' => array('label')) // input text de recherche sur plusieurs champs
+		'vin' => array('search_type' => true, 'table' => 't', 'field' => 'vin')
+		,'fk_vehicule_type' => array('search_type' => $dictVT->getAllActiveArray('label'))
+		,'fk_vehicule_mark' => array('search_type' => $dictVM->getAllActiveArray('label'))
+		,'immatriculation' => array('search_type' => true, 'table' => 't', 'field' => 'immatriculation')
+		,'date_immat' => array('search_type' => 'calendars', 'allow_is_null' => false)
+		,'fk_contract_type' => array('search_type' => $dictCT->getAllActiveArray('label'))
+		,'status' => array('search_type' => doliFleetVehicule::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
 	)
 	,'translate' => array()
 	,'hide' => array(
 		'rowid' // important : rowid doit exister dans la query sql pour les checkbox de massaction
 	)
-	,'title'=>array(
-		'ref' => $langs->trans('Ref.')
-		,'label' => $langs->trans('Label')
-		,'date_creation' => $langs->trans('DateCre')
-		,'tms' => $langs->trans('DateMaj')
-
-	)
+	,'title'=>$TTitle
 	,'eval'=>array(
-		'ref' => '_getObjectNomUrl(\'@rowid@\', \'@val@\')'
+		'vin' => '_getObjectNomUrl(\'@rowid@\', \'@val@\')'
+		,'fk_vehicule_type' => '_getValueFromId("@val@", "dictionaryVehiculeType")'
+		,'fk_vehicule_mark' => '_getValueFromId("@val@", "dictionaryVehiculeMark")'
+		,'fk_contract_type' => '_getValueFromId("@val@", "dictionaryContractType")'
 //		,'fk_user' => '_getUserNomUrl(@val@)' // Si on a un fk_user dans notre requête
 	)
-));
+);
+
+$r = new Listview($db, 'dolifleet');
+echo $r->render($sql, $listConfig);
 
 $parameters=array('sql'=>$sql);
 $reshook=$hookmanager->executeHooks('printFieldListFooter', $parameters, $object);    // Note that $action and $object may have been modified by hook
@@ -167,12 +196,12 @@ $db->close();
 /**
  * TODO remove if unused
  */
-function _getObjectNomUrl($id, $ref)
+function _getObjectNomUrl($id)
 {
 	global $db;
 
-	$o = new doliFleet($db);
-	$res = $o->fetch($id, false, $ref);
+	$o = new doliFleetVehicule($db);
+	$res = $o->fetch($id, false);
 	if ($res > 0)
 	{
 		return $o->getNomUrl(1);
@@ -195,4 +224,16 @@ function _getUserNomUrl($fk_user)
 	}
 
 	return '';
+}
+
+function _getValueFromId($id, $dictionaryClassname)
+{
+	global $db;
+
+	if (class_exists($dictionaryClassname))
+	{
+		$dict = new $dictionaryClassname($db);
+		return $dict->getValueFromId($id, 'label');
+	}
+	else return '';
 }

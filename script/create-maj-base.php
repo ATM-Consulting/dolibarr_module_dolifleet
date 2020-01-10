@@ -53,4 +53,4 @@ $o->init_db_by_vars();
 
 dol_include_once('/dolifleet/class/vehicule.class.php');
 $o=new doliFleetVehicule($db);
-//$o->init_db_by_vars();
+$o->init_db_by_vars();
