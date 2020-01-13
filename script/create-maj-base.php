@@ -62,3 +62,7 @@ $o->init_db_by_vars();
 dol_include_once('/dolifleet/class/vehiculeActivity.class.php');
 $o=new doliFleetVehiculeActivity($db);
 $o->init_db_by_vars();
+
+dol_include_once('/dolifleet/class/vehiculeLink.class.php');
+$o=new doliFleetVehiculeLink($db);
+$o->init_db_by_vars();

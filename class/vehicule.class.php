@@ -142,7 +142,6 @@ class doliFleetVehicule extends SeedObject
             'position' => 60,
             'searchall' => 1,
             'css' => 'minwidth200',
-            'help' => 'Help text',
             'showoncombobox' => 1
         ),
 
@@ -500,6 +499,31 @@ class doliFleetVehicule extends SeedObject
 		}
 	}
 
+	public function getLinkedVehicules()
+	{
+		$sql = 'SELECT rowid';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.'dolifleet_vehicule_link';
+		$sql .= " WHERE ";
+		$sql .= " fk_source = ".$this->id." OR fk_target = ".$this->id;
+		$sql .= " ORDER BY date_start ASC";
+
+		$resql = $this->db->query($sql);
+		if ($resql)
+		{
+			dol_include_once('/dolifleet/class/vehiculeLink.class.php');
+
+			$this->linkedVehicules = array();
+
+			while ($obj = $this->db->fetch_object($resql))
+			{
+				$Vlink = new doliFleetVehiculeLink($this->db);
+				$ret = $Vlink->fetch($obj->rowid);
+				if ($ret > 0) $this->linkedVehicules[$Vlink->date_start] = $Vlink;
+			}
+		}
+
+	}
+
 	public function delActivity($user, $act_id)
 	{
 		global $db;
@@ -554,6 +578,30 @@ class doliFleetVehicule extends SeedObject
 
         return $result;
     }
+
+    public function getLinkUrl($withpicto = 0, $moreparams = '', $fieldtodisplay = 'vin')
+	{
+		global $langs;
+
+		$result='';
+		$label = '<u>' . $langs->trans("ShowdoliFleetVehicule") . '</u>';
+		if (! empty($this->ref)) $label.= '<br><b>'.$langs->trans('VIN').':</b> '.$this->vin;
+
+		$linkclose = '" title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip">';
+		$link = '<a href="'.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$this->id.urlencode($moreparams).$linkclose;
+
+		$linkend='</a>';
+
+		$picto='generic';
+//        $picto='dolifleet@dolifleet';
+
+		if ($withpicto) $result.=($link.img_object($label, $picto, 'class="classfortooltip"').$linkend);
+		if ($withpicto && $withpicto != 2) $result.=' ';
+
+		$result.=$link.$this->{$fieldtodisplay}.$linkend;
+
+		return $result;
+	}
 
     /**
      * @param int       $id             Identifiant

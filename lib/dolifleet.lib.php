@@ -125,3 +125,53 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
 
     return $formconfirm;
 }
+
+/**
+ * @param doliFleetVehicule $object
+ */
+function printLinkedVehicules($object)
+{
+	global $langs, $db;
+
+	print '<form id="vehiculeLinkedForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="addVehiculeLink">';
+	print '<input type="hidden" name="id" value="'.$object->id.'">';
+
+	print '<table class="border" width="100%">'."\n";
+	print '<tr class="liste_titre">';
+	print '<td align="center">Immatriculation</td>';
+	print '<td align="center">'.$langs->trans('DateStart').'</td>';
+	print '<td align="center">'.$langs->trans('DateEnd').'</td>';
+	print '<td align="center"></td>';
+	print '</tr>';
+
+	$object->getLinkedVehicules();
+	if (empty($object->linkedVehicules))
+	{
+		print '<tr><td align="center" colspan="4">'.$langs->trans('NodoliFleet').'</td></tr>';
+	}
+	else
+	{
+		foreach ($object->linkedVehicules as $vehiculelink)
+		{
+			$veh = new doliFleetVehicule($db);
+			print '<tr>';
+			print '<td align="center">';
+
+			if ($vehiculelink->fk_source != $object->id) $veh->fetch($vehiculelink->fk_source);
+			else if ($vehiculelink->fk_target != $object->id) $veh->fetch($vehiculelink->fk_target);
+
+			print $veh->getLinkUrl(0, '', 'immatriculation');
+			print '</td>';
+			print '<td align="center">'.dol_print_date($vehiculelink->date_start, "%d/%m/%Y").'</td>';
+			print '<td align="center">'.(!empty($vehiculelink->date_end) ? dol_print_date($vehiculelink->date_end, "%d/%m/%Y") : '').'</td>';
+			print '<td align="center"></td>';
+			print '</tr>';
+		}
+	}
+
+	print '</table>';
+
+	print '</form>';
+}

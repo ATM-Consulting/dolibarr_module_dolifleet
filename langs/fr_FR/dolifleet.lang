@@ -24,6 +24,8 @@ ShowdoliFleetVehicule=Voir le véhicule
 ActivityType=Type d'activité
 NodoliFleetActivity=Pas d'activité
 ActivityAdded=Activité ajoutée
+VehiculeActivities=Activités véhicule
+LinkedVehicules=Véhicules liés
 
 c_dolifleet_contract_type=DoliFleet - Types de contrat véhicule
 c_dolifleet_vehicule_type=DoliFleet - Types de véhicule

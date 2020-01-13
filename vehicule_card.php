@@ -28,6 +28,7 @@ $langs->load('dolifleet@dolifleet');
 $action = GETPOST('action');
 $id = GETPOST('id', 'int');
 $ref = GETPOST('ref');
+$vin = GETPOST('vin');
 
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'vehiculecard';   // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
@@ -35,6 +36,7 @@ $backtopage = GETPOST('backtopage', 'alpha');
 $object = new doliFleetVehicule($db);
 
 if (!empty($id) || !empty($ref)) $object->fetch($id, true, $ref);
+if (!empty($vin)) $object->fetchBy($vin,'vin', false);
 
 $hookmanager->initHooks(array($contextpage, 'globalcard'));
 
@@ -316,7 +318,8 @@ else
 
 
             $morehtmlstatus.=''; //$object->getLibStatut(2); // pas besoin fait doublon
-            dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
+            $object->ref = $object->vin;
+            dol_banner_tab($object, 'vin', $linkback, 1, 'vin', 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
 
             print '<div class="fichecenter">';
 
@@ -333,10 +336,12 @@ else
             print '</table>';
 
 			// Activités véhicule
+
+			print load_fiche_titre($langs->trans('VehiculeActivities'), '', '');
+
 			print '<form id="activityForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 			print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 			print '<input type="hidden" name="action" value="addActivity">';
-			print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 			print '<input type="hidden" name="id" value="'.$object->id.'">';
 
 			print '<table class="border" width="100%">'."\n";
@@ -404,8 +409,11 @@ else
 
 			print '<div class="fichecenter">';
 
-			print '<div class="fichehalfleft">lol left';
+			print '<div class="fichehalfleft">';
 			print '<div class="underbanner clearboth"></div>';
+			print load_fiche_titre($langs->trans('LinkedVehicules'), '', '');
+
+			printLinkedVehicules($object);
 			print '</div>';
 
 			print '<div class="fichehalfright">lol right';

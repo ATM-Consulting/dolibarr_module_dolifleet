@@ -24,43 +24,23 @@ if (!class_exists('SeedObject'))
 	require_once dirname(__FILE__).'/../config.php';
 }
 
-class doliFleetVehiculeActivity extends SeedObject
+class doliFleetVehiculeLink extends SeedObject
 {
 	/** @var string $table_element Table name in SQL */
-	public $table_element = 'dolifleet_vehicule_activity';
+	public $table_element = 'dolifleet_vehicule_link';
 
 	/** @var string $element Name of the element (tip for better integration in Dolibarr: this value should be the reflection of the class name with ucfirst() function) */
-	public $element = 'dolifleet_vehicule_activity';
-
-	/** @var int $fk_vehicule Object link to vehicule */
-	public $fk_vehicule;
-
-	/** @var int $fk_type Object type */
-	public $fk_type;
+	public $element = 'dolifleet_vehicule_link';
 
 	public $date_start;
 
 	public $date_end;
 
+	public $fk_source;
+
+	public $fk_target;
+
 	public $fields = array(
-		'fk_vehicule' => array(
-			'type' => 'integer:doliFleetVehicule:dolifleet/class/vehicule.class.php',
-			'label' => 'doliFleetVehicule',
-			'visible' => 1,
-			'enabled' => 1,
-			'position' => 10,
-			'index' => 1,
-		),
-
-		'fk_type' => array(
-			'type' => 'sellist:c_dolifleet_vehicule_activity_type:label:rowid::active=1',
-			'label' => 'vehiculeMark',
-			'visible' => 1,
-			'enabled' => 1,
-			'position' => 50,
-			'index' => 1,
-		),
-
 		'date_start' => array(
 			'type' => 'date',
 			'label' => 'date_start',
@@ -78,6 +58,24 @@ class doliFleetVehiculeActivity extends SeedObject
 			'position' => 70,
 			'searchall' => 1,
 		),
+
+		'fk_source' => array(
+			'type' => 'integer:doliFleetVehicule:dolifleet/class/vehicule.class.php',
+			'label' => 'doliFleetVehicule',
+			'visible' => 1,
+			'enabled' => 1,
+			'position' => 10,
+			'index' => 1,
+		),
+
+		'fk_target' => array(
+			'type' => 'integer:doliFleetVehicule:dolifleet/class/vehicule.class.php',
+			'label' => 'doliFleetVehicule',
+			'visible' => 1,
+			'enabled' => 1,
+			'position' => 10,
+			'index' => 1,
+		)
 	);
 
 	/**
@@ -95,36 +93,4 @@ class doliFleetVehiculeActivity extends SeedObject
 		$this->entity = $conf->entity;
 	}
 
-	public function getType()
-	{
-		dol_include_once('/dolifleet/class/dictionaryVehiculeActivityType.class.php');
-		$dict = new dictionaryVehiculeActivityType($this->db);
-
-		if (!empty($this->fk_type))
-		{
-			return $dict->getValueFromId($this->fk_type);
-		}
-
-		return '';
-	}
-
-	public function verifyDates()
-	{
-		$sql = "SELECT COUNT(rowid) as nb FROM ".MAIN_DB_PREFIX.$this->table_element;
-		$sql.= " WHERE fk_vehicule = ". $this->fk_vehicule;
-		$sql.= " AND date_end < '" . $this->date_start."'";
-		if (!empty($this->date_end)) $sql.= " AND date_start > '" . $this->date_end . "'";
-
-		$resql = $this->db->query($sql);
-		if ($resql)
-		{
-			$obj = $this->db->fetch_object($resql);
-
-			if (empty($obj->nb)) return true;
-			else $this->error = $sql; //"not dispo";
-		}
-		else $this->error = "SQL error";
-
-		return false;
-	}
 }
