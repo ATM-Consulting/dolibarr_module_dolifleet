@@ -23,6 +23,7 @@ vehiculeMark=Marque du véhicule
 ShowdoliFleetVehicule=Voir le véhicule
 ActivityType=Type d'activité
 NodoliFleetActivity=Pas d'activité
+ActivityAdded=Activité ajoutée
 
 c_dolifleet_contract_type=DoliFleet - Types de contrat véhicule
 c_dolifleet_vehicule_type=DoliFleet - Types de véhicule
@@ -91,6 +92,9 @@ ConfirmDeletedoliFleetVehiculeBody=Souhaitez-vous vraiment supprimer cette fiche
 ConfirmClonedoliFleetVehiculeTitle=Confirmation de clonage
 ConfirmClonedoliFleetVehiculeBody=Souhaitez-vous vraiment clone cette fiche véhicule %s ?
 
+ConfirmDelActivitydoliFleetVehiculeBody=Voulez-vous vraiment supprimer cette activité ?
+
 # Erreur
 ErrNoVinNumber=Aucun VIN renseigné
 ErrVinAlreadyUsed=Le VIN est déjà utilisé pour le véhicule %s
+ErrNoActivityType=Pas de type d'activité renseigné

@@ -463,6 +463,69 @@ class doliFleetVehicule extends SeedObject
 		return -1;
 	}
 
+	/**
+	 * @param int $type Activity Type
+	 * @param $date_start
+	 * @param $date_end
+	 *
+	 * @return int >0 OK <0 KO
+	 */
+	public function addActivity($type, $date_start, $date_end)
+	{
+		global $db, $user;
+
+		if (empty($type) || $type == '-1')
+		{
+			$this->error = "ErrNoActivityType";
+			return -1;
+		}
+
+		dol_include_once("/dolifleet/class/vehiculeActivity.class.php");
+		$act = new doliFleetVehiculeActivity($this->db);
+
+		$act->fk_vehicule = $this->id;
+		$act->fk_type = $type;
+		$act->date_start = $date_start;
+		$act->date_end = $date_end;
+
+		$retDate = $act->verifyDates();
+		if ($retDate)
+		{
+			return $act->create($user);
+		}
+		else
+		{
+			$this->error = $act->error;
+			return -1;
+		}
+	}
+
+	public function delActivity($user, $act_id)
+	{
+		global $db;
+
+		dol_include_once("/dolifleet/class/vehiculeActivity.class.php");
+		$act = new doliFleetVehiculeActivity($this->db);
+
+		$ret = $act->fetch($act_id);
+
+		if ($act->fk_vehicule != $this->id)
+		{
+			$this->error = "IllegalDeletion";
+			return -1;
+		}
+		else
+		{
+			$ret = $act->delete($user);
+			if ($ret > 0) return 1;
+			else
+			{
+				$this->error = $act->error;
+				return -1;
+			}
+		}
+	}
+
     /**
      * @param int    $withpicto     Add picto into link
      * @param string $moreparams    Add more parameters in the URL

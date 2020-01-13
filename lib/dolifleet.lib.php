@@ -117,6 +117,11 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
         $body = $langs->trans('ConfirmClonedoliFleetVehiculeBody', $object->ref);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmClonedoliFleetVehiculeTitle'), $body, 'confirm_clone', '', 0, 1);
     }
+    elseif ($action === 'delActivity' && !empty($user->rights->dolifleet->write))
+	{
+		$body = $langs->trans('ConfirmDelActivitydoliFleetVehiculeBody', $object->ref);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id . '&act_id='.GETPOST('act_id'), $langs->trans('ConfirmDeletedoliFleetVehiculeTitle'), $body, 'confirm_delActivity', '', 0, 1);
+	}
 
     return $formconfirm;
 }

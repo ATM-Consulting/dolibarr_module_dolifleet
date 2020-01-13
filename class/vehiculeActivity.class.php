@@ -107,4 +107,24 @@ class doliFleetVehiculeActivity extends SeedObject
 
 		return '';
 	}
+
+	public function verifyDates()
+	{
+		$sql = "SELECT COUNT(rowid) as nb FROM ".MAIN_DB_PREFIX.$this->table_element;
+		$sql.= " WHERE fk_vehicule = ". $this->fk_vehicule;
+		$sql.= " AND date_end < '" . $this->date_start."'";
+		if (!empty($this->date_end)) $sql.= " AND date_start > '" . $this->date_end . "'";
+
+		$resql = $this->db->query($sql);
+		if ($resql)
+		{
+			$obj = $this->db->fetch_object($resql);
+
+			if (empty($obj->nb)) return true;
+			else $this->error = $sql; //"not dispo";
+		}
+		else $this->error = "SQL error";
+
+		return false;
+	}
 }

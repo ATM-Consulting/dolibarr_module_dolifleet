@@ -36,7 +36,7 @@ $object = new doliFleetVehicule($db);
 
 if (!empty($id) || !empty($ref)) $object->fetch($id, true, $ref);
 
-$hookmanager->initHooks(array('vehiculecard', 'globalcard'));
+$hookmanager->initHooks(array($contextpage, 'globalcard'));
 
 
 if ($object->isextrafieldmanaged)
@@ -180,6 +180,36 @@ if (empty($reshook))
 			header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
 			exit;
 
+		case 'addActivity':
+			$type = GETPOST('activityTypes', 'int');
+			$date_start = dol_mktime(0, 0, 0, GETPOST('activityDate_startmonth'), GETPOST('activityDate_startday'), GETPOST('activityDate_startyear'));
+			$date_end = dol_mktime(23, 59, 59, GETPOST('activityDate_endmonth'), GETPOST('activityDate_endday'), GETPOST('activityDate_endyear'));
+			$error = 0;
+
+			$ret = $object->addActivity($type, $date_start, $date_end);
+			if ($ret < 0)
+			{
+				setEventMessage($langs->trans($object->error), 'errors');
+			}
+			else
+			{
+				setEventMessage($langs->trans('ActivityAdded'));
+			}
+
+			header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
+			exit;
+
+		case 'confirm_delActivity':
+			$activityId = GETPOST('act_id', 'int');
+
+			$ret = $object->delActivity($user, $activityId);
+			if ($ret < 0)
+			{
+				setEventMessage($object->error, "errors");
+			}
+
+			header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
+			exit;
 	}
 }
 
@@ -305,12 +335,17 @@ else
 			// Activités véhicule
 			print '<form id="activityForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 			print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-			print '<input type="hidden" name="action" value="update">';
+			print '<input type="hidden" name="action" value="addActivity">';
 			print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 			print '<input type="hidden" name="id" value="'.$object->id.'">';
 
 			print '<table class="border" width="100%">'."\n";
-			print '<tr class="liste_titre"><td align="center">'.$langs->trans('ActivityType').'</td><td align="center">'.$langs->trans('DateStart').'</td><td align="center">'.$langs->trans('DateEnd').'</td></tr>';
+			print '<tr class="liste_titre">
+					<td align="center">'.$langs->trans('ActivityType').'</td>
+					<td align="center">'.$langs->trans('DateStart').'</td>
+					<td align="center">'.$langs->trans('DateEnd').'</td>
+					<td></td>
+					</tr>';
 
 			$ret = $object->getActivities();
 			if ($ret == 0)
@@ -319,23 +354,43 @@ else
 			}
 			else if ($ret > 0)
 			{
+				/** @var doliFleetVehiculeActivity $activity */
 				foreach ($object->activities as $activity)
 				{
 					print '<tr>';
 					print '<td align="center">'.$activity->getType().'</td>';
 					print '<td align="center">'.dol_print_date($activity->date_start, "%d/%m/%Y").'</td>';
-					print '<td align="center">'.dol_print_date($activity->date_end, "%d/%m/%Y").'</td>';
+					print '<td align="center">'.(!empty($activity->date_end) ? dol_print_date($activity->date_end, "%d/%m/%Y") : '').'</td>';
+					print '<td align="center">';
+					print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delActivity&act_id='.$activity->id.'">'.img_delete().'</a>';
+					print '</td>';
 					print '</tr>';
 				}
 			}
 
 			// ligne nouvelle activité
-			print '<tr>';
+			print '<tr id="newActivity">';
 			print '<td align="center">';
 
+			dol_include_once('/dolifleet/class/dictionaryVehiculeActivityType.class.php');
+			$dict = new dictionaryVehiculeActivityType($db);
+			$TTypeActivity =  $dict->getAllActiveArray('label');
+			print $form->selectArray('activityTypes', $TTypeActivity, GETPOST('activityTypes'), 1);
+
 			print '</td>';
-			print '<td align="center"></td>';
-			print '<td align="center"></td>';
+
+			print '<td align="center">';
+			print $form->selectDate('', 'activityDate_start');
+			print '</td>';
+
+			print '<td align="center">';
+			print $form->selectDate('', 'activityDate_end');
+			print '</td>';
+
+			print '<td align="center">';
+			print '<input type="submit" name="addActivity" value="'.$langs->trans("Add").'">';
+			print '</td>';
+
 			print '</tr>';
 
 			print '</table>';
@@ -346,6 +401,17 @@ else
             print '</div>'; // Fin fichecenter
 
             print '<div class="clearboth"></div><br />';
+
+			print '<div class="fichecenter">';
+
+			print '<div class="fichehalfleft">lol left';
+			print '<div class="underbanner clearboth"></div>';
+			print '</div>';
+
+			print '<div class="fichehalfright">lol right';
+			print '<div class="underbanner clearboth"></div>';
+
+			print '</div></div>';
 
             print '<div class="tabsAction">'."\n";
             $parameters=array();
