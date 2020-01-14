@@ -9,7 +9,7 @@ AbricotNeedUpdate=Le module abricot doit être mis à jour
 c_dolifleet_contract_type=DoliFleet - Types de contrat véhicule
 c_dolifleet_vehicule_type=DoliFleet - Types de véhicule
 c_dolifleet_vehicule_mark=DoliFleet - Marques de véhicule
-c_dolifleet_vehicule_activity_type=DoliFleet = Type d'activité véhicule
+c_dolifleet_vehicule_activity_type=DoliFleet - Type d'activité véhicule
 
 # DROITS
 vehicule_read=Voir les véhicules
