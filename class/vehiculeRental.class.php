@@ -32,5 +32,65 @@ class dolifleetVehiculeRental extends SeedObject
 	/** @var string $element Name of the element (tip for better integration in Dolibarr: this value should be the reflection of the class name with ucfirst() function) */
 	public $element = 'dolifleet_vehicule_rental';
 
+	public $fk_vehicule;
 
+	public $date_start;
+
+	public $date_end;
+
+	public $total_ht;
+
+	public $fk_proposaldet;
+
+	public $fields = array(
+		'fk_vehicule' => array(
+			'type' => 'integer:doliFleetVehicule:dolifleet/class/vehicule.class.php',
+			'label' => 'doliFleetVehicule',
+			'visible' => 1,
+			'enabled' => 1,
+			'position' => 10,
+			'index' => 1,
+		),
+
+		'date_start' => array(
+			'type' => 'date',
+			'label' => 'date_start',
+			'enabled' => 1,
+			'visible' => 1,
+			'position' => 70,
+			'searchall' => 1,
+		),
+
+		'date_end' => array(
+			'type' => 'date',
+			'label' => 'date_end',
+			'enabled' => 1,
+			'visible' => 1,
+			'position' => 70,
+			'searchall' => 1,
+		),
+
+		'total_ht' => array(
+			'type' => 'double',
+			'label' => 'totalHT',
+			'enabled' => 1,
+			'visible' => 1,
+			'position' => 80
+		),
+
+		'fk_proposaldet' => array(
+			'type' => 'integer',
+			'enabled' => 1,
+			'visible' => 0,
+			'position' => 90,
+			'index' => 1,
+		)
+	);
+
+	public function __construct($db)
+	{
+		parent::__construct($db);
+
+		$this->init();
+	}
 }

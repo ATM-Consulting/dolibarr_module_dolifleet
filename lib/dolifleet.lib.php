@@ -133,6 +133,9 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
     return $formconfirm;
 }
 
+/**
+ * @param doliFleetVehicule $object
+ */
 function printVehiculeActivities($object)
 {
 	global $langs, $db, $form;
@@ -297,10 +300,38 @@ function printLinkedVehicules($object)
 	print '</form>';
 }
 
+/**
+ * @param doliFleetVehicule $object
+ */
 function printVehiculeRental($object)
 {
 	global $langs, $db, $form, $conf;
 
 	print load_fiche_titre($langs->trans('VehiculeRentals'), '', '');
 
+	print '<form id="vehiculeLinkedForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="addVehiculeRental">';
+	print '<input type="hidden" name="id" value="'.$object->id.'">';
+
+	print '<table class="border" width="100%">'."\n";
+	print '<tr class="liste_titre">';
+	print '<td align="center">'.$langs->trans('DateStart').'</td>';
+	print '<td align="center">'.$langs->trans('DateEnd').'</td>';
+	print '<td align="center">'.$langs->trans('VehiculeRental').'</td>';
+	print '<td align="center"></td>';
+	print '</tr>';
+
+	print '<tr>';
+	print '<td align="center">'.$langs->trans('DateStart').'</td>';
+	print '<td align="center">'.$langs->trans('DateEnd').'</td>';
+	print '<td align="center">'.$langs->trans('VehiculeRental').'</td>';
+	print '<td align="center"></td>';
+	print '</tr>';
+
+
+
+	print '</table>';
+
+	print '</form>';
 }

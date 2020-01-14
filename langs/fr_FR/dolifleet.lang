@@ -69,6 +69,7 @@ VehiculeActivities=Activités véhicule
 LinkedVehicules=Véhicules liés
 VehiculeUnlinked=Le véhicule a été délié
 VehiculeRentals=Loyers
+VehiculeRental=Loyer
 
 doliFleetModify=Modifier
 doliFleetClone=Cloner

@@ -440,6 +440,7 @@ class doliFleetVehicule extends SeedObject
 
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX.$act->table_element;
 		$sql.= " WHERE fk_vehicule = ".$this->id;
+		$sql.= " ORDER BY date_start ASC";
 
 		$resql = $this->db->query($sql);
 		if ($resql)
