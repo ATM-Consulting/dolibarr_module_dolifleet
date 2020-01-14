@@ -323,13 +323,8 @@ function printVehiculeRental($object)
 	print '</tr>';
 
 	print '<tr>';
-	print '<td align="center">'.$langs->trans('DateStart').'</td>';
-	print '<td align="center">'.$langs->trans('DateEnd').'</td>';
-	print '<td align="center">'.$langs->trans('VehiculeRental').'</td>';
-	print '<td align="center"></td>';
+	print '<td align="center" colspan="4">'.$langs->trans('NodoliFleet').'</td>';
 	print '</tr>';
-
-
 
 	print '</table>';
 
