@@ -189,6 +189,8 @@ if (empty($reshook))
 			$date_start = dol_mktime(0, 0, 0, GETPOST('activityDate_startmonth'), GETPOST('activityDate_startday'), GETPOST('activityDate_startyear'));
 			$date_end = dol_mktime(23, 59, 59, GETPOST('activityDate_endmonth'), GETPOST('activityDate_endday'), GETPOST('activityDate_endyear'));
 
+			if ($date_end < $date_start) $date_end = dol_mktime(23, 59, 59, GETPOST('activityDate_startmonth'), GETPOST('activityDate_startday'), GETPOST('activityDate_startyear'));
+
 			$ret = $object->addActivity($type, $date_start, $date_end);
 			if ($ret < 0)
 			{
