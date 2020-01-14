@@ -34,14 +34,16 @@ function dolifleetAdminPrepareHead()
     $h = 0;
     $head = array();
 
-//    $head[$h][0] = dol_buildpath("/dolifleet/admin/dolifleet_setup.php", 1);
-//    $head[$h][1] = $langs->trans("Parameters");
-//    $head[$h][2] = 'settings';
-//    $h++;
+    $head[$h][0] = dol_buildpath("/dolifleet/admin/dolifleet_setup.php", 1);
+    $head[$h][1] = $langs->trans("Parameters");
+    $head[$h][2] = 'settings';
+    $h++;
+
     $head[$h][0] = dol_buildpath("/dolifleet/admin/vehicule_extrafields.php", 1);
     $head[$h][1] = $langs->trans("ExtraFields");
     $head[$h][2] = 'extrafields';
     $h++;
+
     $head[$h][0] = dol_buildpath("/dolifleet/admin/dolifleet_about.php", 1);
     $head[$h][1] = $langs->trans("About");
     $head[$h][2] = 'about';
@@ -99,12 +101,12 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
 
     if ($action === 'valid' && !empty($user->rights->dolifleet->write))
     {
-        $body = $langs->trans('ConfirmActivatedoliFleetVehiculeBody', $object->ref);
+        $body = $langs->trans('ConfirmActivatedoliFleetVehiculeBody', $object->immatriculation);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmActivatedoliFleetVehiculeTitle'), $body, 'confirm_validate', '', 0, 1);
     }
     elseif ($action === 'modif' && !empty($user->rights->dolifleet->write))
     {
-        $body = $langs->trans('ConfirmReopendoliFleetVehiculeBody', $object->ref);
+        $body = $langs->trans('ConfirmReopendoliFleetVehiculeBody', $object->immatriculation);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmReopendoliFleetVehiculeTitle'), $body, 'confirm_modif', '', 0, 1);
     }
     elseif ($action === 'delete' && !empty($user->rights->dolifleet->delete))
@@ -114,13 +116,18 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
     }
     elseif ($action === 'clone' && !empty($user->rights->dolifleet->write))
     {
-        $body = $langs->trans('ConfirmClonedoliFleetVehiculeBody', $object->ref);
+        $body = $langs->trans('ConfirmClonedoliFleetVehiculeBody', $object->immatriculation);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmClonedoliFleetVehiculeTitle'), $body, 'confirm_clone', '', 0, 1);
     }
     elseif ($action === 'delActivity' && !empty($user->rights->dolifleet->write))
 	{
-		$body = $langs->trans('ConfirmDelActivitydoliFleetVehiculeBody', $object->ref);
+		$body = $langs->trans('ConfirmDelActivitydoliFleetVehiculeBody', $object->immatriculation);
 		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id . '&act_id='.GETPOST('act_id'), $langs->trans('ConfirmDeletedoliFleetVehiculeTitle'), $body, 'confirm_delActivity', '', 0, 1);
+	}
+	elseif ($action === 'unlinkVehicule' && !empty($user->rights->dolifleet->write))
+	{
+		$body = $langs->trans('ConfirmUnlinkVehiculedoliFleetVehiculeBody', $object->immatriculation);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id . '&linkVehicule_id='.GETPOST('linkVehicule_id'), $langs->trans('ConfirmUnlinkVehiculedoliFleetVehiculeTitle'), $body, 'confirm_unlinkVehicule', '', 0, 1);
 	}
 
     return $formconfirm;
@@ -131,7 +138,9 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
  */
 function printLinkedVehicules($object)
 {
-	global $langs, $db;
+	global $langs, $db, $form, $conf;
+
+	print load_fiche_titre($langs->trans('LinkedVehicules'), '', '');
 
 	print '<form id="vehiculeLinkedForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
@@ -159,19 +168,71 @@ function printLinkedVehicules($object)
 			print '<tr>';
 			print '<td align="center">';
 
-			if ($vehiculelink->fk_source != $object->id) $veh->fetch($vehiculelink->fk_source);
-			else if ($vehiculelink->fk_target != $object->id) $veh->fetch($vehiculelink->fk_target);
+			$veh->fetch($vehiculelink->fk_other_vehicule);
 
 			print $veh->getLinkUrl(0, '', 'immatriculation');
 			print '</td>';
 			print '<td align="center">'.dol_print_date($vehiculelink->date_start, "%d/%m/%Y").'</td>';
 			print '<td align="center">'.(!empty($vehiculelink->date_end) ? dol_print_date($vehiculelink->date_end, "%d/%m/%Y") : '').'</td>';
-			print '<td align="center"></td>';
+			print '<td align="center"><a href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=unlinkVehicule&linkVehicule_id='.$vehiculelink->id.'"><span class="fas fa-unlink"></span></a> </td>';
 			print '</tr>';
 		}
 	}
 
+	// new link
+	print '<tr">';
+	$sql = "SELECT v.rowid, v.immatriculation, vt.label FROM ".MAIN_DB_PREFIX."dolifleet_vehicule as v";
+	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_dolifleet_vehicule_type as vt ON vt.rowid = v.fk_vehicule_type";
+	$sql.= " WHERE v.status = 1";
+	$DOLIFLEET_MOTRICE_TYPES = unserialize($conf->global->DOLIFLEET_MOTRICE_TYPES);
+	if (!empty($DOLIFLEET_MOTRICE_TYPES))
+	{
+		if (in_array($object->fk_vehicule_type, $DOLIFLEET_MOTRICE_TYPES))
+			$sql.= " AND v.fk_vehicule_type NOT IN (".implode(', ', $DOLIFLEET_MOTRICE_TYPES).")";
+		else
+			$sql.= " AND v.fk_vehicule_type IN (".implode(', ', $DOLIFLEET_MOTRICE_TYPES).")";
+	}
+	else
+	{
+		// a minima on ne peut lier 2 véhicules de même nature
+		$sql.= " AND v.fk_vehicule_type <> ".$object->fk_vehicule_type;
+	}
+	$resql = $db->query($sql);
+	$Tab = array();
+	if ($resql)
+	{
+		while ($obj = $db->fetch_object($resql))
+		{
+			$Tab[$obj->rowid] = $obj->label.' - '.$obj->immatriculation;
+		}
+	}
+
+	print '<td align="center">';
+	print $form->selectarray('linkVehicule_id', $Tab, GETPOST('linkVehicule_id'),1, 0, 0, '', 0, 0, 0, '', '', 1);
+	print '</td>';
+	print '<td align="center">';
+	print $form->selectDate('', 'linkDate_start');
+	print '</td>';
+
+	print '<td align="center">';
+	print $form->selectDate('', 'linkDate_end');
+	print '</td>';
+
+	print '<td align="center">';
+	print '<input type="submit" name="linkVehicule" value="'.$langs->trans("Add").'">';
+	print '</td>';
+	print '<td align="center"></td>';
+	print '</tr>';
+
 	print '</table>';
 
 	print '</form>';
+}
+
+function printVehiculeRental($object)
+{
+	global $langs, $db, $form, $conf;
+
+	print load_fiche_titre($langs->trans('VehiculeRentals'), '', '');
+
 }

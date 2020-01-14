@@ -49,7 +49,19 @@ $action = GETPOST('action', 'alpha');
 if (preg_match('/set_(.*)/', $action, $reg))
 {
 	$code=$reg[1];
-	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
+	if ($code == "DOLIFLEET_MOTRICE_TYPES")
+	{
+		if (dolibarr_set_const($db, $code, serialize(GETPOST($code)), 'chaine', 0, '', $conf->entity) > 0)
+		{
+			header("Location: ".$_SERVER["PHP_SELF"]);
+			exit;
+		}
+		else
+		{
+			dol_print_error($db);
+		}
+	}
+	elseif (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
 	{
 		header("Location: ".$_SERVER["PHP_SELF"]);
 		exit;
@@ -107,6 +119,19 @@ if(!function_exists('setup_print_title')){
 }
 
 setup_print_title("Parameters");
+
+print '<tr>';
+print '<td>'.$langs->trans('DOLIFLEET_MOTRICE_TYPES').'</td>';
+print '<td></td>';
+print '<td><form action="'.$_SERVER['PHP_SELF'].'" method="POST">';
+print '<input type="hidden" name="action" value="set_DOLIFLEET_MOTRICE_TYPES">';
+dol_include_once('/dolifleet/class/dictionaryVehiculeType.class.php');
+$dict = new dictionaryVehiculeType($db);
+$TType = $dict->getAllActiveArray('label');
+print $form->multiselectarray('DOLIFLEET_MOTRICE_TYPES', $TType, unserialize($conf->global->DOLIFLEET_MOTRICE_TYPES));
+print '<input class="button" type="submit" value="'.$langs->trans('Save').'">';
+print '</form></td>';
+print '</tr>';
 
 // Example with a yes / no select
 //setup_print_on_off('CONSTNAME', $langs->trans('ParamLabel'), 'ParamDesc');

@@ -19,6 +19,8 @@ require 'config.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 dol_include_once('dolifleet/class/vehicule.class.php');
+dol_include_once('dolifleet/class/vehiculeLink.class.php');
+dol_include_once('/dolifleet/class/dictionaryVehiculeActivityType.class.php');
 dol_include_once('dolifleet/lib/dolifleet.lib.php');
 
 if(empty($user->rights->dolifleet->read)) accessforbidden();
@@ -186,20 +188,19 @@ if (empty($reshook))
 			$type = GETPOST('activityTypes', 'int');
 			$date_start = dol_mktime(0, 0, 0, GETPOST('activityDate_startmonth'), GETPOST('activityDate_startday'), GETPOST('activityDate_startyear'));
 			$date_end = dol_mktime(23, 59, 59, GETPOST('activityDate_endmonth'), GETPOST('activityDate_endday'), GETPOST('activityDate_endyear'));
-			$error = 0;
 
 			$ret = $object->addActivity($type, $date_start, $date_end);
 			if ($ret < 0)
 			{
 				setEventMessage($langs->trans($object->error), 'errors');
+				break;
 			}
 			else
 			{
 				setEventMessage($langs->trans('ActivityAdded'));
+				header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
+				exit;
 			}
-
-			header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
-			exit;
 
 		case 'confirm_delActivity':
 			$activityId = GETPOST('act_id', 'int');
@@ -212,6 +213,47 @@ if (empty($reshook))
 
 			header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
 			exit;
+
+		case 'addVehiculeLink':
+			$veh_id = GETPOST('linkVehicule_id');
+			if (empty($veh_id) || $veh_id == '-1')
+			{
+				setEventMessage($langs->trans('ErrNoVehiculeToLink'), "errors");
+				header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
+				exit;
+			}
+
+			$date_start = dol_mktime(0, 0, 0, GETPOST('linkDate_startmonth'), GETPOST('linkDate_startday'), GETPOST('linkDate_startyear'));
+			$date_end = dol_mktime(23, 59, 59, GETPOST('linkDate_endmonth'), GETPOST('linkDate_endday'), GETPOST('linkDate_endyear'));
+
+			if ($date_end < $date_start) $date_end = dol_mktime(23, 59, 59, GETPOST('linkDate_startmonth'), GETPOST('linkDate_startday'), GETPOST('linkDate_startyear'));
+
+			$ret = $object->addLink($veh_id, $date_start, $date_end);
+
+			if ($ret < 0) {
+				setEventMessages('', $errors, "errors");
+				break;
+			}
+			else
+			{
+				header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
+				exit;
+			}
+
+		case 'confirm_unlinkVehicule':
+			$veh_id = GETPOST('linkVehicule_id');
+
+			$ret = $object->delLink($veh_id);
+			if ($ret < 0) {
+				setEventMessage($langs->trans('ErrVehiculeUnlink'), "errors");
+				break;
+			}
+			else {
+				setEventMessage($langs->trans('VehiculeUnlinked'));
+				header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
+				exit;
+			}
+
 	}
 }
 
@@ -355,7 +397,7 @@ else
 			$ret = $object->getActivities();
 			if ($ret == 0)
 			{
-				print '<tr><td colspan="3">'.$langs->trans('NodoliFleetActivity').'</td></tr>';
+				print '<tr><td align="center" colspan="4">'.$langs->trans('NodoliFleetActivity').'</td></tr>';
 			}
 			else if ($ret > 0)
 			{
@@ -377,7 +419,6 @@ else
 			print '<tr id="newActivity">';
 			print '<td align="center">';
 
-			dol_include_once('/dolifleet/class/dictionaryVehiculeActivityType.class.php');
 			$dict = new dictionaryVehiculeActivityType($db);
 			$TTypeActivity =  $dict->getAllActiveArray('label');
 			print $form->selectArray('activityTypes', $TTypeActivity, GETPOST('activityTypes'), 1);
@@ -411,13 +452,14 @@ else
 
 			print '<div class="fichehalfleft">';
 			print '<div class="underbanner clearboth"></div>';
-			print load_fiche_titre($langs->trans('LinkedVehicules'), '', '');
 
 			printLinkedVehicules($object);
 			print '</div>';
 
-			print '<div class="fichehalfright">lol right';
+			print '<div class="fichehalfright">';
 			print '<div class="underbanner clearboth"></div>';
+
+			printVehiculeRental($object);
 
 			print '</div></div>';
 

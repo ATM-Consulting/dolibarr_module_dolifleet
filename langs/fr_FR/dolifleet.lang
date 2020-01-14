@@ -3,29 +3,8 @@ Module104087Desc = Module de gestion de flotte de véhicules
 
 ATMAbout = Ce module a été développé par <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>Vous pouvez retrouver la documentation sur notre <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>Pour toute question technique ou retour, contactez-nous sur <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>Pour toute question commerciale, contactez-nous sur <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> ou au +33 9 77 19 50 70<br><br>Retrouvez nos autres modules sur <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
 
-doliFleetSetup = Configuration du module doliFleet
-doliFleetAbout = A propos du module doliFleet
-
 doliFleet=doliFleet
 AbricotNeedUpdate=Le module abricot doit être mis à jour
-
-doliFleetVehicule=Véhicule
-NewdoliFleet=Nouveau véhicule
-immatriculation_date=date de première mise en circulation
-LinkToThirparty=Lien vers le tiers
-km_date=Date de relevé kilométrique
-date_customer_exploit=Date de mise en exploitation
-date_customer_exploit_help=Mise en exploitation chez le client
-date_end_contract=Date fin de contrat
-contractType=Type de contrat
-vehiculeType=Type de véhicule
-vehiculeMark=Marque du véhicule
-ShowdoliFleetVehicule=Voir le véhicule
-ActivityType=Type d'activité
-NodoliFleetActivity=Pas d'activité
-ActivityAdded=Activité ajoutée
-VehiculeActivities=Activités véhicule
-LinkedVehicules=Véhicules liés
 
 c_dolifleet_contract_type=DoliFleet - Types de contrat véhicule
 c_dolifleet_vehicule_type=DoliFleet - Types de véhicule
@@ -45,6 +24,9 @@ rental_delete=Supprimer les loyers
 ParamLabel=Nom du paramètre
 ParamDesc=Une description si besoin
 ParamHelp=Le contenu de l'aide
+doliFleetSetup = Configuration du module doliFleet
+doliFleetAbout = A propos du module doliFleet
+DOLIFLEET_MOTRICE_TYPES=Type de véhicule tracteur
 
 # MENU
 TopMenudoliFleet=doliFleet
@@ -68,6 +50,25 @@ NodoliFleet=(vide)
 # CARD
 NewdoliFleetVehicule=Création véhicule
 doliFleetVehiculeCard=Fiche véhicule
+doliFleetVehicule=Véhicule
+NewdoliFleet=Nouveau véhicule
+immatriculation_date=date de première mise en circulation
+LinkToThirparty=Lien vers le tiers
+km_date=Date de relevé kilométrique
+date_customer_exploit=Date de mise en exploitation
+date_customer_exploit_help=Mise en exploitation chez le client
+date_end_contract=Date fin de contrat
+contractType=Type de contrat
+vehiculeType=Type de véhicule
+vehiculeMark=Marque du véhicule
+ShowdoliFleetVehicule=Voir le véhicule
+ActivityType=Type d'activité
+NodoliFleetActivity=Pas d'activité
+ActivityAdded=Activité ajoutée
+VehiculeActivities=Activités véhicule
+LinkedVehicules=Véhicules liés
+VehiculeUnlinked=Le véhicule a été délié
+VehiculeRentals=Loyers
 
 doliFleetModify=Modifier
 doliFleetClone=Cloner
@@ -80,23 +81,23 @@ doliFleetReopen=Rouvrir
 doliFleetCancel=Abandonner
 doliFleetDelete=Supprimer
 
-
 # formConfirm
 ConfirmActivatedoliFleetVehiculeTitle=Confirmation d'activation
 ConfirmActivatedoliFleetVehiculeBody=Souhaitez-vous vraiment activer cette fiche véhicule %s ?
-
 ConfirmReopendoliFleetVehiculeTitle=Confirmation de désactivation
 ConfirmReopendoliFleetVehiculeBody=Souhaitez-vous vraiment désactiver cette fiche véhicule %s ?
-
 ConfirmDeletedoliFleetVehiculeTitle=Confirmation de suppression
 ConfirmDeletedoliFleetVehiculeBody=Souhaitez-vous vraiment supprimer cette fiche véhicule %s ?
-
 ConfirmClonedoliFleetVehiculeTitle=Confirmation de clonage
 ConfirmClonedoliFleetVehiculeBody=Souhaitez-vous vraiment clone cette fiche véhicule %s ?
-
 ConfirmDelActivitydoliFleetVehiculeBody=Voulez-vous vraiment supprimer cette activité ?
+ConfirmUnlinkVehiculedoliFleetVehiculeTitle=Confirmation de suppression du lien
+ConfirmUnlinkVehiculedoliFleetVehiculeBody=Voulez-vous vraiment supprimer le lien avec le véhicule ?
 
 # Erreur
 ErrNoVinNumber=Aucun VIN renseigné
 ErrVinAlreadyUsed=Le VIN est déjà utilisé pour le véhicule %s
 ErrNoActivityType=Pas de type d'activité renseigné
+ErrNoVehiculeToLink=Pas de véhicule à lier
+ErrVehiculeAlreadyLinkedDates=Le véhicule %s est déjà lié au véhicule %s du %s au %s
+ErrVehiculeUnlink=Impossible de délier le véhicule

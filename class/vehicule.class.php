@@ -499,31 +499,6 @@ class doliFleetVehicule extends SeedObject
 		}
 	}
 
-	public function getLinkedVehicules()
-	{
-		$sql = 'SELECT rowid';
-		$sql .= ' FROM '.MAIN_DB_PREFIX.'dolifleet_vehicule_link';
-		$sql .= " WHERE ";
-		$sql .= " fk_source = ".$this->id." OR fk_target = ".$this->id;
-		$sql .= " ORDER BY date_start ASC";
-
-		$resql = $this->db->query($sql);
-		if ($resql)
-		{
-			dol_include_once('/dolifleet/class/vehiculeLink.class.php');
-
-			$this->linkedVehicules = array();
-
-			while ($obj = $this->db->fetch_object($resql))
-			{
-				$Vlink = new doliFleetVehiculeLink($this->db);
-				$ret = $Vlink->fetch($obj->rowid);
-				if ($ret > 0) $this->linkedVehicules[$Vlink->date_start] = $Vlink;
-			}
-		}
-
-	}
-
 	public function delActivity($user, $act_id)
 	{
 		global $db;
@@ -547,6 +522,132 @@ class doliFleetVehicule extends SeedObject
 				$this->error = $act->error;
 				return -1;
 			}
+		}
+	}
+
+	public function getLinkedVehicules($date_start = '', $date_end = '')
+	{
+		$sql = 'SELECT rowid';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.'dolifleet_vehicule_link';
+		$sql .= " WHERE ";
+		$sql .= " (fk_source = ".$this->id." OR fk_target = ".$this->id.")";
+		if (!empty($date_end))
+			$sql.= " AND date_start < '".$this->db->idate($date_end)."'";
+		if (!empty($date_start))
+			$sql.= " AND date_end > '".$this->db->idate($date_start)."'";
+		$sql .= " ORDER BY date_start ASC";
+
+		$resql = $this->db->query($sql);
+		if ($resql)
+		{
+			dol_include_once('/dolifleet/class/vehiculeLink.class.php');
+
+			$this->linkedVehicules = array();
+
+			while ($obj = $this->db->fetch_object($resql))
+			{
+				$Vlink = new doliFleetVehiculeLink($this->db);
+				$ret = $Vlink->fetch($obj->rowid);
+
+				if ($Vlink->fk_source != $this->id) $Vlink->fk_other_vehicule = $Vlink->fk_source;
+				else if ($Vlink->fk_target != $this->id) $Vlink->fk_other_vehicule = $Vlink->fk_target;
+
+				if ($ret > 0) $this->linkedVehicules[$Vlink->date_start] = $Vlink;
+			}
+		}
+
+	}
+
+	// ajoute un lien entre véhicule de date à date
+	public function addLink($id, $date_start, $date_end)
+	{
+		global $langs, $user;
+
+		$this->vehicules = $this->errors = array();
+
+		$vehiculeToLink = new static($this->db);
+		$vehiculeToLink->fetch($id);
+
+		$this->getLinkedVehicules($date_start, $date_end);
+		if (!empty($this->linkedVehicules))
+		{
+			// le véhicule courant est déjà lié pour la période saisie
+			foreach ($this->linkedVehicules as $v)
+			{
+				if (!in_array($v->fk_other_vehicule, array_keys($this->vehicules)))
+				{
+					$veh = new doliFleetVehicule($this->db);
+					$veh->fetch($v->fk_other_vehicule);
+					$this->vehicules[$v->fk_other_vehicule] = $veh;
+				}
+
+				$this->errors[] = $langs->trans(
+					"ErrVehiculeAlreadyLinkedDates",
+					'',
+					html_entity_decode($this->vehicules[$v->fk_other_vehicule]->getLinkUrl(0,'','immatriculation')),
+					dol_print_date($v->date_start, "%d/%m/%Y"),
+					dol_print_date($v->date_end, "%d/%m/%Y"));
+			}
+			unset($v);
+		}
+
+		$vehiculeToLink->getLinkedVehicules($date_start, $date_end);
+		if (!empty($vehiculeToLink->linkedVehicules))
+		{
+			// le véhicule courant est déjà lié pour la période saisie
+			foreach ($vehiculeToLink->linkedVehicules as $v)
+			{
+				if (!in_array($v->fk_other_vehicule, array_keys($this->vehicules)))
+				{
+					$veh = new doliFleetVehicule($this->db);
+					$veh->fetch($v->fk_other_vehicule);
+					$this->vehicules[$v->fk_other_vehicule] = $veh;
+				}
+
+				$this->errors[] = $langs->trans(
+					"ErrVehiculeAlreadyLinkedDates",
+					html_entity_decode($vehiculeToLink->getLinkUrl(0,'','immatriculation')),
+					html_entity_decode($this->vehicules[$v->fk_other_vehicule]->getLinkUrl(0,'','immatriculation')),
+					dol_print_date($v->date_start, "%d/%m/%Y"),
+					dol_print_date($v->date_end, "%d/%m/%Y"));
+			}
+		}
+
+		if (!empty($this->errors)) return -1;
+		else
+		{
+			dol_include_once('/dolifleet/class/vehiculeLink.class.php');
+			$Vlink = new doliFleetVehiculeLink($this->db);
+			$Vlink->fk_source = $this->id;
+			$Vlink->fk_target = $id;
+			$Vlink->date_start= $date_start;
+			$Vlink->date_end = $date_end;
+
+			$ret = $Vlink->create($user);
+			if ($ret < 0)
+			{
+				$this->errors[] = $Vlink->error;
+				return -2;
+			}
+		}
+
+		return 1;
+	}
+
+	public function delLink($id)
+	{
+		global $user;
+
+		dol_include_once('/dolifleet/class/vehiculeLink.class.php');
+		$link = new doliFleetVehiculeLink($this->db);
+
+		$link->fetch($id);
+		$ret = $link->delete($user);
+		if ($ret > 0) return 1;
+		else
+		{
+			$this->errors[] = $link->error;
+			return -1;
 		}
 	}
 
