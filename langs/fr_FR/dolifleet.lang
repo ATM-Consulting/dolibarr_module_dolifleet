@@ -98,6 +98,7 @@ ConfirmUnlinkVehiculedoliFleetVehiculeBody=Voulez-vous vraiment supprimer le lie
 ErrNoVinNumber=Aucun VIN renseigné
 ErrVinAlreadyUsed=Le VIN est déjà utilisé pour le véhicule %s
 ErrNoActivityType=Pas de type d'activité renseigné
+ErrAlreadyInActivity=Le véhicule est déjà en activité pour les date spécifiées
 ErrNoVehiculeToLink=Pas de véhicule à lier
 ErrVehiculeAlreadyLinkedDates=Le véhicule %s est déjà lié au véhicule %s du %s au %s
 ErrVehiculeUnlink=Impossible de délier le véhicule

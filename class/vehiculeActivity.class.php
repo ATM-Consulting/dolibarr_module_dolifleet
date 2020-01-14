@@ -110,10 +110,12 @@ class doliFleetVehiculeActivity extends SeedObject
 
 	public function verifyDates()
 	{
+		global $langs;
+
 		$sql = "SELECT COUNT(rowid) as nb FROM ".MAIN_DB_PREFIX.$this->table_element;
 		$sql.= " WHERE fk_vehicule = ". $this->fk_vehicule;
-		$sql.= " AND date_end < '" . $this->date_start."'";
-		if (!empty($this->date_end)) $sql.= " AND date_start > '" . $this->date_end . "'";
+		if (!empty($this->date_start)) $sql.= " AND date_end > '" . $this->db->idate($this->date_start) ."'";
+		if (!empty($this->date_end)) $sql.= " AND date_start < '" . $this->db->idate($this->date_end) . "'";
 
 		$resql = $this->db->query($sql);
 		if ($resql)
@@ -121,9 +123,9 @@ class doliFleetVehiculeActivity extends SeedObject
 			$obj = $this->db->fetch_object($resql);
 
 			if (empty($obj->nb)) return true;
-			else $this->error = $sql; //"not dispo";
+			else $this->error = $langs->trans('ErrAlreadyInActivity');
 		}
-		else $this->error = "SQL error";
+		else $this->error = $this->db->lasterror();
 
 		return false;
 	}

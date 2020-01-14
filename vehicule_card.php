@@ -378,70 +378,7 @@ else
             print '</table>';
 
 			// Activités véhicule
-
-			print load_fiche_titre($langs->trans('VehiculeActivities'), '', '');
-
-			print '<form id="activityForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
-			print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-			print '<input type="hidden" name="action" value="addActivity">';
-			print '<input type="hidden" name="id" value="'.$object->id.'">';
-
-			print '<table class="border" width="100%">'."\n";
-			print '<tr class="liste_titre">
-					<td align="center">'.$langs->trans('ActivityType').'</td>
-					<td align="center">'.$langs->trans('DateStart').'</td>
-					<td align="center">'.$langs->trans('DateEnd').'</td>
-					<td></td>
-					</tr>';
-
-			$ret = $object->getActivities();
-			if ($ret == 0)
-			{
-				print '<tr><td align="center" colspan="4">'.$langs->trans('NodoliFleetActivity').'</td></tr>';
-			}
-			else if ($ret > 0)
-			{
-				/** @var doliFleetVehiculeActivity $activity */
-				foreach ($object->activities as $activity)
-				{
-					print '<tr>';
-					print '<td align="center">'.$activity->getType().'</td>';
-					print '<td align="center">'.dol_print_date($activity->date_start, "%d/%m/%Y").'</td>';
-					print '<td align="center">'.(!empty($activity->date_end) ? dol_print_date($activity->date_end, "%d/%m/%Y") : '').'</td>';
-					print '<td align="center">';
-					print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delActivity&act_id='.$activity->id.'">'.img_delete().'</a>';
-					print '</td>';
-					print '</tr>';
-				}
-			}
-
-			// ligne nouvelle activité
-			print '<tr id="newActivity">';
-			print '<td align="center">';
-
-			$dict = new dictionaryVehiculeActivityType($db);
-			$TTypeActivity =  $dict->getAllActiveArray('label');
-			print $form->selectArray('activityTypes', $TTypeActivity, GETPOST('activityTypes'), 1);
-
-			print '</td>';
-
-			print '<td align="center">';
-			print $form->selectDate('', 'activityDate_start');
-			print '</td>';
-
-			print '<td align="center">';
-			print $form->selectDate('', 'activityDate_end');
-			print '</td>';
-
-			print '<td align="center">';
-			print '<input type="submit" name="addActivity" value="'.$langs->trans("Add").'">';
-			print '</td>';
-
-			print '</tr>';
-
-			print '</table>';
-
-			print '</form>';
+			printVehiculeActivities($object);
 
 			print '</div></div>'; // Fin fichehalfright & ficheaddleft
             print '</div>'; // Fin fichecenter
@@ -453,12 +390,14 @@ else
 			print '<div class="fichehalfleft">';
 			print '<div class="underbanner clearboth"></div>';
 
+			// véhicules liés
 			printLinkedVehicules($object);
 			print '</div>';
 
 			print '<div class="fichehalfright">';
 			print '<div class="underbanner clearboth"></div>';
 
+			// Loyers
 			printVehiculeRental($object);
 
 			print '</div></div>';
