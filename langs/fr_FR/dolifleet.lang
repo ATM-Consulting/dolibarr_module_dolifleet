@@ -39,9 +39,19 @@ doliFleetVehiculeStatusDraft=Inactif
 doliFleetVehiculeStatusActivated=Actif
 doliFleetVehiculeStatusValidate=Actif
 
+doliFleetOperationStatusDraft=Brouillon
+doliFleetOperationStatusToPlan=à planifier
+doliFleetOperationStatusPlanned=Planifié
+doliFleetOperationStatusDone=Réalisé
+
 doliFleetVehiculeStatusShortDraft=Inactif
 doliFleetVehiculeStatusShortActivated=Actif
 doliFleetVehiculeStatusShortValidate=Actif
+
+doliFleetOperationStatusShortDraft=Brouillon
+doliFleetOperationStatusShortToPlan=à planifier
+doliFleetOperationStatusShortPlanned=Planifié
+doliFleetOperationStatusShortDone=Réalisé
 
 # LIST
 doliFleetVehiculeList=Liste de véhicules
