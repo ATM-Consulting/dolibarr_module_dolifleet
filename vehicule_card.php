@@ -413,9 +413,6 @@ else
             include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php';
             print '</table>';
 
-			// Activités véhicule
-			printVehiculeActivities($object, true);
-
 			print '</div>'; // Fin fichehalfright & ficheaddleft
             print '</div>'; // Fin fichecenter
 
@@ -426,9 +423,30 @@ else
 			print '<div class="fichehalfleft">';
 			print '<div class="underbanner clearboth"></div>';
 
+			// Activités véhicule
+			printVehiculeActivities($object, true);
+
+			print '</div>'; // fin fichehalfleft
+
+			print '<div class="fichehalfright">';
+			print '<div class="underbanner clearboth"></div>';
+
 			// véhicules liés
 			printLinkedVehicules($object, true);
-			print '</div>';
+
+			print '</div>'; // fin fichehalfright
+			print '</div>';	// fin fichecenter
+			print '<div class="clearboth"></div><br />';
+
+			print '<div class="fichecenter">';
+
+			print '<div class="fichehalfleft">';
+			print '<div class="underbanner clearboth"></div>';
+
+			// Opérations
+			printVehiculeOpérations($object);
+
+			print '</div>'; // fin fichehalfleft
 
 			print '<div class="fichehalfright">';
 			print '<div class="underbanner clearboth"></div>';
@@ -436,9 +454,9 @@ else
 			// Loyers
 			printVehiculeRental($object, true);
 
-			print '</div></div>';
+			print '</div>'; // fin fichehalfright
+			print '</div>';	// fin fichecenter
 			print '<div class="clearboth"></div><br />';
-
 
 			print '<div class="tabsAction">'."\n";
             $parameters=array();

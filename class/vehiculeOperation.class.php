@@ -83,7 +83,7 @@ class dolifleetVehiculeOperation extends SeedObject
 
 		'fk_product' => array(
 			'type' => 'integer:Product:product/class/product.class.php',
-			'label' => 'Product',
+			'label' => 'VehiculeOperation',
 			'visible' => 1,
 			'enabled' => 1,
 			'position' => 20,
@@ -123,6 +123,7 @@ class dolifleetVehiculeOperation extends SeedObject
 
 		'delai_from_last_op' => array(
 			'type' => 'integer',
+			'label' => 'VehiculeOperationDelai',
 			'visible' => 1,
 			'enabled' => 1,
 			'comment' => 'delay from last operation in months'
@@ -143,5 +144,56 @@ class dolifleetVehiculeOperation extends SeedObject
 		$this->init();
 
 		$this->entity = $conf->entity;
+	}
+
+	/**
+	 * @param int $mode     0=Long label, 1=Short label, 2=Picto + Short label, 3=Picto, 4=Picto + Long label, 5=Short label + Picto, 6=Long label + Picto
+	 * @return string
+	 */
+	public function getLibStatut($mode = 0)
+	{
+		return self::LibStatut($this->status, $mode);
+	}
+
+	/**
+	 * @param int       $status   Status
+	 * @param int       $mode     0=Long label, 1=Short label, 2=Picto + Short label, 3=Picto, 4=Picto + Long label, 5=Short label + Picto, 6=Long label + Picto
+	 * @return string
+	 */
+	public static function LibStatut($status, $mode)
+	{
+		global $langs;
+
+		$langs->load('dolifleet@dolifleet');
+		$res = '';
+
+		if ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('doliFleetOperationStatusDraft'); $statusLabelShort=$langs->trans('doliFleetOperationStatusShortDraft'); }
+		elseif ($status==self::STATUS_TOPLAN) { $statusType='status6'; $statusLabel=$langs->trans('doliFleetOperationStatusToPlan'); $statusLabelShort=$langs->trans('doliFleetOperationStatusShortToPlan'); }
+		elseif ($status==self::STATUS_PLANNED) { $statusType='status1'; $statusLabel=$langs->trans('doliFleetOperationStatusPlanned'); $statusLabelShort=$langs->trans('doliFleetOperationStatusShortPlanned'); }
+		elseif ($status==self::STATUS_DONE) { $statusType='status4'; $statusLabel=$langs->trans('doliFleetOperationStatusDone'); $statusLabelShort=$langs->trans('doliFleetOperationStatusShortDone'); }
+
+		if (function_exists('dolGetStatus'))
+		{
+			$res = dolGetStatus($statusLabel, $statusLabelShort, '', $statusType, $mode);
+		}
+		else
+		{
+			if ($mode == 0) $res = $statusLabel;
+			elseif ($mode == 1) $res = $statusLabelShort;
+			elseif ($mode == 2) $res = img_picto($statusLabel, $statusType).$statusLabelShort;
+			elseif ($mode == 3) $res = img_picto($statusLabel, $statusType);
+			elseif ($mode == 4) $res = img_picto($statusLabel, $statusType).$statusLabel;
+			elseif ($mode == 5) $res = $statusLabelShort.img_picto($statusLabel, $statusType);
+			elseif ($mode == 6) $res = $statusLabel.img_picto($statusLabel, $statusType);
+		}
+
+		return $res;
+	}
+
+	public function getName()
+	{
+		$ret = $this->fetch_product();
+		if ($ret > 0) return $this->product->getNomUrl();
+		else return '';
 	}
 }

@@ -81,6 +81,9 @@ VehiculeUnlinked=Le véhicule a été délié
 VehiculeRentals=Loyers
 VehiculeRental=Loyer
 rentDeleted=Loyer supprimé
+VehiculeOperations=Opérations
+VehiculeOperation=Opération
+VehiculeOperationDelay=Délais depuis dernière opération
 
 doliFleetModify=Modifier
 doliFleetClone=Cloner

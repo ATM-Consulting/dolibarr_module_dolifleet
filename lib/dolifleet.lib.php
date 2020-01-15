@@ -323,7 +323,7 @@ function printLinkedVehicules($object, $fromcard = false)
  */
 function printVehiculeRental($object, $fromcard = false)
 {
-	global $langs, $db, $form, $conf;
+	global $langs, $form;
 
 	print load_fiche_titre($langs->trans('VehiculeRentals'), '', '');
 
@@ -394,6 +394,76 @@ function printVehiculeRental($object, $fromcard = false)
 
 	print '<td align="center">';
 	print '<input type="number" name="RentalTotal_HT" min="0" step="0.01" value="'.GETPOST('RentalTotal_HT').'">';
+	print '</td>';
+
+	print '<td align="center">';
+	print '<input class="button" type="submit" name="addRental" value="'.$langs->trans("Add").'">';
+	print '</td>';
+
+	print '</tr>';
+
+	print '</table>';
+
+	print '</form>';
+}
+
+/**
+ * @param doliFleetVehicule $object
+ */
+function printVehiculeOpérations($object)
+{
+	global $langs, $form;
+
+	print load_fiche_titre($langs->trans('VehiculeOperations'), '', '');
+
+	print '<form id="vehiculeLinkedForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="addVehiculeOperation">';
+	print '<input type="hidden" name="id" value="'.$object->id.'">';
+
+	print '<table class="border" width="100%">'."\n";
+	print '<tr class="liste_titre">';
+	print '<td align="center">'.$langs->trans('VehiculeOperation').'</td>';
+	print '<td align="center">'.$langs->trans('KM').'</td>';
+	print '<td align="center">'.$langs->trans('VehiculeOperationDelay').'</td>';
+	print '<td align="center">'.$langs->trans('Status').'</td>';
+	print '<td align="center"></td>';
+	print '</tr>';
+
+	if (empty($object->operations))
+	{
+		print '<tr><td align="center" colspan="5">'.$langs->trans('NodoliFleet').'</td></tr>';
+	}
+	else
+	{
+		foreach ($object->operations as $operation)
+		{
+			print '<tr>';
+			print '<td align="center">'.$operation->getName().'</td>';
+			print '<td align="center">'.price2num($operation->km).'</td>';
+			print '<td align="center">'.$operation->delai_from_last_op.' '.$langs->trans('Months').'</td>';
+			print '<td align="center">'.$operation->getLibStatut(2).'</td>';
+			print '<td align="center"></td>';
+			print '</tr>';
+		}
+	}
+
+	// new line
+	print '<tr>';
+
+	print '<td align="center">';
+	print $form->select_produits(GETPOST('productid'), 'productid', '', 20, 0, 1, 2, '', 2);
+	print '</td>';
+
+	print '<td align="center">';
+	print '<input type="number" name="km" id="km" step="1" value="'.GETPOST('km').'">';
+	print '</td>';
+
+	print '<td align="center">';
+	print '<input type="number" name="delay" id="delay" step="1" value="'.GETPOST('delay').'">&nbsp;'.$langs->trans('Months');
+	print '</td>';
+
+	print '<td align="center">';
 	print '</td>';
 
 	print '<td align="center">';
