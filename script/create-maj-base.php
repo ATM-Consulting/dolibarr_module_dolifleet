@@ -70,3 +70,7 @@ $o->init_db_by_vars();
 dol_include_once('/dolifleet/class/vehiculeRental.class.php');
 $o=new dolifleetVehiculeRental($db);
 $o->init_db_by_vars();
+
+dol_include_once('/dolifleet/class/vehiculeOperation.class.php');
+$o=new dolifleetVehiculeOperation($db);
+$o->init_db_by_vars();
