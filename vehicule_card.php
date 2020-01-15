@@ -233,7 +233,7 @@ if (empty($reshook))
 			$ret = $object->addLink($veh_id, $date_start, $date_end);
 
 			if ($ret < 0) {
-				setEventMessages('', $errors, "errors");
+				setEventMessages('', $object->errors, "errors");
 				break;
 			}
 			else
@@ -256,6 +256,40 @@ if (empty($reshook))
 				exit;
 			}
 
+		case 'addVehiculeRental':
+			$date_start = dol_mktime(0, 0, 0, GETPOST('RentalDate_startmonth'), GETPOST('RentalDate_startday'), GETPOST('RentalDate_startyear'));
+			$date_end = dol_mktime(23, 59, 59, GETPOST('RentalDate_endmonth'), GETPOST('RentalDate_endday'), GETPOST('RentalDate_endyear'));
+
+			if ($date_end < $date_start) $date_end = dol_mktime(23, 59, 59, GETPOST('RentalDate_startmonth'), GETPOST('RentalDate_startday'), GETPOST('RentalDate_startyear'));
+
+			$amountHT = GETPOST('RentalTotal_HT', 'int');
+
+			$ret = $object->addRental($date_start, $date_end, $amountHT);
+			if ($ret < 0) {
+				setEventMessages('', $object->errors, "errors");
+				break;
+			}
+			else
+			{
+				header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
+				exit;
+			}
+
+		case 'confirm_delRental':
+			$rent_id = GETPOST('rent_id', 'int');
+
+			$ret = $object->delRental($rent_id);
+			if ($ret < 0)
+			{
+				setEventMessages('', $object->errors, "errors");
+				break;
+			}
+			else
+			{
+				setEventMessage($langs->trans('rentDeleted'));
+				header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
+				exit;
+			}
 	}
 }
 
@@ -380,9 +414,9 @@ else
             print '</table>';
 
 			// Activités véhicule
-			printVehiculeActivities($object);
+			printVehiculeActivities($object, true);
 
-			print '</div></div>'; // Fin fichehalfright & ficheaddleft
+			print '</div>'; // Fin fichehalfright & ficheaddleft
             print '</div>'; // Fin fichecenter
 
             print '<div class="clearboth"></div><br />';
@@ -393,18 +427,20 @@ else
 			print '<div class="underbanner clearboth"></div>';
 
 			// véhicules liés
-			printLinkedVehicules($object);
+			printLinkedVehicules($object, true);
 			print '</div>';
 
 			print '<div class="fichehalfright">';
 			print '<div class="underbanner clearboth"></div>';
 
 			// Loyers
-			printVehiculeRental($object);
+			printVehiculeRental($object, true);
 
 			print '</div></div>';
+			print '<div class="clearboth"></div><br />';
 
-            print '<div class="tabsAction">'."\n";
+
+			print '<div class="tabsAction">'."\n";
             $parameters=array();
             $reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action);    // Note that $action and $object may have been modified by hook
             if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');

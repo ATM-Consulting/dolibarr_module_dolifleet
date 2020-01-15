@@ -70,6 +70,7 @@ LinkedVehicules=Véhicules liés
 VehiculeUnlinked=Le véhicule a été délié
 VehiculeRentals=Loyers
 VehiculeRental=Loyer
+rentDeleted=Loyer supprimé
 
 doliFleetModify=Modifier
 doliFleetClone=Cloner
@@ -94,6 +95,7 @@ ConfirmClonedoliFleetVehiculeBody=Souhaitez-vous vraiment clone cette fiche véh
 ConfirmDelActivitydoliFleetVehiculeBody=Voulez-vous vraiment supprimer cette activité ?
 ConfirmUnlinkVehiculedoliFleetVehiculeTitle=Confirmation de suppression du lien
 ConfirmUnlinkVehiculedoliFleetVehiculeBody=Voulez-vous vraiment supprimer le lien avec le véhicule ?
+ConfirmDelRentaldoliFleetVehiculeBody=Voulez-vous vraiment supprimer ce loyer ?
 
 # Erreur
 ErrNoVinNumber=Aucun VIN renseigné
@@ -103,3 +105,5 @@ ErrAlreadyInActivity=Le véhicule est déjà en activité pour les date spécifi
 ErrNoVehiculeToLink=Pas de véhicule à lier
 ErrVehiculeAlreadyLinkedDates=Le véhicule %s est déjà lié au véhicule %s du %s au %s
 ErrVehiculeUnlink=Impossible de délier le véhicule
+ErrEmptyAmountForRental=Le montant du loyer ne peut être vide
+ErrPeriodReservedForRental=Un ou plusieur loyers sont déjà définis sur la période du %s au %s

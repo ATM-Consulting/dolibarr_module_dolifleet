@@ -82,6 +82,8 @@ class dolifleetVehiculeRental extends SeedObject
 			'type' => 'integer',
 			'enabled' => 1,
 			'visible' => 0,
+			'notnull' =>1,
+			'default' => 0,
 			'position' => 90,
 			'index' => 1,
 		)

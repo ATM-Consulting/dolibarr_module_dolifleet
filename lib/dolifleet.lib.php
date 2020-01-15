@@ -129,6 +129,11 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
 		$body = $langs->trans('ConfirmUnlinkVehiculedoliFleetVehiculeBody', $object->immatriculation);
 		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id . '&linkVehicule_id='.GETPOST('linkVehicule_id'), $langs->trans('ConfirmUnlinkVehiculedoliFleetVehiculeTitle'), $body, 'confirm_unlinkVehicule', '', 0, 1);
 	}
+	elseif ($action === 'delRental' && !empty($user->rights->dolifleet->write))
+	{
+		$body = $langs->trans('ConfirmDelRentaldoliFleetVehiculeBody', $object->immatriculation);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id . '&rent_id='.GETPOST('rent_id'), $langs->trans('ConfirmDeletedoliFleetVehiculeTitle'), $body, 'confirm_delRental', '', 0, 1);
+	}
 
     return $formconfirm;
 }
@@ -136,7 +141,7 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
 /**
  * @param doliFleetVehicule $object
  */
-function printVehiculeActivities($object)
+function printVehiculeActivities($object, $fromcard = false)
 {
 	global $langs, $db, $form;
 	print load_fiche_titre($langs->trans('VehiculeActivities'), '', '');
@@ -154,7 +159,14 @@ function printVehiculeActivities($object)
 					<td></td>
 					</tr>';
 
-	$ret = $object->getActivities();
+	$date_start = $date_end = '';
+	if ($fromcard)
+	{
+		$date_start = dol_now();
+		$date_end = strtotime("+3 month", $date_start);
+	}
+
+	$ret = $object->getActivities($date_start, $date_end);
 	if ($ret == 0)
 	{
 		print '<tr><td align="center" colspan="4">'.$langs->trans('NodoliFleetActivity').'</td></tr>';
@@ -194,7 +206,7 @@ function printVehiculeActivities($object)
 	print '</td>';
 
 	print '<td align="center">';
-	print '<input type="submit" name="addActivity" value="'.$langs->trans("Add").'">';
+	print '<input class="button" type="submit" name="addActivity" value="'.$langs->trans("Add").'">';
 	print '</td>';
 
 	print '</tr>';
@@ -207,7 +219,7 @@ function printVehiculeActivities($object)
 /**
  * @param doliFleetVehicule $object
  */
-function printLinkedVehicules($object)
+function printLinkedVehicules($object, $fromcard = false)
 {
 	global $langs, $db, $form, $conf;
 
@@ -226,7 +238,14 @@ function printLinkedVehicules($object)
 	print '<td align="center"></td>';
 	print '</tr>';
 
-	$object->getLinkedVehicules();
+	$date_start = $date_end = '';
+	if ($fromcard)
+	{
+		$date_start = dol_now();
+		$date_end = strtotime("+3 month", $date_start);
+	}
+
+	$object->getLinkedVehicules($date_start, $date_end);
 	if (empty($object->linkedVehicules))
 	{
 		print '<tr><td align="center" colspan="4">'.$langs->trans('NodoliFleet').'</td></tr>';
@@ -290,9 +309,8 @@ function printLinkedVehicules($object)
 	print '</td>';
 
 	print '<td align="center">';
-	print '<input type="submit" name="linkVehicule" value="'.$langs->trans("Add").'">';
+	print '<input class="button" type="submit" name="linkVehicule" value="'.$langs->trans("Add").'">';
 	print '</td>';
-	print '<td align="center"></td>';
 	print '</tr>';
 
 	print '</table>';
@@ -303,7 +321,7 @@ function printLinkedVehicules($object)
 /**
  * @param doliFleetVehicule $object
  */
-function printVehiculeRental($object)
+function printVehiculeRental($object, $fromcard = false)
 {
 	global $langs, $db, $form, $conf;
 
@@ -318,12 +336,70 @@ function printVehiculeRental($object)
 	print '<tr class="liste_titre">';
 	print '<td align="center">'.$langs->trans('DateStart').'</td>';
 	print '<td align="center">'.$langs->trans('DateEnd').'</td>';
-	print '<td align="center">'.$langs->trans('VehiculeRental').'</td>';
+	print '<td align="center">'.$langs->trans('TotalHT').'</td>';
 	print '<td align="center"></td>';
 	print '</tr>';
 
+	$date_start = $date_end = '';
+	if ($fromcard)
+	{
+		$date_start = dol_now();
+		$date_end = strtotime("+3 month", $date_start);
+	}
+
+	$object->getRentals($date_start, $date_end);
+	if (empty($object->rentals))
+	{
+		print '<tr>';
+		print '<td align="center" colspan="4">'.$langs->trans('NodoliFleet').'</td>';
+		print '</tr>';
+	}
+	else
+	{
+
+		foreach ($object->rentals as $rent)
+		{
+			print '<tr>';
+
+			print '<td align="center">';
+			print dol_print_date($rent->date_start, "%d/%m/%Y");
+			print '</td>';
+
+			print '<td align="center">';
+			print dol_print_date($rent->date_end, "%d/%m/%Y");
+			print '</td>';
+
+			print '<td align="center">';
+			print price($rent->total_ht);
+			print '</td>';
+
+			print '<td align="center">';
+			print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delRental&rent_id='.$rent->id.'">'.img_delete().'</a>';
+			print '</td>';
+
+			print '</tr>';
+		}
+	}
+
+	// new line
 	print '<tr>';
-	print '<td align="center" colspan="4">'.$langs->trans('NodoliFleet').'</td>';
+
+	print '<td align="center">';
+	print $form->selectDate('', 'RentalDate_start');
+	print '</td>';
+
+	print '<td align="center">';
+	print $form->selectDate('', 'RentalDate_end');
+	print '</td>';
+
+	print '<td align="center">';
+	print '<input type="number" name="RentalTotal_HT" min="0" step="0.01" value="'.GETPOST('RentalTotal_HT').'">';
+	print '</td>';
+
+	print '<td align="center">';
+	print '<input class="button" type="submit" name="addRental" value="'.$langs->trans("Add").'">';
+	print '</td>';
+
 	print '</tr>';
 
 	print '</table>';

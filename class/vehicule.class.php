@@ -431,7 +431,7 @@ class doliFleetVehicule extends SeedObject
         return 0;
     }
 
-    public function getActivities()
+    public function getActivities($date_start = '', $date_end = '')
 	{
 		$this->activities = array();
 
@@ -440,6 +440,10 @@ class doliFleetVehicule extends SeedObject
 
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX.$act->table_element;
 		$sql.= " WHERE fk_vehicule = ".$this->id;
+		if (!empty($date_end))
+			$sql.= " AND date_start < '".$this->db->idate($date_end)."'";
+		if (!empty($date_start))
+			$sql.= " AND date_end > '".$this->db->idate($date_start)."'";
 		$sql.= " ORDER BY date_start ASC";
 
 		$resql = $this->db->query($sql);
@@ -472,7 +476,7 @@ class doliFleetVehicule extends SeedObject
 	 */
 	public function addActivity($type, $date_start, $date_end)
 	{
-		global $db, $user;
+		global $user;
 
 		if (empty($type) || $type == '-1')
 		{
@@ -650,6 +654,105 @@ class doliFleetVehicule extends SeedObject
 			$this->errors[] = $link->error;
 			return -1;
 		}
+	}
+
+	public function getRentals($date_start = '', $date_end = '', $externalRental = false)
+	{
+		$this->rentals = array();
+
+		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."dolifleet_vehicule_rental";
+		$sql.= " WHERE fk_vehicule = ".$this->id;
+		if (!empty($date_end))
+			$sql.= " AND date_start < '".$this->db->idate($date_end)."'";
+		if (!empty($date_start))
+			$sql.= " AND date_end > '".$this->db->idate($date_start)."'";
+		$sql.= " AND fk_proposaldet ".($externalRental ? "<>" : "=")." 0";
+		$sql.= " ORDER BY date_start ASC";
+
+		$resql = $this->db->query($sql);
+		if ($resql)
+		{
+			$num = $this->db->num_rows($resql);
+			if ($num)
+			{
+				dol_include_once('/dolifleet/class/vehiculeRental.class.php');
+
+				while ($obj = $this->db->fetch_object($resql))
+				{
+					$rent = new dolifleetVehiculeRental($this->db);
+					$ret = $rent->fetch($obj->rowid);
+					if ($ret > 0) $this->rentals[] = $rent;
+				}
+			}
+
+			return $num;
+		}
+		else
+		{
+			$this->errors[] = $this->db->lasterror();
+			return -1;
+		}
+	}
+
+	public function delRental($rent_id)
+	{
+		global $user;
+
+		dol_include_once('/dolifleet/class/vehiculeRental.class.php');
+
+		$rent = new dolifleetVehiculeRental($this->db);
+		$rent->fetch($rent_id);
+
+		if ($rent->fk_vehicule != $this->id)
+		{
+			$this->errors[] = "IllegalDeletion";
+			return -1;
+		}
+
+		$ret = $rent->delete($user);
+		if ($ret < 0)
+		{
+			$this->errors = array_merge($rent->errors, array($rent->error));
+			return -1;
+		}
+
+		return 1;
+	}
+
+	public function addRental($date_start, $date_end, $amountHT, $fk_proposaldet = 0)
+	{
+		global $user, $langs;
+
+		if (empty($amountHT))
+		{
+			$this->errors[] = $langs->trans('ErrEmptyAmountForRental');
+			return -1;
+		}
+
+		$ret = $this->getRentals($date_start, $date_end, !empty($fk_proposaldet));
+		if ($ret > 0)
+		{
+			$this->errors[] = $langs->trans('ErrPeriodReservedForRental', dol_print_date($date_start, "%d/%m/%Y"), dol_print_date($date_end, "%d/%m/%Y"));
+			return -1;
+		}
+
+		dol_include_once('/dolifleet/class/vehiculeRental.class.php');
+		$rent = new dolifleetVehiculeRental($this->db);
+
+		$rent->fk_vehicule = $this->id;
+		$rent->date_start = $date_start;
+		$rent->date_end = $date_end;
+		$rent->total_ht = $amountHT;
+		$rent->fk_proposaldet = $fk_proposaldet;
+
+		$ret = $rent->create($user);
+		if ($ret < 0)
+		{
+			$this->errors = array_merge($rent->errors, array($rent->error));
+			return -1;
+		}
+
+		return 1;
 	}
 
     /**
