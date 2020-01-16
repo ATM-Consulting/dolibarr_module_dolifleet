@@ -673,7 +673,7 @@ class doliFleetVehicule extends SeedObject
 			$sql.= " AND date_start < '".$this->db->idate($date_end)."'";
 		if (!empty($date_start))
 			$sql.= " AND date_end > '".$this->db->idate($date_start)."'";
-		$sql.= " AND fk_proposaldet ".($externalRental ? "<>" : "=")." 0";
+		$sql.= " AND fk_soc ".($externalRental ? "<>" : "=")." 0";
 		$sql.= " ORDER BY date_start ASC";
 
 		$resql = $this->db->query($sql);
@@ -726,7 +726,7 @@ class doliFleetVehicule extends SeedObject
 		return 1;
 	}
 
-	public function addRental($date_start, $date_end, $amountHT, $fk_proposaldet = 0)
+	public function addRental($date_start, $date_end, $amountHT, $fk_soc = 0)
 	{
 		global $user, $langs;
 
@@ -736,7 +736,7 @@ class doliFleetVehicule extends SeedObject
 			return -1;
 		}
 
-		$ret = $this->getRentals($date_start, $date_end, !empty($fk_proposaldet));
+		$ret = $this->getRentals($date_start, $date_end, !empty($fk_soc));
 		if ($ret > 0)
 		{
 			$this->errors[] = $langs->trans('ErrPeriodReservedForRental', dol_print_date($date_start, "%d/%m/%Y"), dol_print_date($date_end, "%d/%m/%Y"));
@@ -750,7 +750,7 @@ class doliFleetVehicule extends SeedObject
 		$rent->date_start = $date_start;
 		$rent->date_end = $date_end;
 		$rent->total_ht = $amountHT;
-		$rent->fk_proposaldet = $fk_proposaldet;
+		$rent->fk_soc = $fk_soc;
 
 		$ret = $rent->create($user);
 		if ($ret < 0)

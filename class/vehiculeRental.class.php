@@ -40,7 +40,7 @@ class dolifleetVehiculeRental extends SeedObject
 
 	public $total_ht;
 
-	public $fk_proposaldet;
+	public $fk_soc;
 
 	public $fields = array(
 		'fk_vehicule' => array(
@@ -78,8 +78,8 @@ class dolifleetVehiculeRental extends SeedObject
 			'position' => 80
 		),
 
-		'fk_proposaldet' => array(
-			'type' => 'integer',
+		'fk_soc' => array(
+			'type' => 'integer:Societe:societe/class/societe.class.php',
 			'enabled' => 1,
 			'visible' => 0,
 			'notnull' =>1,
