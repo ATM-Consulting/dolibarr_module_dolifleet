@@ -151,6 +151,12 @@ print '</td>';
 print '<td align="center"></td>';
 print '</tr>';
 
+print '<tr class="oddeven">';
+print '<td align="center" colspan="5">';
+print $langs->trans('NodoliFleet');
+print '</td>';
+print '<tr>';
+
 print '</table>';
 
 print '</div>';
