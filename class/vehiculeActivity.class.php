@@ -129,4 +129,5 @@ class doliFleetVehiculeActivity extends SeedObject
 
 		return false;
 	}
+
 }

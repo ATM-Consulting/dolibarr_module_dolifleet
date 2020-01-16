@@ -290,6 +290,38 @@ if (empty($reshook))
 				header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
 				exit;
 			}
+
+		case 'addVehiculeOperation':
+			$productid = GETPOST('productid', 'int');
+			$km = GETPOST('km', 'int');
+			$delay = GETPOST('delay', 'int');
+
+			$ret = $object->addOperation($productid, $km, $delay);
+			if ($ret < 0) {
+				setEventMessages('', $object->errors, "errors");
+				break;
+			}
+			else
+			{
+				header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
+				exit;
+			}
+
+		case 'confirm_delOperation':
+			$ope_id = GETPOST('ope_id', 'int');
+
+			$ret = $object->delOperation($ope_id);
+			if ($ret < 0)
+			{
+				setEventMessages('', $object->errors, "errors");
+				break;
+			}
+			else
+			{
+				setEventMessage($langs->trans('operationDeleted'));
+				header('Location: '.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$object->id);
+				exit;
+			}
 	}
 }
 
@@ -424,7 +456,7 @@ else
 			print '<div class="underbanner clearboth"></div>';
 
 			// Activités véhicule
-			printVehiculeActivities($object, true);
+			printVehiculeActivities($object/*, true*/);
 
 			print '</div>'; // fin fichehalfleft
 
@@ -432,7 +464,7 @@ else
 			print '<div class="underbanner clearboth"></div>';
 
 			// véhicules liés
-			printLinkedVehicules($object, true);
+			printLinkedVehicules($object/*, true*/);
 
 			print '</div>'; // fin fichehalfright
 			print '</div>';	// fin fichecenter
@@ -452,7 +484,7 @@ else
 			print '<div class="underbanner clearboth"></div>';
 
 			// Loyers
-			printVehiculeRental($object, true);
+			printVehiculeRental($object/*, true*/);
 
 			print '</div>'; // fin fichehalfright
 			print '</div>';	// fin fichecenter

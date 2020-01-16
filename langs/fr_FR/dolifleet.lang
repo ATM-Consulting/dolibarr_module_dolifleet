@@ -109,10 +109,12 @@ ConfirmDelActivitydoliFleetVehiculeBody=Voulez-vous vraiment supprimer cette act
 ConfirmUnlinkVehiculedoliFleetVehiculeTitle=Confirmation de suppression du lien
 ConfirmUnlinkVehiculedoliFleetVehiculeBody=Voulez-vous vraiment supprimer le lien avec le véhicule ?
 ConfirmDelRentaldoliFleetVehiculeBody=Voulez-vous vraiment supprimer ce loyer ?
+ConfirmDelOperationdoliFleetVehiculeBody=Voulez-vous vraiment supprimer cette opération ?
 
 # Erreur
 ErrNoVinNumber=Aucun VIN renseigné
 ErrVinAlreadyUsed=Le VIN est déjà utilisé pour le véhicule %s
+ErrInvalidFkVehicule=Véhicule invalide
 ErrNoActivityType=Pas de type d'activité renseigné
 ErrAlreadyInActivity=Le véhicule est déjà en activité pour les date spécifiées
 ErrNoVehiculeToLink=Pas de véhicule à lier
@@ -120,3 +122,7 @@ ErrVehiculeAlreadyLinkedDates=Le véhicule %s est déjà lié au véhicule %s du
 ErrVehiculeUnlink=Impossible de délier le véhicule
 ErrEmptyAmountForRental=Le montant du loyer ne peut être vide
 ErrPeriodReservedForRental=Un ou plusieur loyers sont déjà définis sur la période du %s au %s
+ErrOperationNoProdId=Opération : pas de produit sélectionné
+ErrOperationInvalidProduct=Produit erroné
+ErrOperationNoCritera=Vous devez renseigner un des critères km ou délai
+ErrOperationMaxKM=Le critère km est inférieur à %s (plus grand km saisi dans les opérations du véhicule)

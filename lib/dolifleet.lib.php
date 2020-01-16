@@ -134,6 +134,11 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
 		$body = $langs->trans('ConfirmDelRentaldoliFleetVehiculeBody', $object->immatriculation);
 		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id . '&rent_id='.GETPOST('rent_id'), $langs->trans('ConfirmDeletedoliFleetVehiculeTitle'), $body, 'confirm_delRental', '', 0, 1);
 	}
+	elseif ($action === 'delOperation' && !empty($user->rights->dolifleet->write))
+	{
+		$body = $langs->trans('ConfirmDelOperationdoliFleetVehiculeBody', $object->immatriculation);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id . '&ope_id='.GETPOST('ope_id'), $langs->trans('ConfirmDeletedoliFleetVehiculeTitle'), $body, 'confirm_delRental', '', 0, 1);
+	}
 
     return $formconfirm;
 }
@@ -146,7 +151,7 @@ function printVehiculeActivities($object, $fromcard = false)
 	global $langs, $db, $form;
 	print load_fiche_titre($langs->trans('VehiculeActivities'), '', '');
 
-	print '<form id="activityForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<form id="activityForm" method="POST" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'">';
 	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 	print '<input type="hidden" name="action" value="addActivity">';
 	print '<input type="hidden" name="id" value="'.$object->id.'">';
@@ -225,7 +230,7 @@ function printLinkedVehicules($object, $fromcard = false)
 
 	print load_fiche_titre($langs->trans('LinkedVehicules'), '', '');
 
-	print '<form id="vehiculeLinkedForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<form id="vehiculeLinkedForm" method="POST" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'">';
 	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 	print '<input type="hidden" name="action" value="addVehiculeLink">';
 	print '<input type="hidden" name="id" value="'.$object->id.'">';
@@ -327,7 +332,7 @@ function printVehiculeRental($object, $fromcard = false)
 
 	print load_fiche_titre($langs->trans('VehiculeRentals'), '', '');
 
-	print '<form id="vehiculeLinkedForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<form id="vehiculeLinkedForm" method="POST" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'">';
 	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 	print '<input type="hidden" name="action" value="addVehiculeRental">';
 	print '<input type="hidden" name="id" value="'.$object->id.'">';
@@ -416,7 +421,7 @@ function printVehiculeOpérations($object)
 
 	print load_fiche_titre($langs->trans('VehiculeOperations'), '', '');
 
-	print '<form id="vehiculeLinkedForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<form id="vehiculeLinkedForm" method="POST" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'">';
 	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 	print '<input type="hidden" name="action" value="addVehiculeOperation">';
 	print '<input type="hidden" name="id" value="'.$object->id.'">';
@@ -430,6 +435,7 @@ function printVehiculeOpérations($object)
 	print '<td align="center"></td>';
 	print '</tr>';
 
+	$object->getOperations();
 	if (empty($object->operations))
 	{
 		print '<tr><td align="center" colspan="5">'.$langs->trans('NodoliFleet').'</td></tr>';
@@ -440,10 +446,12 @@ function printVehiculeOpérations($object)
 		{
 			print '<tr>';
 			print '<td align="center">'.$operation->getName().'</td>';
-			print '<td align="center">'.price2num($operation->km).'</td>';
-			print '<td align="center">'.$operation->delai_from_last_op.' '.$langs->trans('Months').'</td>';
+			print '<td align="center">'.(!empty($operation->km) ? price2num($operation->km) : '').'</td>';
+			print '<td align="center">'.(!empty($operation->delai_from_last_op) ? $operation->delai_from_last_op.' '.$langs->trans('Months') : '').'</td>';
 			print '<td align="center">'.$operation->getLibStatut(2).'</td>';
-			print '<td align="center"></td>';
+			print '<td align="center">';
+			print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delOperation&ope_id='.$operation->id.'">'.img_delete().'</a>';
+			print '</td>';
 			print '</tr>';
 		}
 	}

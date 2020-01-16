@@ -646,7 +646,14 @@ class doliFleetVehicule extends SeedObject
 		dol_include_once('/dolifleet/class/vehiculeLink.class.php');
 		$link = new doliFleetVehiculeLink($this->db);
 
-		$link->fetch($id);
+		$ret = $link->fetch($id);
+
+		if ($ret > 0 && $link->fk_source != $this->id && $link->fk_target != $this->id)
+		{
+			$this->errors[] = "IllegalDeletion";
+			return -1;
+		}
+
 		$ret = $link->delete($user);
 		if ($ret > 0) return 1;
 		else
@@ -753,6 +760,86 @@ class doliFleetVehicule extends SeedObject
 		}
 
 		return 1;
+	}
+
+	public function getOperations()
+	{
+		$this->operations = array();
+
+		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element."_operation";
+		$sql.= " WHERE fk_vehicule = ".$this->id;
+		$sql.= " ORDER BY rank ASC";
+
+		$resql = $this->db->query($sql);
+		if ($resql)
+		{
+			$num = $this->db->num_rows($resql);
+			if ($num)
+			{
+				dol_include_once('/dolifleet/class/vehiculeOperation.class.php');
+
+				while ($obj = $this->db->fetch_object($resql))
+				{
+					$ope = new dolifleetVehiculeOperation($this->db);
+					$ret = $ope->fetch($obj->rowid);
+					if ($ret > 0) $this->operations[] = $ope;
+				}
+			}
+
+			return $num;
+		}
+		else
+		{
+			$this->errors[] = $this->db->lasterror();
+			return -1;
+		}
+	}
+
+	public function addOperation($productid, $km = 0, $delayInMonths = 0)
+	{
+		global $langs, $user;
+
+		dol_include_once('/dolifleet/class/vehiculeOperation.class.php');
+		$ope = new dolifleetVehiculeOperation($this->db);
+
+		$ope->fk_vehicule = $this->id;
+		$ope->fk_product = $productid;
+		$ope->km = $km;
+		$ope->delay_from_last_op = $delayInMonths;
+
+		$ret = $ope->create($user);
+		if($ret < 0)
+		{
+			$this->errors = array_merge($ope->errors, array($ope->error));
+			return -1;
+		}
+
+		return $ret;
+	}
+
+	public function delOperation($ope_id)
+	{
+		global $user;
+
+		dol_include_once('/dolifleet/class/vehiculeOperation.class.php');
+		$ope = new dolifleetVehiculeOperation($this->db);
+		$ope->fetch($ope_id);
+
+		if ($ope->fk_vehicule != $this->id)
+		{
+			$this->errors[] = "IllegalDeletion";
+			return -1;
+		}
+
+		$ret = $ope->delete($user);
+		if ($ret < 0)
+		{
+			$this->errors = array_merge($ope->errors, array($ope->error));
+			return -2;
+		}
+
+		return 1;
+
 	}
 
     /**
