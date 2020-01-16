@@ -63,6 +63,7 @@ doliFleetVehiculeCard=Fiche véhicule
 doliFleetVehicule=Véhicule
 NewdoliFleet=Nouveau véhicule
 immatriculation_date=date de première mise en circulation
+vehiculeDelayExploit=Durée maximum d'exploitation
 LinkToThirparty=Lien vers le tiers
 km_date=Date de relevé kilométrique
 date_customer_exploit=Date de mise en exploitation
