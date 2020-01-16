@@ -27,6 +27,7 @@ ParamHelp=Le contenu de l'aide
 doliFleetSetup = Configuration du module doliFleet
 doliFleetAbout = A propos du module doliFleet
 DOLIFLEET_MOTRICE_TYPES=Type de véhicule tracteur
+rentalMatrix=Matrice de loyers
 
 # MENU
 TopMenudoliFleet=doliFleet

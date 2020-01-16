@@ -39,6 +39,11 @@ function dolifleetAdminPrepareHead()
     $head[$h][2] = 'settings';
     $h++;
 
+    $head[$h][0] = dol_buildpath("/dolifleet/admin/rental_matrix.php", 1);
+    $head[$h][1] = $langs->trans("rentalMatrix");
+    $head[$h][2] = 'matrix';
+    $h++;
+
     $head[$h][0] = dol_buildpath("/dolifleet/admin/vehicule_extrafields.php", 1);
     $head[$h][1] = $langs->trans("ExtraFields");
     $head[$h][2] = 'extrafields';

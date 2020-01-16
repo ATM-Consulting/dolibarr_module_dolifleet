@@ -40,7 +40,7 @@ $elementtype=$dolifleet->table_element;  //Must be the $table_element of the cla
 // Page title and texts elements
 $textobject=$langs->transnoentitiesnoconv('doliFleet');
 $help_url='EN:Help doliFleet|FR:Aide doliFleet';
-$pageTitle = $langs->trans('doliFleetExtrafieldPage');
+$pageTitle = $langs->trans('ExtraFields');
 
 // Configuration header
 $head = dolifleetAdminPrepareHead();
