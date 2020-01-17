@@ -19,6 +19,9 @@ rental_read=Voir les loyers
 rental_write=Créer/modifier les loyers
 rental_validate=Valider les loyers
 rental_delete=Supprimer les loyers
+matrix_read=Voir les matrices de loyers
+matrix_write=Créer une matrice de loyers
+matrix_delete=Supprimer une matrice de loyers
 
 # SETUP
 ParamLabel=Nom du paramètre

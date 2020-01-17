@@ -57,8 +57,12 @@ if (GETPOST('button_removefilter', 'alpha') || GETPOST('button_removefilter.x', 
 // Translations
 $langs->load('dolifleet@dolifleet');
 
+$userCanRead = $user->rights->dolifleet->matrix->read;
+$userCanCreate = $user->rights->dolifleet->matrix->write;
+$userCanDelete = $user->rights->dolifleet->matrix->delete;
+
 // Access control
-if (! $user->admin) {
+if (! $user->admin || ! $userCanRead) {
     accessforbidden();
 }
 
@@ -135,60 +139,63 @@ if (!empty($formconfirm)) print $formconfirm;
 
 print '<div class="div-table-responsive">';
 
-print '<form id="NewRentalMatrixForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-print '<input type="hidden" name="action" value="addMatrixLine">';
+if ($userCanCreate)
+{
+	print '<form id="NewRentalMatrixForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="addMatrixLine">';
 
-print '<table class="border liste"  width="100%">';
+	print '<table class="border liste"  width="100%">';
 
 // table header
-print '<tr class="liste_titre">';
-print '<td align="center">';
-print $langs->trans('vehiculeType');
-print '</td>';
-print '<td align="center">';
-print $langs->trans('vehiculeMark');
-print '</td>';
-print '<td align="center">';
-print $langs->trans('vehiculeDelayExploit');
-print '</td>';
-print '<td align="center">';
-print $langs->trans('VehiculeRental');
-print '</td>';
-print '<td align="center"></td>';
-print '</tr>';
+	print '<tr class="liste_titre">';
+	print '<td align="center">';
+	print $langs->trans('vehiculeType');
+	print '</td>';
+	print '<td align="center">';
+	print $langs->trans('vehiculeMark');
+	print '</td>';
+	print '<td align="center">';
+	print $langs->trans('vehiculeDelayExploit');
+	print '</td>';
+	print '<td align="center">';
+	print $langs->trans('VehiculeRental');
+	print '</td>';
+	print '<td align="center"></td>';
+	print '</tr>';
 
 // new line
-print '<tr class="oddeven">'
-;
-print '<td align="center">';
-print $form->selectarray('fk_c_type_vh', $TType, $type,1, 0, 0, '', 0, 0, 0, '', '', 1);
-print '</td>';
+	print '<tr class="oddeven">'
+	;
+	print '<td align="center">';
+	print $form->selectarray('fk_c_type_vh', $TType, $type,1, 0, 0, '', 0, 0, 0, '', '', 1);
+	print '</td>';
 
-print '<td align="center">';
-print $form->selectarray('fk_c_mark_vh', $TMark, $mark,1, 0, 0, '', 0, 0, 0, '', '', 1);
-print '</td>';
+	print '<td align="center">';
+	print $form->selectarray('fk_c_mark_vh', $TMark, $mark,1, 0, 0, '', 0, 0, 0, '', '', 1);
+	print '</td>';
 
-print '<td align="center">';
-print '<input type="number" name="delay" id="delay" step="1" value="'.$delay.'">&nbsp;'.$langs->trans('Months');
-print '</td>';
+	print '<td align="center">';
+	print '<input type="number" name="delay" id="delay" step="1" value="'.$delay.'">&nbsp;'.$langs->trans('Months');
+	print '</td>';
 
-print '<td align="center">';
-print '<input type="number" name="amount_ht" min="0" step="0.01" value="'.$amount.'">';
-print '</td>';
+	print '<td align="center">';
+	print '<input type="number" name="amount_ht" min="0" step="0.01" value="'.$amount.'">';
+	print '</td>';
 
-print '<td align="center">';
-print '<input class="button" type="submit" name="add" value="'.$langs->trans("Add").'">';
-print '</td>';
+	print '<td align="center">';
+	print '<input class="button" type="submit" name="add" value="'.$langs->trans("Add").'">';
+	print '</td>';
 
-print '</tr>';
+	print '</tr>';
 
 
-print '</table>';
+	print '</table>';
 
-print '</form>';
+	print '</form>';
 
-print '<br />';
+	print '<br />';
+}
 
 print '<form id="NewRentalMatrixForm" method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
@@ -245,7 +252,7 @@ else
 		$matrixline = new doliFleetVehiculeRentalMatrix($db);
 		$matrixline->fetch($obj->rowid);
 
-		if ($action == "edit" && $id == $matrixline->id)
+		if ($action == "edit" && $id == $matrixline->id && $userCanCreate)
 		{
 			print '<tr class="oddeven">';
 			print '<td>';
@@ -286,8 +293,8 @@ else
 			print '</td>';
 			// actions
 			print '<td align="center">';
-			print '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&id='.$matrixline->id.'">'.img_edit().'</a>';
-			print '<a href="'.$_SERVER['PHP_SELF'].'?action=delMatrixLine&id='.$matrixline->id.'">'.img_delete().'</a>';
+			if ($userCanCreate) print '<a href="'.$_SERVER['PHP_SELF'].'?action=edit&id='.$matrixline->id.'">'.img_edit().'</a>';
+			if ($userCanDelete) print '<a href="'.$_SERVER['PHP_SELF'].'?action=delMatrixLine&id='.$matrixline->id.'">'.img_delete().'</a>';
 			print '</td>';
 			print '</tr>';
 		}
