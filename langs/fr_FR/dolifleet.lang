@@ -112,6 +112,7 @@ ConfirmUnlinkVehiculedoliFleetVehiculeTitle=Confirmation de suppression du lien
 ConfirmUnlinkVehiculedoliFleetVehiculeBody=Voulez-vous vraiment supprimer le lien avec le véhicule ?
 ConfirmDelRentaldoliFleetVehiculeBody=Voulez-vous vraiment supprimer ce loyer ?
 ConfirmDelOperationdoliFleetVehiculeBody=Voulez-vous vraiment supprimer cette opération ?
+ConfirmDeldoliFleetLineBody=Voulez-vous vraiment supprimer cette ligne ?
 
 # Erreur
 ErrNoVinNumber=Aucun VIN renseigné
@@ -128,3 +129,8 @@ ErrOperationNoProdId=Opération : pas de produit sélectionné
 ErrOperationInvalidProduct=Produit erroné
 ErrOperationNoCritera=Vous devez renseigner un des critères km ou délai
 ErrOperationMaxKM=Le critère km est inférieur à %s (plus grand km saisi dans les opérations du véhicule)
+ErrInvalidType=Type de véhicule invalide
+ErrInvalidMark=Marque de véhicule invalide
+ErrNoDelayForLine=Pas de durée saisi
+ErrInvalidAmount=Montant saisie invalide
+ErrDuplicateMatrix=Il existe déjà une ligne de matrice pour ce type, cette marque, et cette durée
