@@ -30,6 +30,7 @@ if (! $res) {
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 require_once '../lib/dolifleet.lib.php';
+dol_include_once('/dolifleet/class/vehiculeRentalMatrix.class.php');
 dol_include_once('/dolifleet/class/dictionaryVehiculeType.class.php');
 dol_include_once('/dolifleet/class/dictionaryVehiculeMark.class.php');
 
@@ -48,6 +49,8 @@ if (! $user->admin) {
     accessforbidden();
 }
 
+$object = new doliFleetVehiculeRentalMatrix($db);
+
 /*
  * Actions
  */
@@ -56,6 +59,14 @@ if (! $user->admin) {
 
 $dictType = new dictionaryVehiculeType($db);
 $dictMark = new dictionaryVehiculeMark($db);
+
+$sql = "SELECT rowid  FROM ".$object->table_element;
+$sql.= " WHERE fk_soc = 0";
+$sql.= " ORDER BY fk_c_type_vh ASC, fk_c_mark_vh ASC";
+
+$resql = $db->query($sql);
+if (!$resql) dol_print_error($db);
+else $num = $db->num_rows($resql);
 
 /*
  * View
@@ -151,11 +162,39 @@ print '</td>';
 print '<td align="center"></td>';
 print '</tr>';
 
-print '<tr class="oddeven">';
-print '<td align="center" colspan="5">';
-print $langs->trans('NodoliFleet');
-print '</td>';
-print '<tr>';
+if (empty($num))
+{
+	print '<tr class="oddeven">';
+	print '<td align="center" colspan="5">';
+	print $langs->trans('NodoliFleet');
+	print '</td>';
+	print '<tr>';
+}
+else
+{
+	while ($obj = $db->fetch_object($resql))
+	{
+		$matrixline = new doliFleetVehiculeRentalMatrix($db);
+		$matrixline->fetch($obj->rowid);
+
+		print '<tr class="oddeven">';
+		print '<td align="center">';
+		print $dictType->getValueFromId($matrixline->fk_c_type_vh);
+		print '</td>';
+		print '<td align="center">';
+		print $dictMark->getValueFromId($matrixline->fk_c_mark_vh);
+		print '</td>';
+		print '<td align="center">';
+		print $matrixline->delay.' '.$langs->trans('Months');
+		print '</td>';
+		print '<td align="center">';
+		print price($matrixline->amount_ht);
+		print '</td>';
+		print '<td align="center"></td>';
+		print '</tr>';
+	}
+}
+
 
 print '</table>';
 
