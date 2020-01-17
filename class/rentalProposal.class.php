@@ -120,8 +120,6 @@ class dolifleetRentalProposal extends SeedObject
 			'type' => 'integer:User:user/class/user.class.php',
 			'enabled' => 1,
 			'visible' => 0,
-			'notnull' =>1,
-			'default' => 0,
 			'position' => 50,
 			'index' => 1,
 		),
@@ -135,17 +133,15 @@ class dolifleetRentalProposal extends SeedObject
 			'searchall' => 1,
 		),
 
-		'fk_first_valid' => array(
+		'fk_second_valid' => array(
 			'type' => 'integer:User:user/class/user.class.php',
 			'enabled' => 1,
 			'visible' => 0,
-			'notnull' =>1,
-			'default' => 0,
 			'position' => 70,
 			'index' => 1,
 		),
 
-		'date_first_valid' => array(
+		'date_second_valid' => array(
 			'type' => 'date',
 			'label' => 'date_valid',
 			'enabled' => 0,
@@ -387,11 +383,11 @@ class dolifleetRentalProposal extends SeedObject
 		$langs->load('dolifleetrentalproposal@dolifleetrentalproposal');
 		$res = '';
 
-		if ($status==self::STATUS_CANCELED) { $statusType='status9'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusCancel'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortCancel'); }
-		elseif ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusDraft'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortDraft'); }
+		/*if ($status==self::STATUS_CANCELED) { $statusType='status9'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusCancel'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortCancel'); }
+		else*/if ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusDraft'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortDraft'); }
 		elseif ($status==self::STATUS_VALIDATED) { $statusType='status1'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusValidated'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortValidate'); }
-		elseif ($status==self::STATUS_REFUSED) { $statusType='status5'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusRefused'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortRefused'); }
-		elseif ($status==self::STATUS_ACCEPTED) { $statusType='status6'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusAccepted'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortAccepted'); }
+		elseif ($status==self::STATUS_INPROGRESS) { $statusType='status5'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusRefused'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortRefused'); }
+		elseif ($status==self::STATUS_CLOSED) { $statusType='status6'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusAccepted'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortAccepted'); }
 
 		if (function_exists('dolGetStatus'))
 		{
@@ -454,7 +450,7 @@ class dolifleetRentalProposal extends SeedObject
 			require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 
 			$montharray = monthArray($langs, 1);
-			$out.= $montharray[$val];
+			$out.= $montharray[$value];
 		}
 		else $out.= parent::showOutputField($val, $key, $value, $moreparam, $keysuffix, $keyprefix, $morecss);
 

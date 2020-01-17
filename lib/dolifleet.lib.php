@@ -95,10 +95,10 @@ function vehicule_prepare_head(doliFleetVehicule $object)
 /**
  * Return array of tabs to used on pages for third parties cards.
  *
- * @param 	doliFleetVehicule	$object		Object company shown
+ * @param 	dolifleetRentalProposal	$object		Object company shown
  * @return 	array				Array of tabs
  */
-function rental_proposal_prepare_head(doliFleetVehicule $object)
+function rental_proposal_prepare_head(dolifleetRentalProposal $object)
 {
     global $langs, $conf;
     $h = 0;

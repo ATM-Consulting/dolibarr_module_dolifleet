@@ -113,7 +113,7 @@ if (empty($reshook))
 			}
 
 			$res = $object->save($user);
-			if ($res < 0)
+			if ($res <= 0)
 			{
 				setEventMessage($object->errors, 'errors');
 				if (empty($object->id)) $action = 'create';
@@ -121,7 +121,7 @@ if (empty($reshook))
 			}
 			else
 			{
-				header('Location: '.dol_buildpath('/dolifleetrentalproposal/card.php', 1).'?id='.$object->id);
+				header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
 				exit;
 			}
 		case 'update_extras':
@@ -145,37 +145,37 @@ if (empty($reshook))
 			if ($error) $action = 'edit_extras';
 			else
 			{
-				header('Location: '.dol_buildpath('/dolifleetrentalproposal/card.php', 1).'?id='.$object->id);
+				header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
 				exit;
 			}
 			break;
 		case 'confirm_clone':
 			$object->cloneObject($user);
 
-			header('Location: '.dol_buildpath('/dolifleetrentalproposal/card.php', 1).'?id='.$object->id);
+			header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
 			exit;
 
 		case 'modif':
 		case 'reopen':
-			if (!empty($user->rights->dolifleetrentalproposal->write)) $object->setDraft($user);
+			if (!empty($user->rights->dolifleet->rentalproposal->write)) $object->setDraft($user);
 
 			break;
 		case 'confirm_validate':
-			if (!empty($user->rights->dolifleetrentalproposal->write)) $object->setValid($user);
+			if (!empty($user->rights->dolifleet->rentalproposal->write)) $object->setValid($user);
 
-			header('Location: '.dol_buildpath('/dolifleetrentalproposal/card.php', 1).'?id='.$object->id);
+			header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
 			exit;
 
 		case 'confirm_delete':
-			if (!empty($user->rights->dolifleetrentalproposal->delete)) $object->delete($user);
+			if (!empty($user->rights->dolifleet->rentalproposal->delete)) $object->delete($user);
 
-			header('Location: '.dol_buildpath('/dolifleetrentalproposal/list.php', 1));
+			header('Location: '.dol_buildpath('/dolifleet/rental_proposal_list.php', 1));
 			exit;
 
 		// link from llx_element_element
 		case 'dellink':
 			$object->deleteObjectLinked(null, '', null, '', GETPOST('dellinkid'));
-			header('Location: '.dol_buildpath('/dolifleetrentalproposal/card.php', 1).'?id='.$object->id);
+			header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
 			exit;
 
 	}

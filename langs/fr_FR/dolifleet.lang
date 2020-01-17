@@ -98,6 +98,7 @@ VehiculeOperations=Opérations
 VehiculeOperation=Opération
 VehiculeOperationDelay=Délais depuis dernière opération
 dolifleetRentalProposal=Proposition de loyers
+doliFleetRentalProposalCard=Fiche proposition de loyers
 NewdolifleetRentalProposal=Nouvelle proposition de loyers
 
 doliFleetModify=Modifier
