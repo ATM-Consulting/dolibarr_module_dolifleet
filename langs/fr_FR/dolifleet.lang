@@ -22,6 +22,9 @@ rental_delete=Supprimer les loyers
 matrix_read=Voir les matrices de loyers
 matrix_write=Créer une matrice de loyers
 matrix_delete=Supprimer une matrice de loyers
+rentalproposal_read=Voir les propositions de loyers
+rentalproposal_write=Créer/modifier les propositions de loyers
+rentalproposal_delete=Supprimer les propositions de loyers
 
 # SETUP
 ParamLabel=Nom du paramètre
@@ -57,6 +60,11 @@ doliFleetOperationStatusShortToPlan=à planifier
 doliFleetOperationStatusShortPlanned=Planifié
 doliFleetOperationStatusShortDone=Réalisé
 
+doliFleetProposalStatusDraft=Brouillon
+doliFleetProposalStatusInProgress=Validation en cours
+doliFleetProposalStatusValidated=Validatée
+doliFleetProposalStatusCloturé=Cloturée
+
 # LIST
 doliFleetVehiculeList=Liste de véhicules
 NodoliFleet=(vide)
@@ -89,6 +97,8 @@ rentDeleted=Loyer supprimé
 VehiculeOperations=Opérations
 VehiculeOperation=Opération
 VehiculeOperationDelay=Délais depuis dernière opération
+dolifleetRentalProposal=Proposition de loyers
+NewdolifleetRentalProposal=Nouvelle proposition de loyers
 
 doliFleetModify=Modifier
 doliFleetClone=Cloner

@@ -276,19 +276,42 @@ class moddoliFleet extends DolibarrModules
 		$r++;
 
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
-		$this->rights[$r][1] = 'rental_validate';	// Permission label
-		$this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
-		$this->rights[$r][4] = 'rental';		    // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		$this->rights[$r][5] = 'validate';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
-		$r++;
-
-		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
 		$this->rights[$r][1] = 'rental_delete';	// Permission label
 		$this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
 		$this->rights[$r][4] = 'rental';		    // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$this->rights[$r][5] = 'delete';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$r++;
 
+		// droits proposition de loyers
+		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
+		$this->rights[$r][1] = 'rentalproposal_read';	// Permission label
+		$this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
+		$this->rights[$r][4] = 'rentalproposal';		    // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$this->rights[$r][5] = 'read';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$r++;
+
+		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
+		$this->rights[$r][1] = 'rentalproposal_write';	// Permission label
+		$this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
+		$this->rights[$r][4] = 'rentalproposal';		    // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$this->rights[$r][5] = 'write';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$r++;
+
+		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
+		$this->rights[$r][1] = 'rentalproposal_validate';	// Permission label
+		$this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
+		$this->rights[$r][4] = 'rentalproposal';		    // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$this->rights[$r][5] = 'validate';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$r++;
+
+		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
+		$this->rights[$r][1] = 'rentalproposal_delete';	// Permission label
+		$this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
+		$this->rights[$r][4] = 'rentalproposal';		    // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$this->rights[$r][5] = 'delete';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+		$r++;
+
+		// droits matrices de loyers
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
 		$this->rights[$r][1] = 'matrix_read';	// Permission label
 		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)

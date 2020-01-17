@@ -87,7 +87,32 @@ function vehicule_prepare_head(doliFleetVehicule $object)
     // Entries must be declared in modules descriptor with line
     // $this->tabs = array('entity:+tabname:Title:@dolifleet:/dolifleet/mypage.php?id=__ID__');   to add new tab
     // $this->tabs = array('entity:-tabname:Title:@dolifleet:/dolifleet/mypage.php?id=__ID__');   to remove a tab
-    complete_head_from_modules($conf, $langs, $object, $head, $h, 'dolifleet');
+    complete_head_from_modules($conf, $langs, $object, $head, $h, 'dolifleetVehicule');
+
+	return $head;
+}
+
+/**
+ * Return array of tabs to used on pages for third parties cards.
+ *
+ * @param 	doliFleetVehicule	$object		Object company shown
+ * @return 	array				Array of tabs
+ */
+function rental_proposal_prepare_head(doliFleetVehicule $object)
+{
+    global $langs, $conf;
+    $h = 0;
+    $head = array();
+    $head[$h][0] = dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id;
+    $head[$h][1] = $langs->trans("doliFleetRentalProposalCard");
+    $head[$h][2] = 'card';
+    $h++;
+
+	// Show more tabs from modules
+    // Entries must be declared in modules descriptor with line
+    // $this->tabs = array('entity:+tabname:Title:@dolifleet:/dolifleet/mypage.php?id=__ID__');   to add new tab
+    // $this->tabs = array('entity:-tabname:Title:@dolifleet:/dolifleet/mypage.php?id=__ID__');   to remove a tab
+    complete_head_from_modules($conf, $langs, $object, $head, $h, 'dolifleetRentalProposal');
 
 	return $head;
 }

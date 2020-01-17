@@ -107,17 +107,21 @@ class doliFleetVehiculeRentalMatrix extends SeedObject
 		if (empty($this->delay)) $this->errors[] = $langs->trans('ErrNoDelayForLine');
 		if (empty($this->amount_ht)) $this->errors[] = $langs->trans('ErrInvalidAmount');
 
-		$sql = "SELECT COUNT(rowid) as nb FROM ".MAIN_DB_PREFIX.$this->table_element;
-		$sql.= " WHERE fk_soc = " . $this->fk_soc;
-		$sql.= " AND fk_c_type_vh = ".$this->fk_c_type_vh;
-		$sql.= " AND fk_c_mark_vh = ".$this->fk_c_mark_vh;
-		$sql.= " AND delay = ".$this->delay;
-		$resql = $this->db->query($sql);
-		if ($resql)
+		if (empty($this->id))
 		{
-			$obj = $this->db->fetch_object($resql);
-			if ($obj->nb > 0) $this->errors[] = $langs->trans('ErrDuplicateMatrix');
+			$sql = "SELECT COUNT(rowid) as nb FROM ".MAIN_DB_PREFIX.$this->table_element;
+			$sql.= " WHERE fk_soc = " . $this->fk_soc;
+			$sql.= " AND fk_c_type_vh = ".$this->fk_c_type_vh;
+			$sql.= " AND fk_c_mark_vh = ".$this->fk_c_mark_vh;
+			$sql.= " AND delay = ".$this->delay;
+			$resql = $this->db->query($sql);
+			if ($resql)
+			{
+				$obj = $this->db->fetch_object($resql);
+				if ($obj->nb > 0) $this->errors[] = $langs->trans('ErrDuplicateMatrix');
+			}
 		}
+
 
 		if (!empty($this->errors)) return -1;
 

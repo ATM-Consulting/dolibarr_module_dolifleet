@@ -71,7 +71,7 @@ class dolifleetVehiculeRental extends SeedObject
 		),
 
 		'total_ht' => array(
-			'type' => 'double',
+			'type' => 'price',
 			'label' => 'totalHT',
 			'enabled' => 1,
 			'visible' => 1,
