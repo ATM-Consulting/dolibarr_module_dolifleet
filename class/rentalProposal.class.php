@@ -346,6 +346,7 @@ class dolifleetRentalProposal extends SeedObject
 					$pdet = new dolifleetRentalProposalDet($this->db);
 					$pdet->fk_vehicule = $obj->v_id;
 					$pdet->fk_rental_proposal = $this->id;
+					$pdet->fk_soc = $this->fk_soc;
 					$pdet->getprice();
 
 				}
@@ -562,6 +563,10 @@ class dolifleetRentalProposalDet extends SeedObject
 	public function getprice()
 	{
 		// récupérer le montant hors taxe depuis la matrice du client
+		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."dolifleet_vehicule_rental_matrix";
+		$sql.= " WHERE fk_soc = ".$this->fk_soc;
+		$sql.= " AND delay <= PERIOD_DIFF(DATE_FORMAT(NOW(), '%Y%m'), la date de mise en circulation du vehicule)";
+
 		// ou depuis la matrice générale
 		// ou prix par défaut en conf
 	}
