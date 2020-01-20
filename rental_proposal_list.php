@@ -16,12 +16,12 @@
  */
 
 require 'config.php';
-dol_include_once('dolifleetrentalproposal/class/dolifleetrentalproposal.class.php');
+dol_include_once('dolifleet/class/rentalProposal.class.php');
 
-if(empty($user->rights->dolifleetrentalproposal->read)) accessforbidden();
+if(empty($user->rights->dolifleet->rentalproposal->read)) accessforbidden();
 
 $langs->load('abricot@abricot');
-$langs->load('dolifleetrentalproposal@dolifleetrentalproposal');
+$langs->load('dolifleet@dolifleet');
 
 
 $massaction = GETPOST('massaction', 'alpha');
@@ -85,11 +85,11 @@ $parameters=array('sql' => $sql);
 $reshook=$hookmanager->executeHooks('printFieldListSelect', $parameters, $object);    // Note that $action and $object may have been modified by hook
 $sql.=$hookmanager->resPrint;
 
-$sql.= ' FROM '.MAIN_DB_PREFIX.'dolifleetrentalproposal t ';
+$sql.= ' FROM '.MAIN_DB_PREFIX.$object->table_element.' t ';
 
 if (!empty($object->isextrafieldmanaged))
 {
-	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'dolifleetrentalproposal_extrafields et ON (et.fk_object = t.rowid)';
+	$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.$object->table_element.'_extrafields et ON (et.fk_object = t.rowid)';
 }
 
 $sql.= ' WHERE 1=1';
@@ -144,9 +144,9 @@ $listViewConfig = array(
 	)
 ,'title'=>array(
 		'ref' => $langs->trans('Ref.')
-	,'label' => $langs->trans('Label')
-	,'date_creation' => $langs->trans('DateCre')
-	,'tms' => $langs->trans('DateMaj')
+		,'label' => $langs->trans('Label')
+		,'date_creation' => $langs->trans('DateCre')
+		,'tms' => $langs->trans('DateMaj')
 	)
 ,'eval'=>array(
 		'ref' => '_getObjectNomUrl(\'@rowid@\', \'@val@\')'

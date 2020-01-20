@@ -253,6 +253,18 @@ class doliFleetVehicule extends SeedObject
 	/** @var int $status Object status */
 	public $status;
 
+	public $fk_vehicule_type;
+	public $fk_vehicule_mark;
+	public $immatriculation;
+	public $date_immat;
+	public $fk_soc;
+	public $date_customer_exploit;
+	public $km;
+	public $km_date;
+	public $fk_contract_type;
+	public $date_end_contract;
+
+
 
     /**
      * doliFleetVehicule constructor.
@@ -278,27 +290,34 @@ class doliFleetVehicule extends SeedObject
     {
     	global $langs;
 
+    	// TODO remake object field validation
+		// vin type, marque, immat (format), dateMIC, tiers
     	if (empty($this->vin))
 		{
 			$this->errors[] = $langs->trans("ErrNoVinNumber");
-			return -1;
-		}
-		else
-		{
-			$veh = new static($this->db);
-			$ret = $veh->fetchBy($this->vin, 'vin', false);
-			if ($ret > 0 && $veh->id != $this->id)
-			{
-				$this->errors[] = $langs->trans('ErrVinAlreadyUsed', html_entity_decode($veh->getNomUrl()));
-				return -1;
-			}
 		}
 
-        if (!empty($this->is_clone))
-        {
-            // TODO determinate if auto generate
-            $this->ref = '(PROV'.$this->id.')';
-        }
+		$veh = new static($this->db);
+		$ret = $veh->fetchBy($this->vin, 'vin', false);
+		if ($ret > 0 && $veh->id != $this->id)
+		{
+			$this->errors[] = $langs->trans('ErrVinAlreadyUsed', html_entity_decode($veh->getNomUrl()));
+		}
+
+		if (empty($this->fk_vehicule_type)) $this->errors[] = $langs->trans('ErrInvalidVehiculeType');
+		if (empty($this->fk_vehicule_mark)) $this->errors[] = $langs->trans('ErrInvalidVehiculeMark');
+
+		if (empty($this->immatriculation)) $this->errors[] = $langs->trans('ErrEmptyVehiculeImmatriculation');
+
+		if (empty($this->date_immat)) $this->errors[] = $langs->trans('ErrEmptyVehiculeImmatDate');
+
+		if (!empty($this->errors)) return -1;
+
+//        if (!empty($this->is_clone))
+//        {
+//            // TODO determinate if auto generate
+//            $this->ref = '(PROV'.$this->id.')';
+//        }
 
         return $this->create($user);
     }

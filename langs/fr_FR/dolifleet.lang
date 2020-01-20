@@ -40,6 +40,9 @@ TopMenudoliFleet=doliFleet
 MenudoliFleetVehicule=Vehicule
 LeftMenudoliFleetVehiculeCreate=Créer un véhicule
 LeftMenudoliFleetVehiculeList=Liste de véhicule
+MenudolifleetRentalProposal=Proposition de loyer
+LeftMenudoliFleetRentalProposalCreate=Nouvelle proposition
+LeftMenudoliFleetRentalProposalList=Liste propositions
 
 # STATUS
 doliFleetVehiculeStatusDraft=Inactif
@@ -100,6 +103,7 @@ VehiculeOperationDelay=Délais depuis dernière opération
 dolifleetRentalProposal=Proposition de loyers
 doliFleetRentalProposalCard=Fiche proposition de loyers
 NewdolifleetRentalProposal=Nouvelle proposition de loyers
+dolifleetRentalProposalList=Liste de propositions de loyers
 
 doliFleetModify=Modifier
 doliFleetClone=Cloner

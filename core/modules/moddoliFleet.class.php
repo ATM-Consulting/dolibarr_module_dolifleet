@@ -435,6 +435,55 @@ class moddoliFleet extends DolibarrModules
 		);				                // 0=Menu for internal users, 1=external users, 2=both
 		$r++;
 
+		$this->menu[$r]=array(
+			'fk_menu'=>'fk_mainmenu=dolifleet',			                // Put 0 if this is a top menu
+			'type'=>'left',			                // This is a Top menu entry
+			'titre'=>$langs->trans('MenudolifleetRentalProposal'),
+			'mainmenu'=>'dolifleet',
+			'leftmenu'=>'dolifleet_rental_left',
+			'url'=>'/dolifleet/rental_proposal_list.php',
+			'langs'=>'dolifleet@dolifleet',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>100+$r,
+			'enabled'=>'$conf->dolifleet->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
+			'perms'=>'$user->rights->dolifleet->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>0
+		);
+		$r++;
+
+		$this->menu[$r]=array(
+			'fk_menu'=>'fk_mainmenu=dolifleet,fk_leftmenu=dolifleet_rental_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>$langs->trans('LeftMenudoliFleetRentalProposalCreate'),
+			'mainmenu'=>'dolifleet',
+			'leftmenu'=>'dolifleet_left_create',
+			'url'=>'/dolifleet/rental_proposal_card.php?action=create',
+			'langs'=>'dolifleet@dolifleet',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>100+$r,
+			'enabled'=> '$conf->dolifleet->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->rights->dolifleet->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>0
+		);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
+
+
+		$this->menu[$r]=array(
+			'fk_menu'=>'fk_mainmenu=dolifleet,fk_leftmenu=dolifleet_rental_left',		    // Use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'=>'left',			                // This is a Left menu entry
+			'titre'=>$langs->trans('LeftMenudoliFleetRentalProposalList'),
+			'mainmenu'=>'dolifleet',
+			'leftmenu'=>'dolifleet_left_list',
+			'url'=>'/dolifleet/rental_proposal_list.php',
+			'langs'=>'dolifleet@dolifleet',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position'=>100+$r,
+			'enabled'=> '$conf->dolifleet->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'=> '$user->rights->dolifleet->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'target'=>'',
+			'user'=>0
+		);				                // 0=Menu for internal users, 1=external users, 2=both
+		$r++;
+
 
 		// Exports
 		$r=1;
