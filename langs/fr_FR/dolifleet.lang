@@ -34,6 +34,8 @@ doliFleetSetup = Configuration du module doliFleet
 doliFleetAbout = A propos du module doliFleet
 DOLIFLEET_MOTRICE_TYPES=Type de véhicule tracteur
 rentalMatrix=Matrice de loyers
+DOLIFLEET_DEFAULT_RENTAL_AMOUNT=Loyer par défaut (si aucun n'est trouvé dans la matrice client ou générale)
+DOLIFLEET_DELAY_SEARCH_OPERATIONS=Délai en mois pour rechercher les opérations précédentes dans la planification des opérations véhicules
 
 # MENU
 TopMenudoliFleet=doliFleet

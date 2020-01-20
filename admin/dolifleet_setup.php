@@ -129,9 +129,21 @@ dol_include_once('/dolifleet/class/dictionaryVehiculeType.class.php');
 $dict = new dictionaryVehiculeType($db);
 $TType = $dict->getAllActiveArray('label');
 print $form->multiselectarray('DOLIFLEET_MOTRICE_TYPES', $TType, unserialize($conf->global->DOLIFLEET_MOTRICE_TYPES));
-print '<input class="button" type="submit" value="'.$langs->trans('Save').'">';
+print '<input class="butAction" type="submit" value="'.$langs->trans('Save').'">';
 print '</form></td>';
 print '</tr>';
+
+if (empty($conf->global->DOLIFLEET_DEFAULT_RENTAL_AMOUNT))
+{
+	dolibarr_set_const($db, 'DOLIFLEET_DEFAULT_RENTAL_AMOUNT', 500, 'chaine', 0, '', $conf->entity);
+}
+setup_print_input_form_part('DOLIFLEET_DEFAULT_RENTAL_AMOUNT', $langs->trans('DOLIFLEET_DEFAULT_RENTAL_AMOUNT'));
+
+if (empty($conf->global->DOLIFLEET_DELAY_SEARCH_OPERATIONS))
+{
+	dolibarr_set_const($db, 'DOLIFLEET_DELAY_SEARCH_OPERATIONS', 12, 'chaine', 0, '', $conf->entity);
+}
+setup_print_input_form_part('DOLIFLEET_DELAY_SEARCH_OPERATIONS');
 
 // Example with a yes / no select
 //setup_print_on_off('CONSTNAME', $langs->trans('ParamLabel'), 'ParamDesc');
