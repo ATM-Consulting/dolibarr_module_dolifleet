@@ -152,3 +152,4 @@ ErrInvalidMark=Marque de véhicule invalide
 ErrNoDelayForLine=Pas de durée saisi
 ErrInvalidAmount=Montant saisie invalide
 ErrDuplicateMatrix=Il existe déjà une ligne de matrice pour ce type, cette marque, et cette durée
+ErrVehiculeThirPartiesAreDifferent=Les tiers des véhicules à lier sont différents

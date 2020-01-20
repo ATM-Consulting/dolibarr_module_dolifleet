@@ -82,3 +82,6 @@ $o->init_db_by_vars();
 dol_include_once('/dolifleet/class/rentalProposal.class.php');
 $o=new dolifleetRentalProposal($db);
 $o->init_db_by_vars();
+
+$o=new dolifleetRentalProposalDet($db);
+$o->init_db_by_vars();

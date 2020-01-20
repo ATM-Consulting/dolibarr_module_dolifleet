@@ -517,6 +517,7 @@ class doliFleetVehicule extends SeedObject
 
 		$act->fk_vehicule = $this->id;
 		$act->fk_type = $type;
+		$act->fk_soc = $this->fk_soc;
 		$act->date_start = $date_start;
 		$act->date_end = $date_end;
 
@@ -644,6 +645,11 @@ class doliFleetVehicule extends SeedObject
 					dol_print_date($v->date_start, "%d/%m/%Y"),
 					dol_print_date($v->date_end, "%d/%m/%Y"));
 			}
+		}
+
+		if ($this->fk_soc != $vehiculeToLink->fk_soc)
+		{
+			$this->errors[] = $langs->trans('ErrVehiculeThirPartiesAreDifferent');
 		}
 
 		if (!empty($this->errors)) return -1;
@@ -832,6 +838,7 @@ class doliFleetVehicule extends SeedObject
 
 		$ope->fk_vehicule = $this->id;
 		$ope->fk_product = $productid;
+		$ope->fk_soc_vehicule = $this->fk_soc;
 		$ope->km = $km;
 		$ope->delay_from_last_op = $delayInMonths;
 

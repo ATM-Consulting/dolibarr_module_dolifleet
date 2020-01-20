@@ -38,6 +38,8 @@ class doliFleetVehiculeActivity extends SeedObject
 	/** @var int $fk_type Object type */
 	public $fk_type;
 
+	public $fk_soc;
+
 	public $date_start;
 
 	public $date_end;
@@ -48,6 +50,7 @@ class doliFleetVehiculeActivity extends SeedObject
 			'label' => 'doliFleetVehicule',
 			'visible' => 1,
 			'enabled' => 1,
+			'notnull' => 1,
 			'position' => 10,
 			'index' => 1,
 		),
@@ -57,6 +60,7 @@ class doliFleetVehiculeActivity extends SeedObject
 			'label' => 'vehiculeMark',
 			'visible' => 1,
 			'enabled' => 1,
+			'notnull' => 1,
 			'position' => 50,
 			'index' => 1,
 		),
@@ -77,6 +81,18 @@ class doliFleetVehiculeActivity extends SeedObject
 			'visible' => 1,
 			'position' => 70,
 			'searchall' => 1,
+		),
+
+		'fk_soc' => array(
+			'type' => 'integer:Societe:societe/class/societe.class.php',
+			'label' => 'ThirdParty',
+			'visible' => 1,
+			'notnull' =>1,
+			'default' => 0,
+			'enabled' => 1,
+			'position' => 80,
+			'index' => 1,
+			'help' => 'LinkToThirparty'
 		),
 	);
 

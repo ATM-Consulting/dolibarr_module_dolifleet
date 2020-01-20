@@ -38,7 +38,11 @@ class doliFleetVehiculeLink extends SeedObject
 
 	public $fk_source;
 
+	public $fk_soc_vehicule_source;
+
 	public $fk_target;
+
+	public $fk_soc_vehicule_target;
 
 	public $fields = array(
 		'date_start' => array(
@@ -68,6 +72,18 @@ class doliFleetVehiculeLink extends SeedObject
 			'index' => 1,
 		),
 
+		'fk_soc_vehicule_source' => array(
+			'type' => 'integer:Societe:societe/class/societe.class.php',
+			'label' => 'ThirdParty',
+			'visible' => 1,
+			'notnull' =>1,
+			'default' => 0,
+			'enabled' => 1,
+			'position' => 80,
+			'index' => 1,
+			'help' => 'LinkToThirparty'
+		),
+
 		'fk_target' => array(
 			'type' => 'integer:doliFleetVehicule:dolifleet/class/vehicule.class.php',
 			'label' => 'doliFleetVehicule',
@@ -75,7 +91,19 @@ class doliFleetVehiculeLink extends SeedObject
 			'enabled' => 1,
 			'position' => 10,
 			'index' => 1,
-		)
+		),
+
+		'fk_soc_vehicule_target' => array(
+			'type' => 'integer:Societe:societe/class/societe.class.php',
+			'label' => 'ThirdParty',
+			'visible' => 1,
+			'notnull' =>1,
+			'default' => 0,
+			'enabled' => 1,
+			'position' => 80,
+			'index' => 1,
+			'help' => 'LinkToThirparty'
+		),
 	);
 
 	/**

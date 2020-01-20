@@ -171,8 +171,13 @@ class dolifleetRentalProposal extends SeedObject
 		global $langs;
 
 		// TODO check parameters
+		$initLines = false;
+		if (empty($this->id)) $initLines = true;
 
-		return $this->create($user);
+		//$ret = $this->create($user);
+		if (/*$ret > 0 &&*/ $initLines) $this->initLines();
+
+		return $ret;
 	}
 
 	/**
@@ -314,6 +319,41 @@ class dolifleetRentalProposal extends SeedObject
 		return 0;
 	}
 
+	public function initLines()
+	{
+		$this->lines = array();
+
+		$date_start = strtotime("01-".$this->month."-".$this->year." 00:00:00");
+		$date_end = strtotime(date("t-m-Y 23:59:59", $date_start));
+
+		$sql = "SELECT v.rowid, vat.label FROM ".MAIN_DB_PREFIX."dolifleet_vehicule as v";
+		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."dolifleet_vehicule_activity as va ON va.fk_vehicule = v.rowid";
+		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_dolifleet_vehicule_activity_type as vat ON vat.rowid = va.fk_type";
+		$sql.= " WHERE v.fk_soc = ".$this->fk_soc;
+		$sql.= " AND v.status = 1";
+		$sql.= " AND ((va.date_start <= '".$this->db->idate($date_end)."' AND va.date_end >= '".$this->db->idate($date_start)."') OR vat.label IS NULL)";
+		$sql.= " GROUP BY vat.label ASC, v.fk_vehicule_type ASC";
+
+		$resql = $this->db->query($sql);
+		if ($resql)
+		{
+			$num = $this->db->num_rows($resql);
+			if ($num)
+			{
+				$pdet = new dolifleetRentalProposalDet($this->db);
+
+			}
+		}
+		else
+		{
+			$this->errors[] = $this->db->lasterror();
+		}
+
+		if (!empty($this->errors)) return -1;
+		else return 1;
+
+	}
+
 
 	/**
 	 * @param int    $withpicto     Add picto into link
@@ -329,7 +369,7 @@ class dolifleetRentalProposal extends SeedObject
 		if (! empty($this->ref)) $label.= '<br><b>'.$langs->trans('Ref').':</b> '.$this->ref;
 
 		$linkclose = '" title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip">';
-		$link = '<a href="'.dol_buildpath('/dolifleetrentalproposal/card.php', 1).'?id='.$this->id.urlencode($moreparams).$linkclose;
+		$link = '<a href="'.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$this->id.urlencode($moreparams).$linkclose;
 
 		$linkend='</a>';
 
@@ -457,5 +497,56 @@ class dolifleetRentalProposal extends SeedObject
 		return $out;
 	}
 
+}
 
+class dolifleetRentalProposalDet extends SeedObject
+{
+	/** @var string $table_element Table name in SQL */
+	public $table_element = 'dolifleet_rental_proposaldet';
+
+	/** @var string $element Name of the element (tip for better integration in Dolibarr: this value should be the reflection of the class name with ucfirst() function) */
+	public $element = 'dolifleet_rental_proposaldet';
+
+	/** @var int $fk_vehicule Object link to vehicule */
+	public $fk_vehicule;
+
+	public $total_ht;
+
+	public $description;
+
+	public $fields = array(
+		'fk_vehicule' => array(
+			'type' => 'integer:doliFleetVehicule:dolifleet/class/vehicule.class.php',
+			'label' => 'doliFleetVehicule',
+			'visible' => 1,
+			'enabled' => 1,
+			'position' => 10,
+			'index' => 1,
+		),
+
+		'fk_rental_proposal' => array(
+			'type' => 'integer:dolifleetRentalProposal:dolifleet/class/rentalProposal.class.php',
+			'label' => 'Line',
+			'visible' => 1,
+			'enabled' => 1,
+			'position' => 20,
+			'index' => 1,
+		),
+
+		'total_ht' => array(
+			'type' => 'price',
+			'label' => 'totalHT',
+			'enabled' => 1,
+			'visible' => 1,
+			'position' => 30
+		),
+
+		'description' => array(
+			'type' => 'text', // or html for WYSWYG
+			'label' => 'Description',
+			'enabled' => 1,
+			'visible' => -1, //  un bug sur la version 9.0 de Dolibarr necessite de mettre -1 pour ne pas apparaitre sur les listes au lieu de la valeur 3
+			'position' => 40
+		),
+	);
 }

@@ -63,6 +63,8 @@ class dolifleetVehiculeOperation extends SeedObject
 	/** @var int $fk_vehicule Object link to vehicule */
 	public $fk_vehicule;
 
+	public $fk_soc_vehicule;
+
 	public $fk_product;
 
 	public $status;
@@ -81,6 +83,18 @@ class dolifleetVehiculeOperation extends SeedObject
 			'enabled' => 1,
 			'position' => 10,
 			'index' => 1,
+		),
+
+		'fk_soc_vehicule' => array(
+			'type' => 'integer:Societe:societe/class/societe.class.php',
+			'label' => 'ThirdParty',
+			'visible' => 1,
+			'notnull' =>1,
+			'default' => 0,
+			'enabled' => 1,
+			'position' => 80,
+			'index' => 1,
+			'help' => 'LinkToThirparty'
 		),
 
 		'fk_product' => array(
