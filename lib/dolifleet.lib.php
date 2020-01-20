@@ -172,7 +172,7 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
 	elseif ($action === 'delMatrixLine' && !empty($user->rights->dolifleet->write))
 	{
 		$body = $langs->trans('ConfirmDeldoliFleetLineBody');
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id . '&id='.GETPOST('id'), $langs->trans('ConfirmDeletedoliFleetVehiculeTitle'), $body, 'confirm_delMatrixLine', '', 0, 1);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id='.GETPOST('id'), $langs->trans('ConfirmDeletedoliFleetVehiculeTitle'), $body, 'confirm_delMatrixLine', '', 0, 1);
 	}
 
     return $formconfirm;

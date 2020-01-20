@@ -326,13 +326,14 @@ class dolifleetRentalProposal extends SeedObject
 		$date_start = strtotime("01-".$this->month."-".$this->year." 00:00:00");
 		$date_end = strtotime(date("t-m-Y 23:59:59", $date_start));
 
-		$sql = "SELECT v.rowid, vat.label FROM ".MAIN_DB_PREFIX."dolifleet_vehicule as v";
+		$sql = "SELECT v.rowid as v_id, vat.rowid as va_type FROM ".MAIN_DB_PREFIX."dolifleet_vehicule as v";
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."dolifleet_vehicule_activity as va ON va.fk_vehicule = v.rowid";
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_dolifleet_vehicule_activity_type as vat ON vat.rowid = va.fk_type";
 		$sql.= " WHERE v.fk_soc = ".$this->fk_soc;
 		$sql.= " AND v.status = 1";
+		$sql.= " AND va.fk_soc = ".$this->fk_soc;
 		$sql.= " AND ((va.date_start <= '".$this->db->idate($date_end)."' AND va.date_end >= '".$this->db->idate($date_start)."') OR vat.label IS NULL)";
-		$sql.= " GROUP BY vat.label ASC, v.fk_vehicule_type ASC";
+		$sql.= " GROUP BY vat.rowid ASC, v.fk_vehicule_type ASC, v.rowid ASC";
 
 		$resql = $this->db->query($sql);
 		if ($resql)
@@ -340,8 +341,14 @@ class dolifleetRentalProposal extends SeedObject
 			$num = $this->db->num_rows($resql);
 			if ($num)
 			{
-				$pdet = new dolifleetRentalProposalDet($this->db);
+				while($obj = $this->db->fetch_object($resql))
+				{
+					$pdet = new dolifleetRentalProposalDet($this->db);
+					$pdet->fk_vehicule = $obj->v_id;
+					$pdet->fk_rental_proposal = $this->id;
+					$pdet->getprice();
 
+				}
 			}
 		}
 		else
@@ -510,6 +517,8 @@ class dolifleetRentalProposalDet extends SeedObject
 	/** @var int $fk_vehicule Object link to vehicule */
 	public $fk_vehicule;
 
+	public $fk_rental_proposal;
+
 	public $total_ht;
 
 	public $description;
@@ -549,4 +558,11 @@ class dolifleetRentalProposalDet extends SeedObject
 			'position' => 40
 		),
 	);
+
+	public function getprice()
+	{
+		// récupérer le montant hors taxe depuis la matrice du client
+		// ou depuis la matrice générale
+		// ou prix par défaut en conf
+	}
 }
