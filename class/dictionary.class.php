@@ -163,8 +163,6 @@ abstract class dictionary extends SeedObject
 	{
 		global $langs;
 
-		if (empty($id)) return $langs->trans('NodoliFleetActivity');
-
 		$dict = new static($this->db);
 		$ret = $dict->fetch($id);
 		if ($ret > 0 && isset($dict->{$field}))
