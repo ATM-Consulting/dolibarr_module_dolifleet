@@ -19,6 +19,9 @@ require 'config.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 dol_include_once('dolifleet/class/rentalProposal.class.php');
+dol_include_once('dolifleet/class/vehicule.class.php');
+dol_include_once('dolifleet/class/dictionaryVehiculeActivityType.class.php');
+dol_include_once('dolifleet/class/dictionaryVehiculeType.class.php');
 dol_include_once('dolifleet/lib/dolifleet.lib.php');
 
 if(empty($user->rights->dolifleet->rentalproposal->read)) accessforbidden();
@@ -28,6 +31,7 @@ $langs->load('dolifleet@dolifleet');
 $action = GETPOST('action');
 $id = GETPOST('id', 'int');
 $ref = GETPOST('ref');
+$lineid = GETPOST('lineid', 'int');
 
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'dolifleetrentalproposalcard';   // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
@@ -79,9 +83,6 @@ if (empty($reshook))
 
 	// For object linked
 	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';		// Must be include, not include_once
-
-
-
 
 	$error = 0;
 	switch ($action) {
@@ -160,8 +161,15 @@ if (empty($reshook))
 			if (!empty($user->rights->dolifleet->rentalproposal->write)) $object->setDraft($user);
 
 			break;
+
 		case 'confirm_validate':
 			if (!empty($user->rights->dolifleet->rentalproposal->write)) $object->setValid($user);
+
+			header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
+			exit;
+
+		case 'confirm_accept':
+			if (!empty($user->rights->dolifleet->rentalproposal->write)) $object->setAccepted($user);
 
 			header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
 			exit;
@@ -178,6 +186,29 @@ if (empty($reshook))
 			header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
 			exit;
 
+		case 'updateLine':
+			if (!GETPOST('cancel'))
+			{
+				$line = new dolifleetRentalProposalDet($db);
+				$line->fetch($lineid);
+
+				$line->setValues($_REQUEST);
+				$line->id = $lineid;
+
+				$ret = $line->create($user);
+				if ($ret < 0)
+				{
+					setEventMessages('', array_merge($line->errors, array($line->error)));
+					$action = 'editline';
+				}
+				else
+				{
+					header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
+					exit;
+				}
+			}
+			break;
+
 	}
 }
 
@@ -186,6 +217,8 @@ if (empty($reshook))
  * View
  */
 $form = new Form($db);
+$dictTypeAct = new dictionaryVehiculeActivityType($db);
+$dictTypeVeh = new dictionaryVehiculeType($db);
 
 $title=$langs->trans('dolifleetRentalProposal');
 llxHeader('', $title);
@@ -306,6 +339,90 @@ else
 
 			print '<div class="clearboth"></div><br />';
 
+			$object->fetchLines();
+			if (!empty($object->lines))
+			{
+				print '<div class="fichecenter">';
+
+				print '<div class="div-table-responsive-no-min">';
+
+				if ($action == "editline" && $object->status == dolifleetRentalProposal::STATUS_DRAFT)
+				{
+					print '<form id="editRentalLines" action="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'">';
+					print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+					print '<input type="hidden" name="action" value="updateLine">';
+					print '<input type="hidden" name="id" value="'.$object->id.'">';
+					print '<input type="hidden" name="lineid" value="'.$lineid.'">';
+				}
+
+				print '<table id="tablelines" class="noborder noshadow" width="100%">';
+
+				print '<tr class="liste_titre nodrag nodrop">';
+				print '<td class="linecolimmat">'.$langs->trans('Immatriculation').'</td>';
+				print '<td class="linecoldate">'.$langs->trans('date_customer_exploit').'</td>';
+				print '<td class="linecoldescription">'.$langs->trans('Description').'</td>';
+				print '<td class="linecolht right">'.$langs->trans('TotalHT').'</td>';
+				print '<td class="linecoledit"></td>';
+				print '</tr>';
+
+				$typeAct = $typeVeh = 0;
+
+				foreach ($object->lines as $line)
+				{
+
+					$modeEdit = ($action == 'editline' && $lineid == $line->id);
+
+					if ($typeAct != $line->activity_type)
+					{
+						print '<tr><td colspan="5" align="center" style="background-color: #adadad">';
+						print $dictTypeAct->getValueFromId($line->activity_type);
+						print '</td></tr>';
+						$typeAct = $line->activity_type;
+						$typeVeh = 0;
+					}
+
+					if ($typeVeh != $line->fk_vehicule_type)
+					{
+						print '<tr><td colspan="5" align="center" style="background-color: #d4d4d4">';
+						print $dictTypeVeh->getValueFromId($line->fk_vehicule_type);
+						print '</td></tr>';
+						$typeVeh = $line->fk_vehicule_type;
+					}
+
+					print '<tr id="row-'.$line->id.'"  class="nodrag nodrop">';
+					print '<td class="linecolimmat">';
+					$vehicule = new doliFleetVehicule($db);
+					$vehicule->fetch($line->fk_vehicule);
+					print $vehicule->getLinkUrl(0, '', 'immatriculation');
+					print '</td>';
+					print '<td class="linecoldate">'.dol_print_date($vehicule->date_customer_exploit).'</td>';
+					print '<td class="linecoldescription">'.(!$modeEdit ? $line->showOutputField($line->fields['description'], 'description', $line->description) : $line->showInputField($line->fields['description'], 'description', $line->description)).'</td>';
+					print '<td class="linecolht right">'.(!$modeEdit ? price($line->total_ht) : $line->showInputField($line->fields['total_ht'], 'total_ht', $line->total_ht)).'</td>';
+					print '<td class="linecoledit">';
+					if ($modeEdit && $object->status == dolifleetRentalProposal::STATUS_DRAFT)
+					{
+						print '<input class="button" type="submit" name="save" value="'.$langs->trans('Save').'">';
+						print '<input class="button" type="submit" name="cancel" value="'.$langs->trans('Cancel').'">';
+					}
+					else
+					{
+						if ($object->status == dolifleetRentalProposal::STATUS_DRAFT) print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=editline&lineid='.$line->id.'">'.img_edit().'</a>';
+					}
+					print '</td>';
+					print '</tr>';
+				}
+
+				print '</table>';
+
+				if ($action == "editline" && $object->status == dolifleetRentalProposal::STATUS_DRAFT) print '</form>';
+
+				print '</div>';
+
+				print '</div>'; // Fin fichecenter
+
+				print '<div class="clearboth"></div><br />';
+			}
+
 			print '<div class="tabsAction">'."\n";
 			$parameters=array();
 			$reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action);    // Note that $action and $object may have been modified by hook
@@ -317,42 +434,39 @@ else
 				//        print '<a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=presend&mode=init#formmailbeforetitle">' . $langs->trans('SendMail') . '</a>'."\n";
 
 				// Modify
-				if (!empty($user->rights->dolifleet->rentalproposal->write))
+				if (!empty($user->rights->dolifleet->rentalproposal->validate))
 				{
-//					if ($object->status !== dolifleetRentalProposal::STATUS_CANCELED)
-//					{
-//						// Modify
-//						if ($object->status !== dolifleetRentalProposal::STATUS_ACCEPTED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edit">'.$langs->trans("dolifleetRentalProposalModify").'</a></div>'."\n";
-//						// Clone
-//						print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=clone">'.$langs->trans("dolifleetRentalProposalClone").'</a></div>'."\n";
-//					}
-//
-//					// Valid
-//					if ($object->status === dolifleetRentalProposal::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=valid">'.$langs->trans('dolifleetRentalProposalValid').'</a></div>'."\n";
-//
-//					// Accept
-//					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=accept">'.$langs->trans('dolifleetRentalProposalAccept').'</a></div>'."\n";
+					// Modify
+//					if ($object->status == dolifleetRentalProposal::STATUS_INPROGRESS) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edit">'.$langs->trans("Modify").'</a></div>'."\n";
+
+					// Valid
+					if ($object->status === dolifleetRentalProposal::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=validate">'.$langs->trans('dolifleetRentalProposalValid').'</a></div>'."\n";
+
+					if ($object->status === dolifleetRentalProposal::STATUS_INPROGRESS )
+					{
+						// Reopen
+						if ($object->fk_first_valid == $user->id) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopen">'.$langs->trans('dolifleetRentalProposalReopen').'</a></div>'."\n";
+						else print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("OnlyUserWhoValidatedCanReopen")).'">'.$langs->trans('dolifleetRentalProposalReopen').'</a></div>'."\n";
+
+						// Accept
+						/*if ($object->fk_first_valid != $user->id)*/ print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=accept">'.$langs->trans('dolifleetRentalProposalAccept').'</a></div>'."\n";
+//						else print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("UserMustBeDifferentFromValider")).'">'.$langs->trans('dolifleetRentalProposalAccept').'</a></div>'."\n";
+					}
+
 //					// Refuse
 //					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=refuse">'.$langs->trans('dolifleetRentalProposalRefuse').'</a></div>'."\n";
 //
 //
-//					// Reopen
-//					if ($object->status === dolifleetRentalProposal::STATUS_ACCEPTED || $object->status === dolifleetRentalProposal::STATUS_REFUSED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopen">'.$langs->trans('dolifleetRentalProposalReopen').'</a></div>'."\n";
 //					// Cancel
 //					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=cancel">'.$langs->trans("dolifleetRentalProposalCancel").'</a></div>'."\n";
 				}
 				else
 				{
-//					if ($object->status !== dolifleetRentalProposal::STATUS_CANCELED)
-//					{
-//						// Modify
-//						if ($object->status !== dolifleetRentalProposal::STATUS_ACCEPTED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("dolifleetRentalProposalModify").'</a></div>'."\n";
-//						// Clone
-//						print '<div class="inline-block divButAction"><a class="butAction" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("dolifleetRentalProposalClone").'</a></div>'."\n";
-//					}
-//
-//					// Valid
-//					if ($object->status === dolifleetRentalProposal::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('dolifleetRentalProposalValid').'</a></div>'."\n";
+					// Modify
+//					if ($object->status == dolifleetRentalProposal::STATUS_INPROGRESS) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("Modify").'</a></div>'."\n";
+
+					// Valid
+					if ($object->status === dolifleetRentalProposal::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('dolifleetRentalProposalValid').'</a></div>'."\n";
 //
 //					// Accept
 //					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#">'.$langs->trans('dolifleetRentalProposalAccept').'</a></div>'."\n";
@@ -360,7 +474,7 @@ else
 //					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#">'.$langs->trans('dolifleetRentalProposalRefuse').'</a></div>'."\n";
 //
 //					// Reopen
-//					if ($object->status === dolifleetRentalProposal::STATUS_ACCEPTED || $object->status === dolifleetRentalProposal::STATUS_REFUSED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('dolifleetRentalProposalReopen').'</a></div>'."\n";
+					if ($object->status === dolifleetRentalProposal::STATUS_INPROGRESS) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('dolifleetRentalProposalReopen').'</a></div>'."\n";
 //					// Cancel
 //					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("dolifleetRentalProposalCancel").'</a></div>'."\n";
 				}

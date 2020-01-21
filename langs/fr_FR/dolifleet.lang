@@ -65,10 +65,12 @@ doliFleetOperationStatusShortToPlan=à planifier
 doliFleetOperationStatusShortPlanned=Planifié
 doliFleetOperationStatusShortDone=Réalisé
 
-doliFleetProposalStatusDraft=Brouillon
-doliFleetProposalStatusInProgress=Validation en cours
-doliFleetProposalStatusValidated=Validatée
-doliFleetProposalStatusCloturé=Cloturée
+doliFleetProposalStatusDraft=Brouillon (à valider)
+doliFleetProposalStatusShortDraft=Brouillon
+doliFleetProposalStatusInProgress=Validation en cours (à accepter)
+doliFleetProposalStatusShortInProgress=Validation en cours
+doliFleetProposalStatusValidated=Validée
+doliFleetProposalStatusCloture=Cloturée
 
 # LIST
 doliFleetVehiculeList=Liste de véhicules
@@ -84,7 +86,7 @@ vehiculeDelayExploit=Durée maximum d'exploitation
 LinkToThirparty=Lien vers le tiers
 km_date=Date de relevé kilométrique
 date_customer_exploit=Date de mise en exploitation
-date_customer_exploit_help=Mise en exploitation chez le client
+date_customer_exploit_help=Mise en exploitation peut différer de la mise en circulation
 date_end_contract=Date fin de contrat
 contractType=Type de contrat
 vehiculeType=Type de véhicule
@@ -109,6 +111,11 @@ dolifleetRentalProposalList=Liste de propositions de loyers
 NoMatrixDefined=Aucune matrice définie pour le tiers
 CanImportMatrix=Vous pouvez importer la matrice générale pour ce tiers
 ImportConf=Importer
+AmountIsFromThirdpartyMatrix=Prix repris depuis la matrice client
+AmountIsFromGlobalMatrix=Prix repris de la matrice globale
+AmountIsFromGlobalConf=Prix par défaut
+OnlyUserWhoValidatedCanReopen=Seul l'utilisateur qui a validé la proposition peut la rouvrir
+UserMustBeDifferentFromValider=Seul un autre utilisateur ayant le droit approprié peut accepter la proposition
 
 doliFleetModify=Modifier
 doliFleetClone=Cloner
@@ -136,6 +143,10 @@ ConfirmUnlinkVehiculedoliFleetVehiculeBody=Voulez-vous vraiment supprimer le lie
 ConfirmDelRentaldoliFleetVehiculeBody=Voulez-vous vraiment supprimer ce loyer ?
 ConfirmDelOperationdoliFleetVehiculeBody=Voulez-vous vraiment supprimer cette opération ?
 ConfirmDeldoliFleetLineBody=Voulez-vous vraiment supprimer cette ligne ?
+ConfirmValidateRentalProposalTitle=Confirmation de validation
+ConfirmValidateRentalProposalBody=Voulez-vous vraiment valider cette proposition ?
+ConfirmAcceptRentalProposalTitle=Confirmation d'acceptation
+ConfirmAcceptRentalProposalBody=Voulez-vous vraiment accepter cette proposition ?
 
 # Erreur
 ErrNoVinNumber=Aucun VIN renseigné

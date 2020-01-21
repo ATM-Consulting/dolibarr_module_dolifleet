@@ -174,8 +174,8 @@ class dolifleetRentalProposal extends SeedObject
 		$initLines = false;
 		if (empty($this->id)) $initLines = true;
 
-		//$ret = $this->create($user);
-		if (/*$ret > 0 &&*/ $initLines) $this->initLines();
+		$ret = $this->create($user);
+		if ($ret > 0 && $initLines) $ret = $this->initLines();
 
 		return $ret;
 	}
@@ -237,10 +237,12 @@ class dolifleetRentalProposal extends SeedObject
 	 */
 	public function setDraft($user)
 	{
-		if ($this->status === self::STATUS_VALIDATED)
+		if ($this->status === self::STATUS_INPROGRESS && $user->rights->dolifleet->rentalproposal->validate)
 		{
 			$this->status = self::STATUS_DRAFT;
 			$this->withChild = false;
+			$this->fk_first_valid = NULL;
+			$this->date_first_valid = NULL;
 
 			return $this->update($user);
 		}
@@ -254,12 +256,15 @@ class dolifleetRentalProposal extends SeedObject
 	 */
 	public function setValid($user)
 	{
-		if ($this->status === self::STATUS_DRAFT)
+		if ($this->status === self::STATUS_DRAFT && $user->rights->dolifleet->rentalproposal->validate)
 		{
 			// TODO determinate if auto generate
 //            $this->ref = $this->getRef();
 //            $this->fk_user_valid = $user->id;
-			$this->status = self::STATUS_VALIDATED;
+			$this->status = self::STATUS_INPROGRESS;
+			$this->fk_first_valid = $user->id;
+			$this->date_first_valid = dol_now();
+
 			$this->withChild = false;
 
 			return $this->update($user);
@@ -274,10 +279,12 @@ class dolifleetRentalProposal extends SeedObject
 	 */
 	public function setAccepted($user)
 	{
-		if ($this->status === self::STATUS_VALIDATED)
+		if ($this->status === self::STATUS_INPROGRESS && $user->rights->dolifleet->rentalproposal->validate)
 		{
-			$this->status = self::STATUS_ACCEPTED;
+			$this->status = self::STATUS_VALIDATED;
 			$this->withChild = false;
+			$this->fk_second_valid = $user->id;
+			$this->date_second_valid = dol_now();
 
 			return $this->update($user);
 		}
@@ -306,11 +313,11 @@ class dolifleetRentalProposal extends SeedObject
 	 * @param User  $user   User object
 	 * @return int
 	 */
-	public function setReopen($user)
+	public function setClosed($user)
 	{
-		if ($this->status === self::STATUS_ACCEPTED || $this->status === self::STATUS_REFUSED)
+		if ($this->status === self::STATUS_VALIDATED)
 		{
-			$this->status = self::STATUS_VALIDATED;
+			$this->status = self::STATUS_CLOSED;
 			$this->withChild = false;
 
 			return $this->update($user);
@@ -319,8 +326,53 @@ class dolifleetRentalProposal extends SeedObject
 		return 0;
 	}
 
+	public function fetchLines()
+	{
+
+		$this->lines = array();
+
+		$date_start = strtotime("01-".$this->month."-".$this->year." 00:00:00");
+		$date_end = strtotime(date("t-m-Y 23:59:59", $date_start));
+
+		$sql = "SELECT d.rowid, v.fk_vehicule_type, va.fk_type FROM ".MAIN_DB_PREFIX.$this->table_element."det as d";
+		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."dolifleet_vehicule as v ON v.rowid = d.fk_vehicule";
+		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."dolifleet_vehicule_activity as va ON va.fk_vehicule = v.rowid";
+		$sql.= " WHERE d.fk_rental_proposal = ".$this->id;
+		$sql.= " AND (va.date_start <= '".$this->db->idate($date_end)."' AND va.date_end >= '".$this->db->idate($date_start)."')";
+		$sql.= " GROUP BY va.fk_type ASC, v.fk_vehicule_type ASC, d.rowid ASC";
+
+		$resql = $this->db->query($sql);
+		if ($resql)
+		{
+			$num = $this->db->num_rows($resql);
+			if ($num)
+			{
+				while ($obj = $this->db->fetch_object($resql))
+				{
+					$line = new dolifleetRentalProposalDet($this->db);
+					$line->fetch($obj->rowid);
+					$line->id = $obj->rowid;
+					$line->fk_vehicule_type = $obj->fk_vehicule_type;
+					$line->activity_type = $obj->fk_type;
+
+					$this->lines[] = $line;
+				}
+			}
+
+			return $num;
+		}
+		else
+		{
+			$this->errors[] = $this->db->lasterror();
+			return -1;
+		}
+	}
+
+
 	public function initLines()
 	{
+		global $user;
+
 		$this->lines = array();
 
 		$date_start = strtotime("01-".$this->month."-".$this->year." 00:00:00");
@@ -348,6 +400,12 @@ class dolifleetRentalProposal extends SeedObject
 					$pdet->fk_rental_proposal = $this->id;
 					$pdet->fk_soc = $this->fk_soc;
 					$pdet->getprice();
+
+					$ret = $pdet->create($user);
+					if ($ret < 0)
+					{
+						$this->errors = array_merge($pdet->errors, array($pdet->error));
+					}
 
 				}
 			}
@@ -431,11 +489,10 @@ class dolifleetRentalProposal extends SeedObject
 		$langs->load('dolifleetrentalproposal@dolifleetrentalproposal');
 		$res = '';
 
-		/*if ($status==self::STATUS_CANCELED) { $statusType='status9'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusCancel'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortCancel'); }
-		else*/if ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusDraft'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortDraft'); }
-		elseif ($status==self::STATUS_VALIDATED) { $statusType='status1'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusValidated'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortValidate'); }
-		elseif ($status==self::STATUS_INPROGRESS) { $statusType='status5'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusRefused'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortRefused'); }
-		elseif ($status==self::STATUS_CLOSED) { $statusType='status6'; $statusLabel=$langs->trans('dolifleetRentalProposalStatusAccepted'); $statusLabelShort=$langs->trans('dolifleetRentalProposalStatusShortAccepted'); }
+		if ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('doliFleetProposalStatusDraft'); $statusLabelShort=$langs->trans('doliFleetProposalStatusShortDraft'); }
+		elseif ($status==self::STATUS_INPROGRESS) { $statusType='status1'; $statusLabel=$langs->trans('doliFleetProposalStatusInProgress'); $statusLabelShort=$langs->trans('doliFleetProposalStatusShortInProgress'); }
+		elseif ($status==self::STATUS_VALIDATED) { $statusType='status4'; $statusLabel=$langs->trans('doliFleetProposalStatusValidated'); $statusLabelShort=$langs->trans('doliFleetProposalStatusValidated'); }
+		elseif ($status==self::STATUS_CLOSED) { $statusType='status6'; $statusLabel=$langs->trans('doliFleetProposalStatusCloture'); $statusLabelShort=$langs->trans('doliFleetProposalStatusCloture'); }
 
 		if (function_exists('dolGetStatus'))
 		{
@@ -562,12 +619,67 @@ class dolifleetRentalProposalDet extends SeedObject
 
 	public function getprice()
 	{
+		global $langs, $conf, $cashVehiculeDates;
+
+		if (empty($cashVehiculeDates) || !in_array($this->fk_vehicule, array_keys($cashVehiculeDates)))
+		{
+			dol_include_once('dolifleet/class/vehicule.class.php');
+			$vehicule = new doliFleetVehicule($this->db);
+			$vehicule->fetch($this->fk_vehicule);
+
+			$cashVehiculeDates[$vehicule->id] = $vehicule->date_customer_exploit;
+		}
+
+		$this->total_ht = 0;
+
 		// récupérer le montant hors taxe depuis la matrice du client
-		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX."dolifleet_vehicule_rental_matrix";
+		$sql = "SELECT amount_ht FROM ".MAIN_DB_PREFIX."dolifleet_vehicule_rental_matrix";
 		$sql.= " WHERE fk_soc = ".$this->fk_soc;
-		$sql.= " AND delay <= PERIOD_DIFF(DATE_FORMAT(NOW(), '%Y%m'), la date de mise en circulation du vehicule)";
+		$sql.= " AND delay >= PERIOD_DIFF(DATE_FORMAT(NOW(), '%Y%m'), DATE_FORMAT('".$this->db->idate($cashVehiculeDates[$this->fk_vehicule])."', '%Y%m'))";
+		$sql.= " LIMIT 1";
+
+		$resql = $this->db->query($sql);
+		if ($resql)
+		{
+			if ($this->db->num_rows($resql))
+			{
+				$obj = $this->db->fetch_object($resql);
+				$this->total_ht = (float) $obj->amount_ht;
+				$this->description = $langs->trans('AmountIsFromThirdpartyMatrix');
+			}
+		}
 
 		// ou depuis la matrice générale
+		if (empty($this->total_ht))
+		{
+			$sql = "SELECT amount_ht FROM ".MAIN_DB_PREFIX."dolifleet_vehicule_rental_matrix";
+			$sql.= " WHERE fk_soc = 0";
+			$sql.= " AND delay >= PERIOD_DIFF(DATE_FORMAT(NOW(), '%Y%m'), DATE_FORMAT('".$this->db->idate($cashVehiculeDates[$this->fk_vehicule])."', '%Y%m'))";
+			$sql.= " LIMIT 1";
+			$resql = $this->db->query($sql);
+
+			if ($resql)
+			{
+				if ($this->db->num_rows($resql))
+				{
+					$obj = $this->db->fetch_object($resql);
+					$this->total_ht = (float) $obj->amount_ht;
+					$this->description = $langs->trans('AmountIsFromGlobalMatrix');
+				}
+			}
+		}
+
 		// ou prix par défaut en conf
+		if (empty($this->total_ht))
+		{
+			if (!empty($conf->global->DOLIFLEET_DEFAULT_RENTAL_AMOUNT))
+			{
+				$this->total_ht = (float) $conf->global->DOLIFLEET_DEFAULT_RENTAL_AMOUNT;
+				$this->description = $langs->trans('AmountIsFromGlobalConf');
+			}
+		}
+
+		if (!empty($this->total_ht)) return 1;
+		else return 0;
 	}
 }

@@ -134,6 +134,16 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
         $body = $langs->trans('ConfirmActivatedoliFleetVehiculeBody', $object->immatriculation);
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmActivatedoliFleetVehiculeTitle'), $body, 'confirm_validate', '', 0, 1);
     }
+    elseif ($action === 'validate' && !empty($user->rights->dolifleet->write))
+    {
+        $body = $langs->trans('ConfirmValidateRentalProposalBody');
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmValidateRentalProposalTitle'), $body, 'confirm_validate', '', 0, 1);
+    }
+    elseif ($action === 'accept' && !empty($user->rights->dolifleet->write))
+    {
+        $body = $langs->trans('ConfirmAcceptRentalProposalBody');
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmAcceptRentalProposalTitle'), $body, 'confirm_accept', '', 0, 1);
+    }
     elseif ($action === 'modif' && !empty($user->rights->dolifleet->write))
     {
         $body = $langs->trans('ConfirmReopendoliFleetVehiculeBody', $object->immatriculation);

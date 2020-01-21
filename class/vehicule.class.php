@@ -472,6 +472,7 @@ class doliFleetVehicule extends SeedObject
 			$sql.= " AND date_start < '".$this->db->idate($date_end)."'";
 		if (!empty($date_start))
 			$sql.= " AND date_end > '".$this->db->idate($date_start)."'";
+		$sql.= " AND fk_soc = ".$this->fk_soc;
 		$sql.= " ORDER BY date_start ASC";
 
 		$resql = $this->db->query($sql);
@@ -707,7 +708,7 @@ class doliFleetVehicule extends SeedObject
 			$sql.= " AND date_start < '".$this->db->idate($date_end)."'";
 		if (!empty($date_start))
 			$sql.= " AND date_end > '".$this->db->idate($date_start)."'";
-		$sql.= " AND fk_soc ".($externalRental ? "<>" : "=")." 0";
+		$sql.= " AND fk_soc ".($externalRental ? "<> 0 AND fk_soc IS NOT NULL" : "IS NULL");
 		$sql.= " ORDER BY date_start ASC";
 
 		$resql = $this->db->query($sql);

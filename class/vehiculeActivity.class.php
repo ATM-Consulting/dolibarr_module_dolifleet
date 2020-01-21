@@ -87,8 +87,6 @@ class doliFleetVehiculeActivity extends SeedObject
 			'type' => 'integer:Societe:societe/class/societe.class.php',
 			'label' => 'ThirdParty',
 			'visible' => 1,
-			'notnull' =>1,
-			'default' => 0,
 			'enabled' => 1,
 			'position' => 80,
 			'index' => 1,
