@@ -333,7 +333,6 @@ class dolifleetRentalProposal extends SeedObject
 
 	public function fetchLines()
 	{
-
 		$this->lines = array();
 
 		$date_start = strtotime("01-".$this->month."-".$this->year." 00:00:00");
@@ -343,7 +342,7 @@ class dolifleetRentalProposal extends SeedObject
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."dolifleet_vehicule as v ON v.rowid = d.fk_vehicule";
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."dolifleet_vehicule_activity as va ON va.fk_vehicule = v.rowid";
 		$sql.= " WHERE d.fk_rental_proposal = ".$this->id;
-		$sql.= " AND (va.date_start <= '".$this->db->idate($date_end)."' AND va.date_end >= '".$this->db->idate($date_start)."')";
+		$sql.= " AND ((va.date_start <= '".$this->db->idate($date_end)."' AND va.date_end >= '".$this->db->idate($date_start)."') OR va.rowid IS NULL)";
 		$sql.= " GROUP BY va.fk_type ASC, v.fk_vehicule_type ASC, d.rowid ASC";
 
 		$resql = $this->db->query($sql);
@@ -388,8 +387,8 @@ class dolifleetRentalProposal extends SeedObject
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_dolifleet_vehicule_activity_type as vat ON vat.rowid = va.fk_type";
 		$sql.= " WHERE v.fk_soc = ".$this->fk_soc;
 		$sql.= " AND v.status = 1";
-		$sql.= " AND va.fk_soc = ".$this->fk_soc;
-		$sql.= " AND ((va.date_start <= '".$this->db->idate($date_end)."' AND va.date_end >= '".$this->db->idate($date_start)."') OR vat.label IS NULL)";
+		$sql.= " AND (va.fk_soc = ".$this->fk_soc;
+		$sql.= " AND (va.date_start <= '".$this->db->idate($date_end)."' AND va.date_end >= '".$this->db->idate($date_start)."') OR vat.label IS NULL)";
 
 		$sql.= " GROUP BY vat.rowid ASC, v.fk_vehicule_type ASC, v.rowid ASC";
 

@@ -161,6 +161,10 @@ abstract class dictionary extends SeedObject
 
 	public function getValueFromId($id, $field = 'label')
 	{
+		global $langs;
+
+		if (empty($id)) return $langs->trans('NodoliFleetActivity');
+
 		$dict = new static($this->db);
 		$ret = $dict->fetch($id);
 		if ($ret > 0 && isset($dict->{$field}))

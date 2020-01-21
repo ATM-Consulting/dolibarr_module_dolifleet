@@ -373,7 +373,7 @@ else
 
 					$modeEdit = ($action == 'editline' && $lineid == $line->id);
 
-					if ($typeAct != $line->activity_type)
+					if ($typeAct !== $line->activity_type)
 					{
 						print '<tr><td colspan="5" align="center" style="background-color: #adadad">';
 						print $dictTypeAct->getValueFromId($line->activity_type);
@@ -382,7 +382,7 @@ else
 						$typeVeh = 0;
 					}
 
-					if ($typeVeh != $line->fk_vehicule_type)
+					if ($typeVeh !== $line->fk_vehicule_type)
 					{
 						print '<tr><td colspan="5" align="center" style="background-color: #d4d4d4">';
 						print $dictTypeVeh->getValueFromId($line->fk_vehicule_type);
