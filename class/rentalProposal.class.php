@@ -57,7 +57,7 @@ class dolifleetRentalProposal extends SeedObject
 		self::STATUS_DRAFT => 'doliFleetProposalStatusDraft'
 		,self::STATUS_INPROGRESS => 'doliFleetProposalStatusInProgress'
 		,self::STATUS_VALIDATED => 'doliFleetProposalStatusValidated'
-		,self::STATUS_CLOSED => 'doliFleetProposalStatusCloturé'
+		,self::STATUS_CLOSED => 'doliFleetProposalStatusCloture'
 	);
 
 	public $month;
@@ -112,7 +112,7 @@ class dolifleetRentalProposal extends SeedObject
 				self::STATUS_DRAFT => 'doliFleetProposalStatusDraft'
 				,self::STATUS_INPROGRESS => 'doliFleetProposalStatusInProgress'
 				,self::STATUS_VALIDATED => 'doliFleetProposalStatusValidated'
-				,self::STATUS_CLOSED => 'doliFleetProposalStatusCloturé'
+				,self::STATUS_CLOSED => 'doliFleetProposalStatusCloture'
 			)
 		),
 
@@ -325,10 +325,17 @@ class dolifleetRentalProposal extends SeedObject
 			$this->status = self::STATUS_CLOSED;
 			$this->withChild = false;
 
+			$this->generateRentals();
+
 			return $this->update($user);
 		}
 
 		return 0;
+	}
+
+	public function generateRentals()
+	{
+
 	}
 
 	public function fetchLines()
@@ -382,7 +389,7 @@ class dolifleetRentalProposal extends SeedObject
 		$date_start = strtotime("01-".$this->month."-".$this->year." 00:00:00");
 		$date_end = strtotime(date("t-m-Y 23:59:59", $date_start));
 
-		$sql = "SELECT v.rowid as v_id, vat.rowid as va_type FROM ".MAIN_DB_PREFIX."dolifleet_vehicule as v";
+		$sql = "SELECT DISTINCT v.rowid as v_id, vat.rowid as va_type FROM ".MAIN_DB_PREFIX."dolifleet_vehicule as v";
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."dolifleet_vehicule_activity as va ON va.fk_vehicule = v.rowid";
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_dolifleet_vehicule_activity_type as vat ON vat.rowid = va.fk_type";
 		$sql.= " WHERE v.fk_soc = ".$this->fk_soc;
@@ -437,7 +444,7 @@ class dolifleetRentalProposal extends SeedObject
 
 		$result='';
 		$label = '<u>' . $langs->trans("ShowdolifleetRentalProposal") . '</u>';
-		if (! empty($this->ref)) $label.= '<br><b>'.$langs->trans('Ref').':</b> '.$this->ref;
+		//if (! empty($this->ref)) $label.= '<br><b>'.$langs->trans('Ref').':</b> '.$this->ref;
 
 		$linkclose = '" title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip">';
 		$link = '<a href="'.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$this->id.urlencode($moreparams).$linkclose;

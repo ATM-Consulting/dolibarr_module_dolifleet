@@ -16,6 +16,7 @@
  */
 
 require 'config.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 dol_include_once('dolifleet/class/rentalProposal.class.php');
 
 if(empty($user->rights->dolifleet->rentalproposal->read)) accessforbidden();
@@ -109,47 +110,53 @@ if (empty($nbLine)) $nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user
 // List configuration
 $listViewConfig = array(
 	'view_type' => 'list' // default = [list], [raw], [chart]
-,'allow-fields-select' => true
-,'limit'=>array(
+	,'allow-fields-select' => true
+	,'limit'=>array(
 		'nbLine' => $nbLine
 	)
-,'list' => array(
+	,'list' => array(
 		'title' => $langs->trans('dolifleetRentalProposalList')
-	,'image' => 'title_generic.png'
-	,'picto_precedent' => '<'
-	,'picto_suivant' => '>'
-	,'noheader' => 0
-	,'messageNothing' => $langs->trans('NodolifleetRentalProposal')
-	,'picto_search' => img_picto('', 'search.png', '', 0)
-	,'massactions'=>array(
+		,'image' => 'title_generic.png'
+		,'picto_precedent' => '<'
+		,'picto_suivant' => '>'
+		,'noheader' => 0
+		,'messageNothing' => $langs->trans('NodoliFleet')
+		,'picto_search' => img_picto('', 'search.png', '', 0)
+		,'massactions'=>array(
 			'yourmassactioncode'  => $langs->trans('YourMassActionLabel')
 		)
 	)
-,'subQuery' => array()
-,'link' => array()
-,'type' => array(
+	,'subQuery' => array()
+	,'link' => array()
+	,'type' => array(
 		'date_creation' => 'date' // [datetime], [hour], [money], [number], [integer]
-	,'tms' => 'date'
+		,'tms' => 'date'
 	)
-,'search' => array(
+	,'search' => array(
 		'date_creation' => array('search_type' => 'calendars', 'allow_is_null' => true)
-	,'tms' => array('search_type' => 'calendars', 'allow_is_null' => false)
-	,'ref' => array('search_type' => true, 'table' => 't', 'field' => 'ref')
-	,'label' => array('search_type' => true, 'table' => array('t', 't'), 'field' => array('label')) // input text de recherche sur plusieurs champs
-	,'status' => array('search_type' => dolifleetRentalProposal::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
+//	,'tms' => array('search_type' => 'calendars', 'allow_is_null' => false)
+//	,'ref' => array('search_type' => true, 'table' => 't', 'field' => 'ref')
+//	,'label' => array('search_type' => true, 'table' => array('t', 't'), 'field' => array('label')) // input text de recherche sur plusieurs champs
+		,'status' => array('search_type' => dolifleetRentalProposal::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
+		,'month' => array('search_type' => monthArray($langs))
 	)
-,'translate' => array()
-,'hide' => array(
+	,'translate' => array()
+	,'hide' => array(
 		'rowid' // important : rowid doit exister dans la query sql pour les checkbox de massaction
 	)
-,'title'=>array(
-		'ref' => $langs->trans('Ref.')
-		,'label' => $langs->trans('Label')
-		,'date_creation' => $langs->trans('DateCre')
-		,'tms' => $langs->trans('DateMaj')
+	,'title'=>array(
+//		'ref' => $langs->trans('Ref.')
+//		,'label' => $langs->trans('Label')
+//		,'date_creation' => $langs->trans('DateCre')
+//		,'tms' => $langs->trans('DateMaj')
+		'id'=>$langs->trans('Id')
+		,'month' => $langs->trans('Month')
+		,'year' => $langs->trans('Year')
+		,'fk_soc'=> $langs->trans('ThirdParty')
+		,'status'=> $langs->trans('Status')
 	)
-,'eval'=>array(
-		'ref' => '_getObjectNomUrl(\'@rowid@\', \'@val@\')'
+	,'eval'=>array(
+		'id' => '_getObjectNomUrl(\'@rowid@\')'
 //		,'fk_user' => '_getUserNomUrl(@val@)' // Si on a un fk_user dans notre requête
 	)
 );
@@ -179,12 +186,13 @@ $db->close();
 /**
  * TODO remove if unused
  */
-function _getObjectNomUrl($id, $ref)
+function _getObjectNomUrl($id)
 {
+
 	global $db;
 
 	$o = new dolifleetRentalProposal($db);
-	$res = $o->fetch($id, false, $ref);
+	$res = $o->fetch($id, false, '');
 	if ($res > 0)
 	{
 		return $o->getNomUrl(1);

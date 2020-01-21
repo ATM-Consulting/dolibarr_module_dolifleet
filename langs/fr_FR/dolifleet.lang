@@ -106,6 +106,7 @@ VehiculeOperation=Opération
 VehiculeOperationDelay=Délais depuis dernière opération
 dolifleetRentalProposal=Proposition de loyers
 doliFleetRentalProposalCard=Fiche proposition de loyers
+ShowdolifleetRentalProposal=Voir la proposition de loyers
 NewdolifleetRentalProposal=Nouvelle proposition de loyers
 dolifleetRentalProposalList=Liste de propositions de loyers
 NoMatrixDefined=Aucune matrice définie pour le tiers
