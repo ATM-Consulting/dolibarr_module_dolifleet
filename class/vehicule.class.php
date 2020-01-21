@@ -187,6 +187,8 @@ class doliFleetVehicule extends SeedObject
 			'type' => 'double',
 			'label' => 'kilometrage',
 			'visible' => 1,
+			'notnull' =>1,
+			'default' => 0,
 			'enabled' => 1,
 			'position' => 100
         ),
@@ -310,6 +312,8 @@ class doliFleetVehicule extends SeedObject
 		if (empty($this->immatriculation)) $this->errors[] = $langs->trans('ErrEmptyVehiculeImmatriculation');
 
 		if (empty($this->date_immat)) $this->errors[] = $langs->trans('ErrEmptyVehiculeImmatDate');
+
+		if (empty($this->fk_soc) || $this->fk_soc == '-1') $this->errors[] = $langs->trans('ErrInvalidSocid');
 
 		if (!empty($this->errors)) return -1;
 

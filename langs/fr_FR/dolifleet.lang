@@ -116,9 +116,11 @@ AmountIsFromGlobalMatrix=Prix repris de la matrice globale
 AmountIsFromGlobalConf=Prix par défaut
 OnlyUserWhoValidatedCanReopen=Seul l'utilisateur qui a validé la proposition peut la rouvrir
 UserMustBeDifferentFromValider=Seul un autre utilisateur ayant le droit approprié peut accepter la proposition
+CanNotDeleteClosedProposal=Impossible de supprimer une proposition cloturée
 
 doliFleetModify=Modifier
 doliFleetClone=Cloner
+doliFleetClose=Cloturer
 doliFleetValid=Valider
 doliFleetActivate=Activer
 doliFleetUnactivate=Désactiver
@@ -147,6 +149,9 @@ ConfirmValidateRentalProposalTitle=Confirmation de validation
 ConfirmValidateRentalProposalBody=Voulez-vous vraiment valider cette proposition ?
 ConfirmAcceptRentalProposalTitle=Confirmation d'acceptation
 ConfirmAcceptRentalProposalBody=Voulez-vous vraiment accepter cette proposition ?
+ConfirmDeleteRentalBody=Voulez-vous vraiment supprimer cette proposition de loyers ?
+ConfirmCloseRentalProposalTitle=Confirmation de cloture
+ConfirmCloseRentalProposalBody=Voulez-vous vraiment cloturer cette proposition ? <br /> <br /> Ceci créera les loyers clients pour chaque véhicule listé dans cette proposition.
 
 # Erreur
 ErrNoVinNumber=Aucun VIN renseigné
@@ -169,3 +174,5 @@ ErrNoDelayForLine=Pas de durée saisi
 ErrInvalidAmount=Montant saisie invalide
 ErrDuplicateMatrix=Il existe déjà une ligne de matrice pour ce type, cette marque, et cette durée
 ErrVehiculeThirPartiesAreDifferent=Les tiers des véhicules à lier sont différents
+ErrEmptyVehiculeImmatDate=Date de mise en circulation invalide
+ErrInvalidSocid=Tiers invalide

@@ -96,17 +96,6 @@ if (empty($reshook))
 				if ($ret < 0) $error++;
 			}
 
-//			$object->date_other = dol_mktime(GETPOST('starthour'), GETPOST('startmin'), 0, GETPOST('startmonth'), GETPOST('startday'), GETPOST('startyear'));
-
-			// Check parameters
-//			if (empty($object->date_other))
-//			{
-//				$error++;
-//				setEventMessages($langs->trans('warning_date_must_be_fill'), array(), 'warnings');
-//			}
-
-			// ...
-
 			if ($error > 0)
 			{
 				$action = 'edit';
@@ -116,7 +105,7 @@ if (empty($reshook))
 			$res = $object->save($user);
 			if ($res <= 0)
 			{
-				setEventMessage($object->errors, 'errors');
+				setEventMessages('', $object->errors, 'errors');
 				if (empty($object->id)) $action = 'create';
 				else $action = 'edit';
 			}
@@ -163,13 +152,25 @@ if (empty($reshook))
 			break;
 
 		case 'confirm_validate':
-			if (!empty($user->rights->dolifleet->rentalproposal->write)) $object->setValid($user);
+			if (!empty($user->rights->dolifleet->rentalproposal->validate)) $object->setValid($user);
+
+			if (!empty($object->errors)) setEventMessages('', $object->errors, "errors");
 
 			header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
 			exit;
 
 		case 'confirm_accept':
-			if (!empty($user->rights->dolifleet->rentalproposal->write)) $object->setAccepted($user);
+			if (!empty($user->rights->dolifleet->rentalproposal->validate)) $object->setAccepted($user);
+
+			if (!empty($object->errors)) setEventMessages('', $object->errors, "errors");
+
+			header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
+			exit;
+
+		case 'confirm_close':
+			if (!empty($user->rights->dolifleet->rentalproposal->validate)) $object->setClosed($user);
+
+			if (!empty($object->errors)) setEventMessages('', $object->errors, "errors");
 
 			header('Location: '.dol_buildpath('/dolifleet/rental_proposal_card.php', 1).'?id='.$object->id);
 			exit;
@@ -198,7 +199,7 @@ if (empty($reshook))
 				$ret = $line->create($user);
 				if ($ret < 0)
 				{
-					setEventMessages('', array_merge($line->errors, array($line->error)));
+					setEventMessages('', array_merge($line->errors, array($line->error)), 'errors');
 					$action = 'editline';
 				}
 				else
@@ -436,57 +437,55 @@ else
 				// Modify
 				if (!empty($user->rights->dolifleet->rentalproposal->validate))
 				{
-					// Modify
-//					if ($object->status == dolifleetRentalProposal::STATUS_INPROGRESS) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edit">'.$langs->trans("Modify").'</a></div>'."\n";
-
 					// Valid
-					if ($object->status === dolifleetRentalProposal::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=validate">'.$langs->trans('dolifleetRentalProposalValid').'</a></div>'."\n";
+					if ($object->status === dolifleetRentalProposal::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=validate">'.$langs->trans('doliFleetValid').'</a></div>'."\n";
 
 					if ($object->status === dolifleetRentalProposal::STATUS_INPROGRESS )
 					{
 						// Reopen
-						if ($object->fk_first_valid == $user->id) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopen">'.$langs->trans('dolifleetRentalProposalReopen').'</a></div>'."\n";
-						else print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("OnlyUserWhoValidatedCanReopen")).'">'.$langs->trans('dolifleetRentalProposalReopen').'</a></div>'."\n";
+						if ($object->fk_first_valid == $user->id) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopen">'.$langs->trans('doliFleetReopen').'</a></div>'."\n";
+						else print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("OnlyUserWhoValidatedCanReopen")).'">'.$langs->trans('doliFleetReopen').'</a></div>'."\n";
 
 						// Accept
-						/*if ($object->fk_first_valid != $user->id)*/ print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=accept">'.$langs->trans('dolifleetRentalProposalAccept').'</a></div>'."\n";
-//						else print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("UserMustBeDifferentFromValider")).'">'.$langs->trans('dolifleetRentalProposalAccept').'</a></div>'."\n";
+						if ($object->fk_first_valid != $user->id) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=accept">'.$langs->trans('doliFleetAccept').'</a></div>'."\n";
+						else print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("UserMustBeDifferentFromValider")).'">'.$langs->trans('doliFleetAccept').'</a></div>'."\n";
 					}
 
-//					// Refuse
-//					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=refuse">'.$langs->trans('dolifleetRentalProposalRefuse').'</a></div>'."\n";
-//
-//
-//					// Cancel
-//					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=cancel">'.$langs->trans("dolifleetRentalProposalCancel").'</a></div>'."\n";
+					// Close
+					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=close">'.$langs->trans('doliFleetClose').'</a></div>'."\n";
 				}
 				else
 				{
-					// Modify
-//					if ($object->status == dolifleetRentalProposal::STATUS_INPROGRESS) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("Modify").'</a></div>'."\n";
-
 					// Valid
-					if ($object->status === dolifleetRentalProposal::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('dolifleetRentalProposalValid').'</a></div>'."\n";
-//
-//					// Accept
-//					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#">'.$langs->trans('dolifleetRentalProposalAccept').'</a></div>'."\n";
-//					// Refuse
-//					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#">'.$langs->trans('dolifleetRentalProposalRefuse').'</a></div>'."\n";
-//
-//					// Reopen
-					if ($object->status === dolifleetRentalProposal::STATUS_INPROGRESS) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('dolifleetRentalProposalReopen').'</a></div>'."\n";
-//					// Cancel
-//					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("dolifleetRentalProposalCancel").'</a></div>'."\n";
+					if ($object->status === dolifleetRentalProposal::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('doliFleetValid').'</a></div>'."\n";
+
+					if ($object->status === dolifleetRentalProposal::STATUS_INPROGRESS ) {
+						// Reopen
+						print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="' . dol_escape_htmltag($langs->trans("NotEnoughPermissions")) . '">' . $langs->trans('doliFleetReopen') . '</a></div>' . "\n";
+
+						// Accept
+						print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="' . dol_escape_htmltag($langs->trans("NotEnoughPermissions")) . '">'.$langs->trans('doliFleetAccept').'</a></div>'."\n";
+					}
+
+					if ($object->status === dolifleetRentalProposal::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="#" title="' . dol_escape_htmltag($langs->trans("NotEnoughPermissions")) . '">'.$langs->trans('doliFleetClose').'</a></div>'."\n";
 				}
 
-				if (!empty($user->rights->dolifleet->rentalproposal->delete))
+				if ($object->status != dolifleetRentalProposal::STATUS_CLOSED)
 				{
-					print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=delete">'.$langs->trans("doliFleetDelete").'</a></div>'."\n";
+					if (!empty($user->rights->dolifleet->rentalproposal->delete))
+					{
+						print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=deleteRental">'.$langs->trans("doliFleetDelete").'</a></div>'."\n";
+					}
+					else
+					{
+						print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("doliFleetDelete").'</a></div>'."\n";
+					}
 				}
 				else
 				{
-					print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("doliFleetDelete").'</a></div>'."\n";
+					print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("CanNotDeleteClosedProposal")).'">'.$langs->trans("doliFleetDelete").'</a></div>'."\n";
 				}
+
 			}
 			print '</div>'."\n";
 

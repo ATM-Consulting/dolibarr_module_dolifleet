@@ -144,6 +144,11 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
         $body = $langs->trans('ConfirmAcceptRentalProposalBody');
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmAcceptRentalProposalTitle'), $body, 'confirm_accept', '', 0, 1);
     }
+    elseif ($action === 'close' && !empty($user->rights->dolifleet->write))
+    {
+        $body = $langs->trans('ConfirmCloseRentalProposalBody');
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmCloseRentalProposalTitle'), $body, 'confirm_close', '', 0, 1);
+    }
     elseif ($action === 'modif' && !empty($user->rights->dolifleet->write))
     {
         $body = $langs->trans('ConfirmReopendoliFleetVehiculeBody', $object->immatriculation);
@@ -152,6 +157,11 @@ function getFormConfirmdoliFleetVehicule($form, $object, $action)
     elseif ($action === 'delete' && !empty($user->rights->dolifleet->delete))
     {
         $body = $langs->trans('ConfirmDeletedoliFleetVehiculeBody');
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmDeletedoliFleetVehiculeTitle'), $body, 'confirm_delete', '', 0, 1);
+    }
+    elseif ($action === 'deleteRental' && !empty($user->rights->dolifleet->delete))
+    {
+        $body = $langs->trans('ConfirmDeleteRentalBody');
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmDeletedoliFleetVehiculeTitle'), $body, 'confirm_delete', '', 0, 1);
     }
     elseif ($action === 'clone' && !empty($user->rights->dolifleet->write))

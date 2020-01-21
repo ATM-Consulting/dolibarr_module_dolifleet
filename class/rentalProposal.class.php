@@ -198,6 +198,11 @@ class dolifleetRentalProposal extends SeedObject
 	{
 		$this->deleteObjectLinked();
 
+		if ($this->status === self::STATUS_CLOSED) return 0;
+
+		$sql = "DELETE FROM ".MAIN_DB_PREFIX.$this->table_element."det WHERE fk_rental_proposal = ".$this->id;
+		$this->db->query($sql);
+
 		unset($this->fk_element); // avoid conflict with standard Dolibarr comportment
 		return parent::delete($user);
 	}
@@ -385,6 +390,7 @@ class dolifleetRentalProposal extends SeedObject
 		$sql.= " AND v.status = 1";
 		$sql.= " AND va.fk_soc = ".$this->fk_soc;
 		$sql.= " AND ((va.date_start <= '".$this->db->idate($date_end)."' AND va.date_end >= '".$this->db->idate($date_start)."') OR vat.label IS NULL)";
+
 		$sql.= " GROUP BY vat.rowid ASC, v.fk_vehicule_type ASC, v.rowid ASC";
 
 		$resql = $this->db->query($sql);

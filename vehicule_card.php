@@ -84,9 +84,6 @@ if (empty($reshook))
     // For object linked
     include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';		// Must be include, not include_once
 
-
-
-
     $error = 0;
 	switch ($action) {
 		case 'add':
