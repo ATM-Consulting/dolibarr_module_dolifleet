@@ -52,6 +52,10 @@ if (!GETPOST('confirmmassaction', 'alpha') && $massaction != 'presend' && $massa
 	$massaction = '';
 }
 
+if (GETPOST('button_removefilter_x','alpha') || GETPOST('button_removefilter.x','alpha') || GETPOST('button_removefilter','alpha'))
+{
+	unset($_GET['Listview_dolifleetrentalproposal_search_fk_soc']);
+}
 
 if (empty($reshook))
 {
@@ -140,6 +144,7 @@ $listViewConfig = array(
 		,'status' => array('search_type' => dolifleetRentalProposal::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
 		,'month' => array('search_type' => monthArray($langs))
 		,'year' => array('search_type' => true, 'table' => 't', 'field', 'year')
+		,'fk_soc' => array('search_type' => 'override', 'override' => $object->showInputField($object->fields['fk_soc'], 'fk_soc', GETPOST('Listview_dolifleetrentalproposal_search_fk_soc'),'','','Listview_dolifleetrentalproposal_search_'))
 	)
 	,'translate' => array()
 	,'hide' => array(
