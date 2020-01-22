@@ -49,6 +49,14 @@ function dolifleetAdminPrepareHead()
     $head[$h][2] = 'extrafields';
     $h++;
 
+	if (!empty($conf->multicompany->enabled))
+	{
+		$head[$h][0] = dol_buildpath("/dolifleet/admin/multicompany_sharing.php", 1);
+		$head[$h][1] = $langs->trans("multicompanySharing");
+		$head[$h][2] = 'multicompanySharing';
+		$h++;
+	}
+
     $head[$h][0] = dol_buildpath("/dolifleet/admin/dolifleet_about.php", 1);
     $head[$h][1] = $langs->trans("About");
     $head[$h][2] = 'about';

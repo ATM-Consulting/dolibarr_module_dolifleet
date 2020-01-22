@@ -105,7 +105,7 @@ if (!empty($object->isextrafieldmanaged) && array_keys($extralabels))
 }
 
 $sql.= ' WHERE 1=1';
-$sql.= ' AND t.entity IN ('.getEntity('doliFleet', 1).')';
+$sql.= ' AND t.entity IN ('.getEntity('dolifleet', 1).')';
 //if ($type == 'mine') $sql.= ' AND t.fk_user = '.$user->id;
 
 // Add where from hooks

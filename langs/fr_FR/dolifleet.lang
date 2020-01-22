@@ -36,6 +36,14 @@ DOLIFLEET_MOTRICE_TYPES=Type de véhicule tracteur
 rentalMatrix=Matrice de loyers
 DOLIFLEET_DEFAULT_RENTAL_AMOUNT=Loyer par défaut (si aucun n'est trouvé dans la matrice client ou générale)
 DOLIFLEET_DELAY_SEARCH_OPERATIONS=Délai en mois pour rechercher les opérations précédentes dans la planification des opérations véhicules
+ShareDolifleet_vehicule=Activer le partage des véhicules
+DOLIFLEET_VEHICULESharing=Partage des véhicules
+DOLIFLEET_VEHICULESharingDescription=Sélection des entités qui partagerons leur base véhicules avec cette entité.
+Multicompany=Options du module multi sociétés
+ActivateVehiculeSharing=Activer le partage des véhicules entre entités (pensez à configurer le partage ci-dessous)
+MulticompanyConfiguration=Configuration des partages entre entités
+ShareWith=Reprend les données dans
+multicompanySharing=Partage entre entités
 
 # MENU
 TopMenudoliFleet=doliFleet
