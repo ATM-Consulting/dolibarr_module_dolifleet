@@ -42,6 +42,8 @@ class dolifleetVehiculeRental extends SeedObject
 
 	public $fk_soc;
 
+	public $fk_proposaldet;
+
 	public $fields = array(
 		'fk_vehicule' => array(
 			'type' => 'integer:doliFleetVehicule:dolifleet/class/vehicule.class.php',
@@ -84,7 +86,15 @@ class dolifleetVehiculeRental extends SeedObject
 			'visible' => 0,
 			'position' => 90,
 			'index' => 1,
-		)
+		),
+
+		'fk_proposaldet' => array(
+			'type' => 'integer',
+			'enabled' => 1,
+			'visible' => 0,
+			'position' => 100,
+			'index' => 1,
+		),
 	);
 
 	public function __construct($db)

@@ -765,7 +765,7 @@ class doliFleetVehicule extends SeedObject
 		return 1;
 	}
 
-	public function addRental($date_start, $date_end, $amountHT, $fk_soc = 0)
+	public function addRental($date_start, $date_end, $amountHT, $fk_soc = 0, $fk_proposal_det = 0)
 	{
 		global $user, $langs;
 
@@ -790,6 +790,7 @@ class doliFleetVehicule extends SeedObject
 		$rent->date_end = $date_end;
 		$rent->total_ht = $amountHT;
 		$rent->fk_soc = $fk_soc;
+		$rent->fk_proposaldet = $fk_proposal_det;
 
 		$ret = $rent->create($user);
 		if ($ret < 0)

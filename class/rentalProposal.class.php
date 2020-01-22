@@ -333,8 +333,24 @@ class dolifleetRentalProposal extends SeedObject
 		return 0;
 	}
 
+	/**
+	 * generate customer vehiculeRental for each lines
+	 */
 	public function generateRentals()
 	{
+		$this->date_start = strtotime("01-".$this->month."-".$this->year." 00:00:00");
+		$this->date_end = strtotime(date("t-m-Y 23:59:59", $this->date_start));
+
+		dol_include_once('/dolifleet/class/vehicule.class.php');
+		$VehiculeStatic = new dolifleetVehicule($this->db);
+
+		if (empty($this->lines)) $this->fetchLines();
+
+		foreach ($this->lines as $line)
+		{
+			$VehiculeStatic->id = $line->fk_vehicule;
+			$VehiculeStatic->addRental($this->date_start, $this->date_end, $line->total_ht, $this->fk_soc, $line->id);
+		}
 
 	}
 
@@ -342,14 +358,14 @@ class dolifleetRentalProposal extends SeedObject
 	{
 		$this->lines = array();
 
-		$date_start = strtotime("01-".$this->month."-".$this->year." 00:00:00");
-		$date_end = strtotime(date("t-m-Y 23:59:59", $date_start));
+		$this->date_start = strtotime("01-".$this->month."-".$this->year." 00:00:00");
+		$this->date_end = strtotime(date("t-m-Y 23:59:59", $this->date_start));
 
 		$sql = "SELECT d.rowid, v.fk_vehicule_type, va.fk_type FROM ".MAIN_DB_PREFIX.$this->table_element."det as d";
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."dolifleet_vehicule as v ON v.rowid = d.fk_vehicule";
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."dolifleet_vehicule_activity as va ON va.fk_vehicule = v.rowid";
 		$sql.= " WHERE d.fk_rental_proposal = ".$this->id;
-		$sql.= " AND ((va.date_start <= '".$this->db->idate($date_end)."' AND va.date_end >= '".$this->db->idate($date_start)."') OR va.rowid IS NULL)";
+		$sql.= " AND ((va.date_start <= '".$this->db->idate($this->date_end)."' AND va.date_end >= '".$this->db->idate($this->date_start)."') OR va.rowid IS NULL)";
 		$sql.= " GROUP BY va.fk_type ASC, v.fk_vehicule_type ASC, d.rowid ASC";
 
 		$resql = $this->db->query($sql);
@@ -386,8 +402,8 @@ class dolifleetRentalProposal extends SeedObject
 
 		$this->lines = array();
 
-		$date_start = strtotime("01-".$this->month."-".$this->year." 00:00:00");
-		$date_end = strtotime(date("t-m-Y 23:59:59", $date_start));
+		$this->date_start = strtotime("01-".$this->month."-".$this->year." 00:00:00");
+		$this->date_end = strtotime(date("t-m-Y 23:59:59", $this->date_start));
 
 		$sql = "SELECT DISTINCT v.rowid as v_id, vat.rowid as va_type FROM ".MAIN_DB_PREFIX."dolifleet_vehicule as v";
 		$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."dolifleet_vehicule_activity as va ON va.fk_vehicule = v.rowid";
@@ -395,7 +411,7 @@ class dolifleetRentalProposal extends SeedObject
 		$sql.= " WHERE v.fk_soc = ".$this->fk_soc;
 		$sql.= " AND v.status = 1";
 		$sql.= " AND (va.fk_soc = ".$this->fk_soc;
-		$sql.= " AND (va.date_start <= '".$this->db->idate($date_end)."' AND va.date_end >= '".$this->db->idate($date_start)."') OR vat.label IS NULL)";
+		$sql.= " AND (va.date_start <= '".$this->db->idate($this->date_end)."' AND va.date_end >= '".$this->db->idate($this->date_start)."') OR vat.label IS NULL)";
 
 		$sql.= " GROUP BY vat.rowid ASC, v.fk_vehicule_type ASC, v.rowid ASC";
 
@@ -498,7 +514,7 @@ class dolifleetRentalProposal extends SeedObject
 	{
 		global $langs;
 
-		$langs->load('dolifleetrentalproposal@dolifleetrentalproposal');
+		$langs->load('dolifleet@dolifleet');
 		$res = '';
 
 		if ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('doliFleetProposalStatusDraft'); $statusLabelShort=$langs->trans('doliFleetProposalStatusShortDraft'); }

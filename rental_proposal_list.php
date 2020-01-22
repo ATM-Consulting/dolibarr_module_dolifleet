@@ -122,9 +122,9 @@ $listViewConfig = array(
 		,'noheader' => 0
 		,'messageNothing' => $langs->trans('NodoliFleet')
 		,'picto_search' => img_picto('', 'search.png', '', 0)
-		,'massactions'=>array(
-			'yourmassactioncode'  => $langs->trans('YourMassActionLabel')
-		)
+//		,'massactions'=>array(
+//			'yourmassactioncode'  => $langs->trans('YourMassActionLabel')
+//		)
 	)
 	,'subQuery' => array()
 	,'link' => array()
@@ -139,6 +139,7 @@ $listViewConfig = array(
 //	,'label' => array('search_type' => true, 'table' => array('t', 't'), 'field' => array('label')) // input text de recherche sur plusieurs champs
 		,'status' => array('search_type' => dolifleetRentalProposal::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
 		,'month' => array('search_type' => monthArray($langs))
+		,'year' => array('search_type' => true, 'table' => 't', 'field', 'year')
 	)
 	,'translate' => array()
 	,'hide' => array(
@@ -157,6 +158,9 @@ $listViewConfig = array(
 	)
 	,'eval'=>array(
 		'id' => '_getObjectNomUrl(\'@rowid@\')'
+		,'fk_soc' => '_getObjectNomUrl(\'@val@\', "Societe")'
+		,'month' => '_displayMonth(@val@)'
+		,'status' => "_printStatus(@val@)"
 //		,'fk_user' => '_getUserNomUrl(@val@)' // Si on a un fk_user dans notre requête
 	)
 );
@@ -186,19 +190,39 @@ $db->close();
 /**
  * TODO remove if unused
  */
-function _getObjectNomUrl($id)
+function _getObjectNomUrl($id, $classname = 'dolifleetRentalProposal')
 {
 
 	global $db;
 
-	$o = new dolifleetRentalProposal($db);
-	$res = $o->fetch($id, false, '');
+	if ($classname == 'Societe') require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
+
+	$o = new $classname($db);
+	if ($classname == 'dolifleetRentalProposal') $res = $o->fetch($id, false, '');
+	else $res = $o->fetch($id);
 	if ($res > 0)
 	{
 		return $o->getNomUrl(1);
 	}
 
 	return '';
+}
+
+function _printStatus($fk_status)
+{
+	global $langs;
+
+	return $langs->trans(dolifleetRentalProposal::$TStatus[$fk_status]);
+}
+
+function _displayMonth($monthNumber)
+{
+	global $langs, $TMonth;
+
+	if (empty($TMonth)) $TMonth = monthArray($langs);
+
+	return $TMonth[$monthNumber];
+
 }
 
 /**

@@ -381,11 +381,14 @@ function printLinkedVehicules($object, $fromcard = false)
 /**
  * @param doliFleetVehicule $object
  */
-function printVehiculeRental($object, $fromcard = false)
+function printVehiculeRental($object, $fromcard = false, $external = false)
 {
 	global $langs, $form;
 
-	print load_fiche_titre($langs->trans('VehiculeRentals'), '', '');
+	$title = $langs->trans('VehiculeRentals');
+	if ($external) $title.= ' '.$langs->trans('Customer');
+
+	print load_fiche_titre($title, '', '');
 
 	print '<form id="vehiculeLinkedForm" method="POST" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'">';
 	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
@@ -407,7 +410,7 @@ function printVehiculeRental($object, $fromcard = false)
 		$date_end = strtotime("+3 month", $date_start);
 	}
 
-	$object->getRentals($date_start, $date_end);
+	$object->getRentals($date_start, $date_end, $external);
 	if (empty($object->rentals))
 	{
 		print '<tr>';
@@ -434,33 +437,37 @@ function printVehiculeRental($object, $fromcard = false)
 			print '</td>';
 
 			print '<td align="center">';
-			print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delRental&rent_id='.$rent->id.'">'.img_delete().'</a>';
+			if (!$external) print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delRental&rent_id='.$rent->id.'">'.img_delete().'</a>';
 			print '</td>';
 
 			print '</tr>';
 		}
 	}
 
-	// new line
-	print '<tr>';
+	if (!$external)
+	{
+		// new line
+		print '<tr>';
 
-	print '<td align="center">';
-	print $form->selectDate('', 'RentalDate_start');
-	print '</td>';
+		print '<td align="center">';
+		print $form->selectDate('', 'RentalDate_start');
+		print '</td>';
 
-	print '<td align="center">';
-	print $form->selectDate('', 'RentalDate_end');
-	print '</td>';
+		print '<td align="center">';
+		print $form->selectDate('', 'RentalDate_end');
+		print '</td>';
 
-	print '<td align="center">';
-	print '<input type="number" name="RentalTotal_HT" min="0" step="0.01" value="'.GETPOST('RentalTotal_HT').'">';
-	print '</td>';
+		print '<td align="center">';
+		print '<input type="number" name="RentalTotal_HT" min="0" step="0.01" value="'.GETPOST('RentalTotal_HT').'">';
+		print '</td>';
 
-	print '<td align="center">';
-	print '<input class="button" type="submit" name="addRental" value="'.$langs->trans("Add").'">';
-	print '</td>';
+		print '<td align="center">';
+		print '<input class="button" type="submit" name="addRental" value="'.$langs->trans("Add").'">';
+		print '</td>';
 
-	print '</tr>';
+		print '</tr>';
+	}
+
 
 	print '</table>';
 

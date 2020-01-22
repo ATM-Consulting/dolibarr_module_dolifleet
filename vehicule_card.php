@@ -476,6 +476,22 @@ else
 			print '</div>';	// fin fichecenter
 			print '<div class="clearboth"></div><br />';
 
+			print '<div class="fichecenter">';
+
+			print '<div class="fichehalfleft">';
+			print '<div class="underbanner clearboth"></div>';
+
+			printVehiculeRental($object, false, true);
+
+			print '</div>'; // fin fichehalfleft
+
+			print '<div class="fichehalfright">';
+			print '<div class="underbanner clearboth"></div>';
+
+			print '</div>'; // fin fichehalfright
+			print '</div>';	// fin fichecenter
+			print '<div class="clearboth"></div><br />';
+
 			print '<div class="tabsAction">'."\n";
             $parameters=array();
             $reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action);    // Note that $action and $object may have been modified by hook
