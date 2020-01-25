@@ -27,7 +27,7 @@ if(empty($user->rights->dolifleet->read)) accessforbidden();
 $langs->load('abricot@abricot');
 $langs->load('dolifleet@dolifleet');
 
-$socid = GETPOST('socid', 'int');
+$fk_soc = GETPOST('fk_soc', 'int');
 
 $massaction = GETPOST('massaction', 'alpha');
 $confirmmassaction = GETPOST('confirmmassaction', 'alpha');
@@ -61,7 +61,7 @@ if (!GETPOST('confirmmassaction', 'alpha') && $massaction != 'presend' && $massa
 
 if (GETPOST('button_removefilter_x','alpha') || GETPOST('button_removefilter.x','alpha') || GETPOST('button_removefilter','alpha'))
 {
-	unset($socid);
+	unset($fk_soc);
 }
 
 if (empty($reshook))
@@ -107,7 +107,7 @@ if (!empty($object->isextrafieldmanaged) && array_keys($extralabels))
 $sql.= ' WHERE 1=1';
 $sql.= ' AND t.entity IN ('.getEntity('dolifleet', 1).')';
 //if ($type == 'mine') $sql.= ' AND t.fk_user = '.$user->id;
-
+if (!empty($fk_soc) && $fk_soc > 0) $sql.= 'AND t.fk_soc = '.$fk_soc;
 // Add where from hooks
 $parameters=array('sql' => $sql);
 $reshook=$hookmanager->executeHooks('printFieldListWhere', $parameters, $object);    // Note that $action and $object may have been modified by hook
@@ -174,7 +174,7 @@ $listConfig = array(
 		,'fk_vehicule_mark' => array('search_type' => $dictVM->getAllActiveArray('label'))
 		,'immatriculation' => array('search_type' => true, 'table' => 't', 'field' => 'immatriculation')
 		,'date_immat' => array('search_type' => 'calendars', 'allow_is_null' => false)
-		,'fk_soc' => array('search_type' => 'override', 'override'=> $form->select_company($socid))
+		,'fk_soc' => array('search_type' => 'override', 'override'=> $form->select_company($fk_soc, 'fk_soc'))
 		,'date_customer_exploit' => array('search_type' => 'calendars', 'allow_is_null' => false)
 		,'km' => array('search_type' => true, 'table' => 't', 'field' => 'km')
 		,'km_date' => array('search_type' => 'calendars', 'allow_is_null' => false)

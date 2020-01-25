@@ -976,7 +976,7 @@ class doliFleetVehicule extends SeedObject
         $res = '';
 
         if ($status==self::STATUS_DRAFT) { $statusType='status0'; $statusLabel=$langs->trans('doliFleetVehiculeStatusDraft'); $statusLabelShort=$langs->trans('doliFleetVehiculeStatusShortDraft'); }
-        elseif ($status==self::STATUS_ACTIVE) { $statusType='status1'; $statusLabel=$langs->trans('doliFleetVehiculeStatusActivated'); $statusLabelShort=$langs->trans('doliFleetVehiculeStatusShortValidate'); }
+        elseif ($status==self::STATUS_ACTIVE) { $statusType='status4'; $statusLabel=$langs->trans('doliFleetVehiculeStatusActivated'); $statusLabelShort=$langs->trans('doliFleetVehiculeStatusShortValidate'); }
 
         if (function_exists('dolGetStatus'))
         {
