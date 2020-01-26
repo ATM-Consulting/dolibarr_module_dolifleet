@@ -663,7 +663,9 @@ class doliFleetVehicule extends SeedObject
 			dol_include_once('/dolifleet/class/vehiculeLink.class.php');
 			$Vlink = new doliFleetVehiculeLink($this->db);
 			$Vlink->fk_source = $this->id;
+			$Vlink->fk_soc_vehicule_source=$this->fk_soc;
 			$Vlink->fk_target = $id;
+			$Vlink->fk_soc_vehicule_target=$vehiculeToLink->fk_soc;
 			$Vlink->date_start= $date_start;
 			$Vlink->date_end = $date_end;
 
