@@ -355,6 +355,7 @@ function printLinkedVehicules($object, $fromcard = false)
 		// a minima on ne peut lier 2 véhicules de même nature
 		$sql.= " AND v.fk_vehicule_type <> ".$object->fk_vehicule_type;
 	}
+	$sql .= " AND v.fk_soc = ".$object->fk_soc;
 	$resql = $db->query($sql);
 	$Tab = array();
 	if ($resql)

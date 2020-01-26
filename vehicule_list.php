@@ -107,7 +107,7 @@ if (!empty($object->isextrafieldmanaged) && array_keys($extralabels))
 $sql.= ' WHERE 1=1';
 $sql.= ' AND t.entity IN ('.getEntity('dolifleet', 1).')';
 //if ($type == 'mine') $sql.= ' AND t.fk_user = '.$user->id;
-if (!empty($fk_soc) && $fk_soc > 0) $sql.= 'AND t.fk_soc = '.$fk_soc;
+if (!empty($fk_soc) && $fk_soc > 0) $sql.= ' AND t.fk_soc = '.$fk_soc;
 // Add where from hooks
 $parameters=array('sql' => $sql);
 $reshook=$hookmanager->executeHooks('printFieldListWhere', $parameters, $object);    // Note that $action and $object may have been modified by hook
