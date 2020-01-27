@@ -244,7 +244,7 @@ class dolifleetVehiculeOperation extends SeedObject
 			$this->errors[] = $langs->trans('ErrOperationInvalidProduct');
 		}
 
-		if (empty($this->km) && empty($this->delay_from_last_op))
+		if (empty($this->km) && empty($this->delai_from_last_op))
 		{
 			$this->errors[] = $langs->trans('ErrOperationNoCritera');
 		}

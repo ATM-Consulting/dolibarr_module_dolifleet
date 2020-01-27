@@ -848,7 +848,7 @@ class doliFleetVehicule extends SeedObject
 		$ope->fk_product = $productid;
 		$ope->fk_soc_vehicule = $this->fk_soc;
 		$ope->km = $km;
-		$ope->delay_from_last_op = $delayInMonths;
+		$ope->delai_from_last_op = $delayInMonths;
 
 		$ret = $ope->create($user);
 		if($ret < 0)
