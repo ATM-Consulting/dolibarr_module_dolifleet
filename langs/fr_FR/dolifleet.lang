@@ -24,6 +24,7 @@ matrix_write=Créer une matrice de loyers
 matrix_delete=Supprimer une matrice de loyers
 rentalproposal_read=Voir les propositions de loyers
 rentalproposal_write=Créer/modifier les propositions de loyers
+rentalproposal_validate=Valider/accepter les propositions de loyers
 rentalproposal_delete=Supprimer les propositions de loyers
 
 # SETUP
