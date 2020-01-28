@@ -138,8 +138,8 @@ $listViewConfig = array(
 	)
 	,'search' => array(
 		'date_creation' => array('search_type' => 'calendars', 'allow_is_null' => true)
+		,'ref' => array('search_type' => true, 'table' => 't', 'field' => 'ref')
 //	,'tms' => array('search_type' => 'calendars', 'allow_is_null' => false)
-//	,'ref' => array('search_type' => true, 'table' => 't', 'field' => 'ref')
 //	,'label' => array('search_type' => true, 'table' => array('t', 't'), 'field' => array('label')) // input text de recherche sur plusieurs champs
 		,'status' => array('search_type' => dolifleetRentalProposal::$TStatus, 'to_translate' => true) // select html, la clé = le status de l'objet, 'to_translate' à true si nécessaire
 		,'month' => array('search_type' => monthArray($langs))
@@ -151,18 +151,18 @@ $listViewConfig = array(
 		'rowid' // important : rowid doit exister dans la query sql pour les checkbox de massaction
 	)
 	,'title'=>array(
-//		'ref' => $langs->trans('Ref.')
+		'ref' => $langs->trans('Ref.')
 //		,'label' => $langs->trans('Label')
 //		,'date_creation' => $langs->trans('DateCre')
 //		,'tms' => $langs->trans('DateMaj')
-		'id'=>$langs->trans('Id')
+//		,'id'=>$langs->trans('Id')
 		,'month' => $langs->trans('Month')
 		,'year' => $langs->trans('Year')
 		,'fk_soc'=> $langs->trans('ThirdParty')
 		,'status'=> $langs->trans('Status')
 	)
 	,'eval'=>array(
-		'id' => '_getObjectNomUrl(\'@rowid@\')'
+		'ref' => '_getObjectNomUrl(\'@rowid@\')'
 		,'fk_soc' => '_getObjectNomUrl(\'@val@\', "Societe")'
 		,'month' => '_displayMonth(@val@)'
 		,'status' => "_printStatus(@val@)"

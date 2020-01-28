@@ -335,12 +335,34 @@ else
 
 			print '</table>';
 
+			print '<table class="border tableforfield centpercent">';
+
+			$object->fetchLines();
+			// Amount HT
+			print '<tr><td class="titlefieldmiddle">'.$langs->trans('AmountHT').'</td>';
+
+			$total_ht = 0;
+			$subtotals = array();
+
+			if (!empty($object->lines))
+			{
+				foreach ($object->lines as $l) {
+					$total_ht+= $l->total_ht;
+					$subtotals[$l->activity_type]['total'] += $l->total_ht;
+					$subtotals[$l->activity_type][$l->fk_vehicule_type] += $l->total_ht;
+				}
+			}
+
+			print '<td class="nowrap">'.price($total_ht, '', $langs, 0, - 1, - 1, $conf->currency).'</td>';
+			print '</tr>';
+
+			print '</table>';
+
 			print '</div></div>'; // Fin fichehalfright & ficheaddleft
 			print '</div>'; // Fin fichecenter
 
 			print '<div class="clearboth"></div><br />';
 
-			$object->fetchLines();
 			if (!empty($object->lines))
 			{
 				print '<div class="fichecenter">';
@@ -375,18 +397,27 @@ else
 
 					if ($typeAct !== $line->activity_type)
 					{
-						print '<tr><td colspan="5" align="center" style="background-color: #adadad">';
-						print $dictTypeAct->getValueFromId($line->activity_type);
-						print '</td></tr>';
+						$activityLabel = $dictTypeAct->getValueFromId($line->activity_type);
+						print '<tr>';
+						print '<td colspan="3" align="center" style="background-color: #adadad">';
+						print $activityLabel;
+						print '</td>';
+						print '<td class="linecolht right" style="background-color: #adadad">'.$langs->trans('Total').' '.$activityLabel.' : '.price($subtotals[$line->activity_type]['total']).'</td>';
+						print '<td style="background-color: #adadad"></td>';
+						print '</tr>';
 						$typeAct = $line->activity_type;
 						$typeVeh = 0;
 					}
 
 					if ($typeVeh !== $line->fk_vehicule_type)
 					{
-						print '<tr><td colspan="5" align="center" style="background-color: #d4d4d4">';
-						print $dictTypeVeh->getValueFromId($line->fk_vehicule_type);
-						print '</td></tr>';
+						$VtypeLabel = $dictTypeVeh->getValueFromId($line->fk_vehicule_type);
+						print '<tr><td colspan="3" align="center" style="background-color: #d4d4d4">';
+						print $VtypeLabel;
+						print '</td>';
+						print '<td class="linecolht right" style="background-color: #d4d4d4">'.$langs->trans('Total').' '.$VtypeLabel.' : '.price($subtotals[$line->activity_type][$line->fk_vehicule_type]).'</td>';
+						print '<td style="background-color: #d4d4d4"></td>';
+						print '</tr>';
 						$typeVeh = $line->fk_vehicule_type;
 					}
 

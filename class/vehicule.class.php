@@ -288,7 +288,7 @@ class doliFleetVehicule extends SeedObject
      * @param User $user User object
      * @return int
      */
-    public function save($user)
+    public function save($user, $notrigger = false)
     {
     	global $langs;
 
@@ -323,7 +323,7 @@ class doliFleetVehicule extends SeedObject
 //            $this->ref = '(PROV'.$this->id.')';
 //        }
 
-        return $this->create($user);
+        return $this->create($user, $notrigger);
     }
 
 
@@ -341,12 +341,12 @@ class doliFleetVehicule extends SeedObject
      * @param User $user User object
      * @return int
      */
-    public function delete(User &$user)
+    public function delete(User &$user, $notrigger = false)
     {
         $this->deleteObjectLinked();
 
         unset($this->fk_element); // avoid conflict with standard Dolibarr comportment
-        return parent::delete($user);
+        return parent::delete($user, $notrigger);
     }
 
     /**

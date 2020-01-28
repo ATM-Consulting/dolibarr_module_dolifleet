@@ -70,12 +70,37 @@ class dolifleetRentalProposal extends SeedObject
 	public $date_second_valid;
 
 	public $fields = array(
+		'ref' => array(
+			'type' => 'varchar(50)',
+			'length' => 50,
+			'label' => 'Ref',
+			'enabled' => 1,
+			'visible' => 1,
+			'notnull' => 1,
+			'showoncombobox' => 1,
+			'index' => 1,
+			'position' => 10,
+			'searchall' => 1,
+			'comment' => 'Reference of object'
+		),
+
+		'entity' => array(
+			'type' => 'integer',
+			'label' => 'Entity',
+			'enabled' => 1,
+			'visible' => 0,
+			'default' => 1,
+			'notnull' => 1,
+			'index' => 1,
+			'position' => 20
+		),
+
 		'month' => array(
 			'type' => 'integer',
 			'label' => 'Month',
 			'visible' => 1,
 			'enabled' => 1,
-			'position' => 10,
+			'position' => 30,
 			'index' => 1,
 		),
 
@@ -84,7 +109,7 @@ class dolifleetRentalProposal extends SeedObject
 			'label' => 'Year',
 			'visible' => 1,
 			'enabled' => 1,
-			'position' => 20,
+			'position' => 40,
 			'index' => 1,
 		),
 
@@ -95,7 +120,7 @@ class dolifleetRentalProposal extends SeedObject
 			'visible' => 1,
 			'notnull' =>1,
 			'default' => 0,
-			'position' => 30,
+			'position' => 50,
 			'index' => 1,
 		),
 
@@ -107,7 +132,7 @@ class dolifleetRentalProposal extends SeedObject
 			'notnull' => 1,
 			'default' => 0,
 			'index' => 1,
-			'position' => 40,
+			'position' => 60,
 			'arrayofkeyval' => array(
 				self::STATUS_DRAFT => 'doliFleetProposalStatusDraft'
 				,self::STATUS_INPROGRESS => 'doliFleetProposalStatusInProgress'
@@ -120,7 +145,7 @@ class dolifleetRentalProposal extends SeedObject
 			'type' => 'integer:User:user/class/user.class.php',
 			'enabled' => 1,
 			'visible' => 0,
-			'position' => 50,
+			'position' => 70,
 			'index' => 1,
 		),
 
@@ -129,7 +154,7 @@ class dolifleetRentalProposal extends SeedObject
 			'label' => 'date_valid',
 			'enabled' => 0,
 			'visible' => 0,
-			'position' => 60,
+			'position' => 80,
 			'searchall' => 1,
 		),
 
@@ -137,7 +162,7 @@ class dolifleetRentalProposal extends SeedObject
 			'type' => 'integer:User:user/class/user.class.php',
 			'enabled' => 1,
 			'visible' => 0,
-			'position' => 70,
+			'position' => 90,
 			'index' => 1,
 		),
 
@@ -146,7 +171,7 @@ class dolifleetRentalProposal extends SeedObject
 			'label' => 'date_valid',
 			'enabled' => 0,
 			'visible' => 0,
-			'position' => 80,
+			'position' => 100,
 			'searchall' => 1,
 		),
 
@@ -166,16 +191,22 @@ class dolifleetRentalProposal extends SeedObject
 		$this->entity = $conf->entity;
 	}
 
-	public function save($user)
+	public function save($user, $notrigger = false)
 	{
 		global $langs;
 
 		// TODO check parameters
 		$initLines = false;
-		if (empty($this->id)) $initLines = true;
+		if (empty($this->id)) {
+			$initLines = true;
+		}
 
-		$ret = $this->create($user);
-		if ($ret > 0 && $initLines) $ret = $this->initLines();
+		$ret = $this->create($user, $notrigger);
+		if ($ret > 0 && $initLines) {
+			$ret = $this->initLines();
+			$this->ref = '(PROV'.$this->id.')';
+			$this->update($user, true);
+		}
 
 		return $ret;
 	}
@@ -194,7 +225,7 @@ class dolifleetRentalProposal extends SeedObject
 	 * @param User $user User object
 	 * @return int
 	 */
-	public function delete(User &$user)
+	public function delete(User &$user, $notrigger = false)
 	{
 		$this->deleteObjectLinked();
 
@@ -228,9 +259,12 @@ class dolifleetRentalProposal extends SeedObject
 		global $db,$conf;
 
 		require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
+		$codeTiers = '';
+		$this->fetch_thirdparty();
+		$codeTiers.=$this->thirdparty->code_client;
 
-		$mask = !empty($conf->global->DOLIFLEETRENTALPROPOSAL_REF_MASK) ? $conf->global->DOLIFLEETRENTALPROPOSAL_REF_MASK : 'MM{yy}{mm}-{0000}';
-		$ref = get_next_value($db, $mask, 'dolifleetrentalproposal', 'ref');
+		$mask = !empty($conf->global->DOLIFLEETRENTALPROPOSAL_REF_MASK) ? $conf->global->DOLIFLEETRENTALPROPOSAL_REF_MASK : $this->year.'-'.($this->month < 10 ? '0' : '').$this->month.(!empty($codeTiers) ? '-'.$codeTiers : '').'-{000}';//'MM{yy}{mm}-{0000}';
+		$ref = get_next_value($db, $mask, $this->table_element, 'ref', '', '', '', 'next',false);
 
 		return $ref;
 	}
@@ -264,7 +298,7 @@ class dolifleetRentalProposal extends SeedObject
 		if ($this->status === self::STATUS_DRAFT && $user->rights->dolifleet->rentalproposal->validate)
 		{
 			// TODO determinate if auto generate
-//            $this->ref = $this->getRef();
+            $this->ref = $this->getRef();
 //            $this->fk_user_valid = $user->id;
 			$this->status = self::STATUS_INPROGRESS;
 			$this->fk_first_valid = $user->id;
@@ -542,6 +576,8 @@ class dolifleetRentalProposal extends SeedObject
 
 	public function showInputField($val, $key, $value, $moreparam = '', $keysuffix = '', $keyprefix = '', $morecss = 0, $nonewbutton = 0)
 	{
+		global $langs;
+
 		$out = '';
 
 		if ($key == 'month')
@@ -566,6 +602,10 @@ class dolifleetRentalProposal extends SeedObject
 				,10
 				,0
 			);
+		}
+		elseif ($key == 'ref')
+		{
+			$out.= (empty($this->id) && empty($this->ref) ? $langs->trans('Draft') : $this->ref) ;
 		}
 		else $out.= parent::showInputField($val, $key, $value, $moreparam, $keysuffix, $keyprefix, $morecss, $nonewbutton);
 
