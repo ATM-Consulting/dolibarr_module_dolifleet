@@ -892,11 +892,26 @@ class doliFleetVehicule extends SeedObject
      */
     public function getNomUrl($withpicto = 0, $moreparams = '')
     {
-		global $langs;
+		global $langs, $db;
 
         $result='';
         $label = '<u>' . $langs->trans("ShowdoliFleetVehicule") . '</u>';
         if (! empty($this->ref)) $label.= '<br><b>'.$langs->trans('VIN').':</b> '.$this->vin;
+        if (! empty($this->immatriculation)) $label.= '<br><b>'.$langs->trans('immatriculation').':</b> '.$this->immatriculation;
+
+        // marque
+        dol_include_once('/dolifleet/class/dictionaryVehiculeMark.class.php');
+        $dict = new dictionaryVehiculeMark($db);
+        $label.= '<br><b>'.$langs->trans('vehiculeMark').':</b> '.$dict->getValueFromId($this->fk_vehicule_mark);
+
+        // type de véhicule
+        dol_include_once('/dolifleet/class/dictionaryVehiculeType.class.php');
+        $dict = new dictionaryVehiculeType($db);
+        $label.= '<br><b>'.$langs->trans('vehiculeType').':</b> '.$dict->getValueFromId($this->fk_vehicule_type);
+
+        // client
+        $this->fetch_thirdparty();
+        $label.= '<br><b>'.$langs->trans('ThirdParty').':</b> '.$this->thirdparty->name;
 
         $linkclose = '" title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip">';
         $link = '<a href="'.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$this->id.urlencode($moreparams).$linkclose;
@@ -916,11 +931,26 @@ class doliFleetVehicule extends SeedObject
 
     public function getLinkUrl($withpicto = 0, $moreparams = '', $fieldtodisplay = 'vin')
 	{
-		global $langs;
+		global $langs, $db;
 
 		$result='';
 		$label = '<u>' . $langs->trans("ShowdoliFleetVehicule") . '</u>';
 		if (! empty($this->ref)) $label.= '<br><b>'.$langs->trans('VIN').':</b> '.$this->vin;
+		if (! empty($this->immatriculation)) $label.= '<br><b>'.$langs->trans('immatriculation').':</b> '.$this->immatriculation;
+
+		// marque
+		dol_include_once('/dolifleet/class/dictionaryVehiculeMark.class.php');
+		$dict = new dictionaryVehiculeMark($db);
+		$label.= '<br><b>'.$langs->trans('vehiculeMark').':</b> '.$dict->getValueFromId($this->fk_vehicule_mark);
+
+		// type de véhicule
+		dol_include_once('/dolifleet/class/dictionaryVehiculeType.class.php');
+		$dict = new dictionaryVehiculeType($db);
+		$label.= '<br><b>'.$langs->trans('vehiculeType').':</b> '.$dict->getValueFromId($this->fk_vehicule_type);
+
+		// client
+		$this->fetch_thirdparty();
+		$label.= '<br><b>'.$langs->trans('ThirdParty').':</b> '.$this->thirdparty->name;
 
 		$linkclose = '" title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip">';
 		$link = '<a href="'.dol_buildpath('/dolifleet/vehicule_card.php', 1).'?id='.$this->id.urlencode($moreparams).$linkclose;
