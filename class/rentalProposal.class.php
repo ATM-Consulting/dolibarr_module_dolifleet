@@ -695,7 +695,9 @@ class dolifleetRentalProposalDet extends SeedObject
 			$vehicule = new doliFleetVehicule($this->db);
 			$vehicule->fetch($this->fk_vehicule);
 
-			$cashVehiculeDates[$vehicule->id] = $vehicule->date_customer_exploit;
+			$cashVehiculeDates[$vehicule->id]['date'] = $vehicule->date_customer_exploit;
+			$cashVehiculeDates[$vehicule->id]['Vtype'] = $vehicule->fk_vehicule_type;
+			$cashVehiculeDates[$vehicule->id]['mark'] = $vehicule->fk_vehicule_mark;
 		}
 
 		$this->total_ht = 0;
@@ -703,7 +705,9 @@ class dolifleetRentalProposalDet extends SeedObject
 		// récupérer le montant hors taxe depuis la matrice du client
 		$sql = "SELECT amount_ht FROM ".MAIN_DB_PREFIX."dolifleet_vehicule_rental_matrix";
 		$sql.= " WHERE fk_soc = ".$this->fk_soc;
-		$sql.= " AND delay >= PERIOD_DIFF(DATE_FORMAT(NOW(), '%Y%m'), DATE_FORMAT('".$this->db->idate($cashVehiculeDates[$this->fk_vehicule])."', '%Y%m'))";
+		$sql.= " AND delay >= PERIOD_DIFF(DATE_FORMAT(NOW(), '%Y%m'), DATE_FORMAT('".$this->db->idate($cashVehiculeDates[$this->fk_vehicule]['date'])."', '%Y%m'))";
+		$sql.= " AND fk_c_type_vh = ".$cashVehiculeDates[$vehicule->id]['Vtype'];
+		$sql.= " AND fk_c_mark_vh = ".$cashVehiculeDates[$vehicule->id]['mark'];
 		$sql.= " LIMIT 1";
 
 		$resql = $this->db->query($sql);
@@ -722,7 +726,9 @@ class dolifleetRentalProposalDet extends SeedObject
 		{
 			$sql = "SELECT amount_ht FROM ".MAIN_DB_PREFIX."dolifleet_vehicule_rental_matrix";
 			$sql.= " WHERE fk_soc = 0";
-			$sql.= " AND delay >= PERIOD_DIFF(DATE_FORMAT(NOW(), '%Y%m'), DATE_FORMAT('".$this->db->idate($cashVehiculeDates[$this->fk_vehicule])."', '%Y%m'))";
+			$sql.= " AND delay >= PERIOD_DIFF(DATE_FORMAT(NOW(), '%Y%m'), DATE_FORMAT('".$this->db->idate($cashVehiculeDates[$this->fk_vehicule]['date'])."', '%Y%m'))";
+			$sql.= " AND fk_c_type_vh = ".$cashVehiculeDates[$vehicule->id]['Vtype'];
+			$sql.= " AND fk_c_mark_vh = ".$cashVehiculeDates[$vehicule->id]['mark'];
 			$sql.= " LIMIT 1";
 			$resql = $this->db->query($sql);
 
