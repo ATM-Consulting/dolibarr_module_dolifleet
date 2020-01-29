@@ -197,6 +197,19 @@ $listConfig = array(
 	)
 );
 
+if (!empty($extralabels))
+{
+	foreach ($extralabels as $k => $v)
+	{
+//		$listConfig['search'][$k] = array(
+//			'search_type' => 'override'
+//			,'override' => $extrafields->showInputField($k, GETPOST('Listview_dolifleet_search_'.$k), '', '', 'Listview_dolifleet_search_')
+//		);
+		$listConfig['eval'][$k] = '_evalEF("'.$k.'", "@val@")';
+	}
+
+}
+
 $r = new Listview($db, 'dolifleet');
 echo $r->render($sql, $listConfig);
 
@@ -252,4 +265,11 @@ function _getValueFromId($id, $dictionaryClassname)
 		return $dict->getValueFromId($id, 'label');
 	}
 	else return '';
+}
+
+function _evalEF($key, $val)
+{
+	global $extrafields;
+
+	return $extrafields->showOutputField($key, $val);
 }
