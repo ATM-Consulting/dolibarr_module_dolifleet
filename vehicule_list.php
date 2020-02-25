@@ -28,6 +28,13 @@ $langs->load('abricot@abricot');
 $langs->load('dolifleet@dolifleet');
 
 $fk_soc = GETPOST('fk_soc', 'int');
+$search_by=GETPOST('search_by', 'alpha');
+if (!empty($search_by)) {
+	$sall=GETPOST('sall');
+	if (!empty($sall)) {
+		$_GET[$search_by]=$sall;
+	}
+}
 
 $massaction = GETPOST('massaction', 'alpha');
 $confirmmassaction = GETPOST('confirmmassaction', 'alpha');

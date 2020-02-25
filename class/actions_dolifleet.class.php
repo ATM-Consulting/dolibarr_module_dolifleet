@@ -108,4 +108,44 @@ class ActionsdoliFleet
 			return 1;
 		}
 	}
+
+	/**
+	 * addSearchEntry Method Hook Call
+	 *
+	 * @param array $parameters parameters
+	 * @param Object &$object Object to use hooks on
+	 * @param string &$action Action code on calling page ('create', 'edit', 'view', 'add', 'update', 'delete'...)
+	 * @param object $hookmanager class instance
+	 * @return void
+	 */
+	public function addSearchEntry($parameters, &$object, &$action, $hookmanager)
+	{
+		global $conf, $langs, $user, $db;
+		$langs->load('dolifleet@dolifleet');
+
+		dol_include_once('/dolifleet/core/modules/moddoliFleet.class.php');
+		$modDolifleet = new moddoliFleet($db);
+
+		$arrayresult = array();
+		if (empty($conf->global->DOLIFLEET_HIDE_QUICK_SEARCH) && $user->rights->dolifleet->read) {
+			$str_search_vin = '&Listview_dolifleet_search_vin=' . urlencode($parameters['search_boxvalue']);
+			$arrayresult['searchintovehiculevin'] = array(
+				'position' => $modDolifleet->numero,
+				'text' => img_object('', 'dolifleet@dolifleet') . ' VIN',
+				'url' => dol_buildpath('/dolifleet/vehicule_list.php', 1) . '?search_by=Listview_dolifleet_search_vin'.$str_search_vin
+			);
+
+			$str_search_immat = '&Listview_dolifleet_search_immatriculation=' . urlencode($parameters['search_boxvalue']);
+			$arrayresult['searchintovehiculeimmat'] = array(
+				'position' => $modDolifleet->numero,
+				'text' => img_object('', 'dolifleet@dolifleet') . ' Immat',
+				'url' => dol_buildpath('/dolifleet/vehicule_list.php', 1) . '?search_by=Listview_dolifleet_search_immatriculation'.$str_search_immat
+			);
+
+		}
+
+		$this->results = $arrayresult;
+
+		return 0;
+	}
 }

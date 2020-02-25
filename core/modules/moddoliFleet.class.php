@@ -91,6 +91,7 @@ class moddoliFleet extends DolibarrModules
 		$this->module_parts = array(
 			'hooks' => array(
 				'globalcard',
+				'searchform',
 			)
 		);
 
