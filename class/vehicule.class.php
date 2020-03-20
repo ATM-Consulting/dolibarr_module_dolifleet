@@ -1069,6 +1069,8 @@ class doliFleetVehicule extends SeedObject
         {
             dol_syslog(__CLASS__ . ":".__METHOD__." launched by " . __FILE__ . ". id=" . $this->id.' error code : '.$object->error, LOG_ERR);
             return -1;
+        } else {
+            return $newEventId;
         }
 
     }
