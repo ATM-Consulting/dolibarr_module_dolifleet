@@ -1042,14 +1042,13 @@ class doliFleetVehicule extends SeedObject
 		return $this->showOutputField($this->fields[$key], $key, $this->{$key}, $moreparam, $keysuffix, $keyprefix, $morecss);
 	}
 
-    function addActionComEvent($label, $note = ''){
+    function addActionComEvent($label, $note = '', $type_code = 'AC_OTH_AUTO'){
         global $user;
 
         require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
 
         $object = new ActionComm($this->db);
-        $object->code = 'AC_OTH_AUTO';
-        $object->type_code = $object->code; // if missing there is an error
+        $object->type_code = $type_code;
         $object->label = $label;
         $object->note_private = $note;
 
