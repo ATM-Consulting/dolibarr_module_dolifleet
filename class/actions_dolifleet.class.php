@@ -96,7 +96,7 @@ class ActionsdoliFleet
 	{
 		global $langs;
 
-		if (get_class($parameters['object']) == "Societe" && $parameters['mode'] == 'add')
+		if (is_object($parameters['object']) && get_class($parameters['object']) == "Societe" && $parameters['mode'] == 'add')
 		{
 			$this->results = $parameters['head'];
 			$this->results[] = array(
