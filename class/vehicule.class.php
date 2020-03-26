@@ -1041,4 +1041,36 @@ class doliFleetVehicule extends SeedObject
 	public function showOutputFieldQuick($key, $moreparam = '', $keysuffix = '', $keyprefix = '', $morecss = ''){
 		return $this->showOutputField($this->fields[$key], $key, $this->{$key}, $moreparam, $keysuffix, $keyprefix, $morecss);
 	}
+
+    function addActionComEvent($label, $note = '', $type_code = 'AC_OTH_AUTO'){
+        global $user;
+
+        require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
+
+        $object = new ActionComm($this->db);
+        $object->type_code = $type_code;
+        $object->label = $label;
+        $object->note_private = $note;
+
+        $object->datep = time();
+
+        $object->fk_element = $this->id;    // Id of record
+        $object->elementid = 0;    // Id of record alternative for API
+        $object->elementtype = $this->element.'@dolifleet';   // Type of record. This if property ->element of object linked to.
+
+        $object->socid = $this->fk_soc;
+        $object->userownerid = $user->id;
+        $object->percentage = -1;
+
+
+        $newEventId = $object->create($user);
+        if($newEventId < 1)
+        {
+            dol_syslog(__CLASS__ . ":".__METHOD__." launched by " . __FILE__ . ". id=" . $this->id.' error code : '.$object->error, LOG_ERR);
+            return -1;
+        } else {
+            return $newEventId;
+        }
+
+    }
 }

@@ -502,7 +502,7 @@ function printVehiculeOpérations($object)
 	print '<td align="center">'.$langs->trans('VehiculeOperation').'</td>';
 	print '<td align="center">'.$langs->trans('KM').'</td>';
 	print '<td align="center">'.$langs->trans('VehiculeOperationDelay').'</td>';
-	print '<td align="center">'.$langs->trans('Status').'</td>';
+//	print '<td align="center">'.$langs->trans('Status').'</td>';
 	print '<td align="center"></td>';
 	print '</tr>';
 
@@ -519,7 +519,7 @@ function printVehiculeOpérations($object)
 			print '<td align="center">'.$operation->getName().'</td>';
 			print '<td align="center">'.(!empty($operation->km) ? price2num($operation->km) : '').'</td>';
 			print '<td align="center">'.(!empty($operation->delai_from_last_op) ? $operation->delai_from_last_op.' '.$langs->trans('Months') : '').'</td>';
-			print '<td align="center">'.$operation->getLibStatut(2).'</td>';
+//			print '<td align="center">'.$operation->getLibStatut(2).'</td>';
 			print '<td align="center">';
 			print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delOperation&ope_id='.$operation->id.'">'.img_delete().'</a>';
 			print '</td>';
