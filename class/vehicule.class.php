@@ -1056,7 +1056,7 @@ class doliFleetVehicule extends SeedObject
 
         $object->fk_element = $this->id;    // Id of record
         $object->elementid = 0;    // Id of record alternative for API
-        $object->elementtype = $this->element.'@dolifleet';   // Type of record. This if property ->element of object linked to.
+        $object->elementtype = $this->element;   // Type of record. This if property ->element of object linked to.
 
         $object->socid = $this->fk_soc;
         $object->userownerid = $user->id;
