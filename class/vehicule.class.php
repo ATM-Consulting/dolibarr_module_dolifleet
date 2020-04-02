@@ -1042,7 +1042,7 @@ class doliFleetVehicule extends SeedObject
 		return $this->showOutputField($this->fields[$key], $key, $this->{$key}, $moreparam, $keysuffix, $keyprefix, $morecss);
 	}
 
-    function addActionComEvent($label, $note = '', $type_code = 'AC_OTH_AUTO'){
+    function addActionComEvent($label, $note = '', $type_code = 'AC_OTH_AUTO', $percentage = -1){
         global $user;
 
         require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
@@ -1060,7 +1060,7 @@ class doliFleetVehicule extends SeedObject
 
         $object->socid = $this->fk_soc;
         $object->userownerid = $user->id;
-        $object->percentage = -1;
+        $object->percentage = $percentage;
 
 
         $newEventId = $object->create($user);
