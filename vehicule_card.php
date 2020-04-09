@@ -399,38 +399,7 @@ else
             $formconfirm = getFormConfirmdoliFleetVehicule($form, $object, $action);
             if (!empty($formconfirm)) print $formconfirm;
 
-
-            $linkback = '<a href="' .dol_buildpath('/dolifleet/vehicule_list.php', 1) . '?restore_lastsearch_values=1">' . $langs->trans('BackToList') . '</a>';
-
-            $morehtmlref='<div class="refidno">';
-			if (! empty($object->immatriculation)) $morehtmlref.= '<br>'.$langs->trans('immatriculation').': '.$object->immatriculation;
-
-			// marque
-			dol_include_once('/dolifleet/class/dictionaryVehiculeMark.class.php');
-			$dict = new dictionaryVehiculeMark($db);
-			$morehtmlref.= '<br>'.$langs->trans('vehiculeMark').': '.$dict->getValueFromId($object->fk_vehicule_mark);
-
-			// type de véhicule
-			dol_include_once('/dolifleet/class/dictionaryVehiculeType.class.php');
-			$dict = new dictionaryVehiculeType($db);
-			$morehtmlref.= '<br>'.$langs->trans('vehiculeType').': '.$dict->getValueFromId($object->fk_vehicule_type);
-
-			// client
-			$object->fetch_thirdparty();
-			$morehtmlref .= '<br>'.$langs->trans('ThirdParty').' : '.$object->thirdparty->getNomUrl(1, 'customer');
-            /*
-            // Ref bis
-            $morehtmlref.=$form->editfieldkey("RefBis", 'ref_client', $object->ref_client, $object, $user->rights->dolifleet->write, 'string', '', 0, 1);
-            $morehtmlref.=$form->editfieldval("RefBis", 'ref_client', $object->ref_client, $object, $user->rights->dolifleet->write, 'string', '', null, null, '', 1);
-            // Thirdparty
-            $morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ' . $soc->getNomUrl(1);
-            */
-            $morehtmlref.='</div>';
-
-
-            $morehtmlstatus.=''; //$object->getLibStatut(2); // pas besoin fait doublon
-            $object->ref = $object->vin;
-            dol_banner_tab($object, 'vin', $linkback, 1, 'vin', 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
+            printBannerVehicleCard($object);
 
             print '<div class="fichecenter">';
 
