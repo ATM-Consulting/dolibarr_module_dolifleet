@@ -144,7 +144,7 @@ if (!empty(array_keys($extralabels)))
 	$TTitle = array_merge($TTitle, $extralabels);
 }
 
-$listConfig = array(
+$listViewConfig = array(
 	'view_type' => 'list' // default = [list], [raw], [chart]
 	,'allow-fields-select' => true
 	,'limit'=>array(
@@ -208,17 +208,28 @@ if (!empty($extralabels))
 {
 	foreach ($extralabels as $k => $v)
 	{
-//		$listConfig['search'][$k] = array(
+//		$listViewConfig['search'][$k] = array(
 //			'search_type' => 'override'
 //			,'override' => $extrafields->showInputField($k, GETPOST('Listview_dolifleet_search_'.$k), '', '', 'Listview_dolifleet_search_')
 //		);
-		$listConfig['eval'][$k] = '_evalEF("'.$k.'", "@val@")';
+        $listViewConfig['eval'][$k] = '_evalEF("'.$k.'", "@val@")';
 	}
 
 }
 
 $r = new Listview($db, 'dolifleet');
-echo $r->render($sql, $listConfig);
+
+// Change view from hooks
+$parameters=array(  'listViewConfig' => $listViewConfig);
+$reshook=$hookmanager->executeHooks('listViewConfig',$parameters,$r);    // Note that $action and $object may have been modified by hook
+if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+if ($reshook>0)
+{
+    $listViewConfig = $hookmanager->resArray;
+}
+
+
+echo $r->render($sql, $listViewConfig);
 
 $parameters=array('sql'=>$sql);
 $reshook=$hookmanager->executeHooks('printFieldListFooter', $parameters, $object);    // Note that $action and $object may have been modified by hook
