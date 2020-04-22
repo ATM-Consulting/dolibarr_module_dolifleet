@@ -37,6 +37,7 @@ if (!empty($search_by)) {
 }
 
 $massaction = GETPOST('massaction', 'alpha');
+$action = GETPOST('action', 'alpha');
 $confirmmassaction = GETPOST('confirmmassaction', 'alpha');
 $toselect = GETPOST('toselect', 'array');
 
@@ -58,7 +59,7 @@ if ($object->isextrafieldmanaged)
  */
 
 $parameters=array();
-$reshook=$hookmanager->executeHooks('doActions', $parameters, $object);    // Note that $action and $object may have been modified by some hooks
+$reshook=$hookmanager->executeHooks('doActions', $parameters, $object, $action);    // Note that $action and $object may have been modified by some hooks
 if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
 if (!GETPOST('confirmmassaction', 'alpha') && $massaction != 'presend' && $massaction != 'confirm_presend')
