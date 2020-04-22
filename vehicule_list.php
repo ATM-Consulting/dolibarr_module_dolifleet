@@ -86,6 +86,17 @@ llxHeader('', $langs->trans('doliFleetVehiculeList'), '', '');
 //$type = GETPOST('type');
 //if (empty($user->rights->dolifleet->all->read)) $type = 'mine';
 
+$formconfirm = '';
+
+$parameters = array('formConfirm' => $formconfirm);
+$reshook = $hookmanager->executeHooks('formConfirm', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
+if (empty($reshook)) $formconfirm .= $hookmanager->resPrint;
+elseif ($reshook > 0) $formconfirm = $hookmanager->resPrint;
+
+// Print form confirm
+print $formconfirm;
+
+
 // TODO ajouter les champs de son objet que l'on souhaite afficher
 $keys = array_keys($object->fields);
 $fieldList = 't.'.implode(', t.', $keys);
