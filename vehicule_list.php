@@ -37,6 +37,7 @@ if (!empty($search_by)) {
 }
 
 $massaction = GETPOST('massaction', 'alpha');
+$action = GETPOST('action', 'alpha');
 $confirmmassaction = GETPOST('confirmmassaction', 'alpha');
 $toselect = GETPOST('toselect', 'array');
 
@@ -58,7 +59,7 @@ if ($object->isextrafieldmanaged)
  */
 
 $parameters=array();
-$reshook=$hookmanager->executeHooks('doActions', $parameters, $object);    // Note that $action and $object may have been modified by some hooks
+$reshook=$hookmanager->executeHooks('doActions', $parameters, $object, $action);    // Note that $action and $object may have been modified by some hooks
 if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
 if (!GETPOST('confirmmassaction', 'alpha') && $massaction != 'presend' && $massaction != 'confirm_presend')
@@ -85,6 +86,17 @@ llxHeader('', $langs->trans('doliFleetVehiculeList'), '', '');
 
 //$type = GETPOST('type');
 //if (empty($user->rights->dolifleet->all->read)) $type = 'mine';
+
+$formconfirm = '';
+
+$parameters = array('formConfirm' => $formconfirm);
+$reshook = $hookmanager->executeHooks('formConfirm', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
+if (empty($reshook)) $formconfirm .= $hookmanager->resPrint;
+elseif ($reshook > 0) $formconfirm = $hookmanager->resPrint;
+
+// Print form confirm
+print $formconfirm;
+
 
 // TODO ajouter les champs de son objet que l'on souhaite afficher
 $keys = array_keys($object->fields);
@@ -144,7 +156,7 @@ if (!empty(array_keys($extralabels)))
 	$TTitle = array_merge($TTitle, $extralabels);
 }
 
-$listConfig = array(
+$listViewConfig = array(
 	'view_type' => 'list' // default = [list], [raw], [chart]
 	,'allow-fields-select' => true
 	,'limit'=>array(
@@ -208,17 +220,28 @@ if (!empty($extralabels))
 {
 	foreach ($extralabels as $k => $v)
 	{
-//		$listConfig['search'][$k] = array(
+//		$listViewConfig['search'][$k] = array(
 //			'search_type' => 'override'
 //			,'override' => $extrafields->showInputField($k, GETPOST('Listview_dolifleet_search_'.$k), '', '', 'Listview_dolifleet_search_')
 //		);
-		$listConfig['eval'][$k] = '_evalEF("'.$k.'", "@val@")';
+        $listViewConfig['eval'][$k] = '_evalEF("'.$k.'", "@val@")';
 	}
 
 }
 
 $r = new Listview($db, 'dolifleet');
-echo $r->render($sql, $listConfig);
+
+// Change view from hooks
+$parameters=array(  'listViewConfig' => $listViewConfig);
+$reshook=$hookmanager->executeHooks('listViewConfig',$parameters,$r);    // Note that $action and $object may have been modified by hook
+if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+if ($reshook>0)
+{
+    $listViewConfig = $hookmanager->resArray;
+}
+
+
+echo $r->render($sql, $listViewConfig);
 
 $parameters=array('sql'=>$sql);
 $reshook=$hookmanager->executeHooks('printFieldListFooter', $parameters, $object);    // Note that $action and $object may have been modified by hook
