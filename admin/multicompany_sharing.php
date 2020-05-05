@@ -19,7 +19,29 @@ dol_include_once('/dolifleet/lib/dolifleet.lib.php');
 $langs->load("admin");
 $langs->load("dolifleet@dolifleet");
 
+// Merci à dolibarr et multicompany de simplifier les choses...
+$moduleKey = 'dolifleet';
 $element = 'dolifleet';
+$elementConvertion = 'dolifleetvehicule'; // voir selectForForms dans html.form.class.php
+$elementConvertionAnotherOne = 'dolifleet_vehicule'; // voir selectForFormsList dans html.form.class.php
+
+
+$moduleSharingEnabled = 'MULTICOMPANY_'.strtoupper($moduleKey).'_SHARING_ENABLED';
+$moduleSharingEnabledValue = $conf->global->{$moduleSharingEnabled};
+
+//dolibarr_set_const($db, 'MULTICOMPANY_'.strtoupper($elementConvertion).'_SHARING_ENABLED' , $moduleSharingEnabledValue, 'chaine', 0, '', 0); // la conf MULTICOMPANY_EXTERNAL_MODULES_SHARING regle le PB je les garde au cas ou
+//dolibarr_set_const($db, 'MULTICOMPANY_'.strtoupper($elementConvertionAnotherOne).'_SHARING_ENABLED' , $moduleSharingEnabledValue, 'chaine', 0, '', 0); // la conf MULTICOMPANY_EXTERNAL_MODULES_SHARING regle le PB je les garde au cas ou
+
+$externalmodules = array();
+if (! empty($conf->global->MULTICOMPANY_EXTERNAL_MODULES_SHARING)) {
+	$externalmodules = json_decode($conf->global->MULTICOMPANY_EXTERNAL_MODULES_SHARING, true);
+}
+
+if(!empty($moduleSharingEnabledValue)){
+	$externalmodules[$moduleKey]['sharingmodulename'][$elementConvertion] = 'dolifleet';
+	$externalmodules[$moduleKey]['sharingmodulename'][$elementConvertionAnotherOne] = 'dolifleet';
+	dolibarr_set_const($db, 'MULTICOMPANY_EXTERNAL_MODULES_SHARING' , json_encode($externalmodules), 'chaine', 0, '', 0);
+}
 
 $action = GETPOST("action");
 if ($action == 'save_multicompany_shared_conf')
@@ -30,7 +52,7 @@ if ($action == 'save_multicompany_shared_conf')
 
 	foreach ($dao->entities as $entity)
 	{
-		$entity->options['sharings'][$element] = array();
+		$entity->options['sharings'][$element] = $entity->options['sharings'][$elementConvertion] = $entity->options['sharings'][$elementConvertionAnotherOne] = array();
 		$entity->update($entity->id, $user);
 	}
 
@@ -45,10 +67,10 @@ if ($action == 'save_multicompany_shared_conf')
 			{
 				$shared = array_map('intval', $shared);
 
-
 				if ($dao->fetch($entityId) > 0)
 				{
-					$dao->options['sharings'][$element] = $shared;
+					$dao->options['sharings'][$element] = $dao->options['sharings'][$elementConvertion] = $dao->options['sharings'][$elementConvertionAnotherOne] = $shared;
+
 					if ($dao->update($entityId, $user) < 1)
 					{
 						setEventMessage('Error');
@@ -101,6 +123,7 @@ if (!empty($conf->multicompany->enabled) && !empty($conf->global->MULTICOMPANY_S
 	print '</tr>';
 
 	$moduleSharingEnabled = 'MULTICOMPANY_'.strtoupper($element).'_SHARING_ENABLED';
+
 
 	print '<tr class="oddeven" >';
 	print '<td align="left" >';
