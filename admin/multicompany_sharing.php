@@ -29,8 +29,8 @@ $elementConvertionAnotherOne = 'dolifleet_vehicule'; // voir selectForFormsList 
 $moduleSharingEnabled = 'MULTICOMPANY_'.strtoupper($moduleKey).'_SHARING_ENABLED';
 $moduleSharingEnabledValue = $conf->global->{$moduleSharingEnabled};
 
-//dolibarr_set_const($db, 'MULTICOMPANY_'.strtoupper($elementConvertion).'_SHARING_ENABLED' , $moduleSharingEnabledValue, 'chaine', 0, '', 0); // la conf MULTICOMPANY_EXTERNAL_MODULES_SHARING regle le PB je les garde au cas ou
-//dolibarr_set_const($db, 'MULTICOMPANY_'.strtoupper($elementConvertionAnotherOne).'_SHARING_ENABLED' , $moduleSharingEnabledValue, 'chaine', 0, '', 0); // la conf MULTICOMPANY_EXTERNAL_MODULES_SHARING regle le PB je les garde au cas ou
+dolibarr_set_const($db, 'MULTICOMPANY_'.strtoupper($elementConvertion).'_SHARING_ENABLED' , $moduleSharingEnabledValue, 'chaine', 0, '', 0); // la conf MULTICOMPANY_EXTERNAL_MODULES_SHARING regle le PB je les garde au cas ou
+dolibarr_set_const($db, 'MULTICOMPANY_'.strtoupper($elementConvertionAnotherOne).'_SHARING_ENABLED' , $moduleSharingEnabledValue, 'chaine', 0, '', 0); // la conf MULTICOMPANY_EXTERNAL_MODULES_SHARING regle le PB je les garde au cas ou
 
 $externalmodules = array();
 if (! empty($conf->global->MULTICOMPANY_EXTERNAL_MODULES_SHARING)) {
