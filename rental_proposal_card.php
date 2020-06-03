@@ -18,6 +18,7 @@
 require 'config.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 dol_include_once('dolifleet/class/rentalProposal.class.php');
 dol_include_once('dolifleet/class/vehicule.class.php');
 dol_include_once('dolifleet/class/dictionaryVehiculeActivityType.class.php');
@@ -51,6 +52,9 @@ if ($object->isextrafieldmanaged)
 	$search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 }
 
+$permissiontoadd = $user->rights->dolifleet->rentalproposal->write;
+$upload_dir = $conf->dolifleet->multidir_output[$conf->entity];
+
 // Initialize array of search criterias
 //$search_all=trim(GETPOST("search_all",'alpha'));
 //$search=array();
@@ -83,6 +87,15 @@ if (empty($reshook))
 
 	// For object linked
 	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';		// Must be include, not include_once
+
+	// Action to build doc
+	// $action must be defined
+	// $id must be defined
+	// $object must be defined and must have a method generateDocument().
+	// $permissiontoadd must be defined
+	// $upload_dir must be defined (example $conf->projet->dir_output . "/";)
+	// $hidedetails, $hidedesc, $hideref and $moreparams may have been set or not.
+	include DOL_DOCUMENT_ROOT.'/core/actions_builddoc.inc.php';
 
 	$error = 0;
 	switch ($action) {
@@ -218,6 +231,7 @@ if (empty($reshook))
  * View
  */
 $form = new Form($db);
+$formfile = new FormFile($db);
 $dictTypeAct = new dictionaryVehiculeActivityType($db);
 $dictTypeVeh = new dictionaryVehiculeType($db);
 
@@ -521,6 +535,17 @@ else
 			print '</div>'."\n";
 
 			print '<div class="fichecenter"><div class="fichehalfleft">';
+
+			print '<a name="builddoc"></a>'; // ancre
+			// Documents
+			$propalref = dol_sanitizeFileName($object->ref);
+			$relativepath = $propalref.'/'.$propalref.'.pdf';
+			$filedir = $conf->dolifleet->multidir_output[$object->entity].'/'.$propalref;
+			$urlsource = $_SERVER["PHP_SELF"]."?id=".$object->id;
+			$genallowed = $user->rights->dolifleet->rentalproposal->read;
+			$delallowed = $user->rights->dolifleet->rentalproposal->write;
+			print $formfile->showdocuments('dolifleet:rentalproposal', $propalref, $filedir, $urlsource, $genallowed, $delallowed, $object->modelpdf, 1, 0, 0, 28, 0, '', '', '', $soc->default_lang, '', $object);
+
 			$linktoelem = $form->showLinkToObjectBlock($object, null, array($object->element));
 			$somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
 

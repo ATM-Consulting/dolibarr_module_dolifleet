@@ -45,6 +45,7 @@ ActivateVehiculeSharing=Activer le partage des véhicules entre entités (pensez
 MulticompanyConfiguration=Configuration des partages entre entités
 ShareWith=Reprend les données dans
 multicompanySharing=Partage entre entités
+RentalproposalPDFModules=Modèles PDF Proposition de loyer
 
 # MENU
 TopMenudoliFleet=doliFleet

@@ -148,4 +148,9 @@ class ActionsdoliFleet
 
 		return 0;
 	}
+
+	public function formBuilddocOptions($parameters, &$object, &$action, $hookmanager)
+	{
+//		var_dump($parameters);
+	}
 }

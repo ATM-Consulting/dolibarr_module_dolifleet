@@ -92,7 +92,9 @@ class moddoliFleet extends DolibarrModules
 			'hooks' => array(
 				'globalcard',
 				'searchform',
-			)
+				'formfile',
+			),
+			'models' => 1,
 		);
 
 		// Data directories to create when module is enabled.
