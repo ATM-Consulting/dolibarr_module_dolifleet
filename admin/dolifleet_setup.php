@@ -96,7 +96,7 @@ if ($action == 'set')
 
 if ($action == 'setdoc')
 {
-var_dump('lol');
+
 	if (dolibarr_set_const($db, "DOLIFLEET_RENTALPROPOSAL_ADDON_PDF", $value, 'chaine', 0, '', $conf->entity))
 	{
 		// La constante qui a ete lue en avant du nouveau set

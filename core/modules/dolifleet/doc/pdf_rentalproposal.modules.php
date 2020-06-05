@@ -28,6 +28,8 @@
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/commondocgenerator.class.php';
 require_once dol_buildpath('dolifleet/core/modules/dolifleet/modules_rentalproposal.php');
+require_once dol_buildpath('dolifleet/class/dictionaryVehiculeActivityType.class.php');
+require_once dol_buildpath('dolifleet/class/dictionaryVehiculeType.class.php');
 require_once __DIR__.'/../../../../class/rentalProposal.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
@@ -43,11 +45,6 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 {
 	var $emetteur;	// Objet societe qui emet
 
-	public $maxImages4StepsLines = 3;
-
-	public $maxImagesHeight4StepsLines = 80;
-	public $ImagesGutter4StepsLines = 5;
-
 	public $dictTypeAct;
 	public $dictTypeVeh;
 
@@ -57,6 +54,11 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 	public $widthForDateExploit = 40;
 	public $widthForDesc = 80;
 	public $widthForTotalHT = 40;
+
+	/** @var TCPDF $pdf */
+	public $pdf;
+
+	public $h_ligne = 6;
 
 	/**
 	 *	Constructor
@@ -114,12 +116,14 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 
 		$upload_dir = $conf->dolifleet->multidir_output[$conf->entity];
 
-		if (! is_object($outputlangs)) $outputlangs=$langs;
+		$this->outputlangs = $outputlangs;
+
+		if (! is_object($this->outputlangs)) $this->outputlangs=$langs;
 		// For backward compatibility with FPDF, force output charset to ISO, because FPDF expect text to be encoded in ISO
-		if (! empty($conf->global->MAIN_USE_FPDF)) $outputlangs->charset_output='ISO-8859-1';
+		if (! empty($conf->global->MAIN_USE_FPDF)) $this->outputlangs->charset_output='ISO-8859-1';
 
 		// Translations
-		$outputlangs->loadLangs(array("main", "bills", "products", "dict", "companies", "propal", "deliveries", "sendings", "productbatch"));
+		$this->outputlangs->loadLangs(array("main", "bills", "products", "dict", "companies", "propal", "deliveries", "sendings", "productbatch"));
 
 		if ($upload_dir)
 		{
@@ -154,7 +158,7 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 					$hookmanager=new HookManager($this->db);
 				}
 				$hookmanager->initHooks(array('pdfgeneration'));
-				$parameters=array('file'=>$file,'object'=>$object,'outputlangs'=>$outputlangs);
+				$parameters=array('file'=>$file,'object'=>$object,'outputlangs'=>$this->outputlangs);
 				global $action;
 				$reshook=$hookmanager->executeHooks('beforePDFCreation',$parameters,$object,$action);    // Note that $action and $object may have been modified by some hooks
 
@@ -164,59 +168,48 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 					$nblignes = count($object->lines);
 				}
 
-				$pdf=pdf_getInstance($this->format);
-				$this->default_font_size = pdf_getPDFFontSize($outputlangs);
+				$this->pdf=pdf_getInstance($this->format);
+				$this->default_font_size = pdf_getPDFFontSize($this->outputlangs);
 				$heightforinfotot = 8;	// Height reserved to output the info and total part
 				$heightforfreetext= (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT)?$conf->global->MAIN_PDF_FREETEXT_HEIGHT:5);	// Height reserved to output the free text on last page
 				$heightforfooter = $this->marge_basse + 20;	// Height reserved to output the footer (value include bottom margin)
 				if ($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS >0) $heightforfooter+= 6;
-				$pdf->SetAutoPageBreak(1,0);
+				$this->pdf->SetAutoPageBreak(1,0);
 
 				if (class_exists('TCPDF'))
 				{
-					$pdf->setPrintHeader(false);
-					$pdf->setPrintFooter(false);
+					$this->pdf->setPrintHeader(false);
+					$this->pdf->setPrintFooter(false);
 				}
-				$pdf->SetFont(pdf_getPDFFont($outputlangs));
+				$this->pdf->SetFont(pdf_getPDFFont($this->outputlangs));
 				// Set path to the background PDF File
 				if (! empty($conf->global->MAIN_ADD_PDF_BACKGROUND))
 				{
-					$pagecount = $pdf->setSourceFile($conf->mycompany->dir_output.'/'.$conf->global->MAIN_ADD_PDF_BACKGROUND);
-					$tplidx = $pdf->importPage(1);
+					$pagecount = $this->pdf->setSourceFile($conf->mycompany->dir_output.'/'.$conf->global->MAIN_ADD_PDF_BACKGROUND);
+					$tplidx = $this->pdf->importPage(1);
 				}
 
-				$pdf->Open();
+				$this->pdf->Open();
 				$pagenb=0;
-				$pdf->SetDrawColor(128,128,128);
+				$this->pdf->SetDrawColor(128,128,128);
 
-				if (method_exists($pdf,'AliasNbPages')) $pdf->AliasNbPages();
+				if (method_exists($this->pdf,'AliasNbPages')) $this->pdf->AliasNbPages();
 
-				$pdf->SetTitle($outputlangs->convToOutputCharset($object->ref));
-				$pdf->SetSubject($outputlangs->transnoentities("Processrules"));
-				$pdf->SetCreator("Dolibarr ".DOL_VERSION);
-				$pdf->SetAuthor($outputlangs->convToOutputCharset($user->getFullName($outputlangs)));
-				$pdf->SetKeyWords($outputlangs->convToOutputCharset($object->ref)." ".$outputlangs->transnoentities("Processrules"));
-				if (! empty($conf->global->MAIN_DISABLE_PDF_COMPRESSION)) $pdf->SetCompression(false);
+				$this->pdf->SetTitle($this->outputlangs->convToOutputCharset($object->ref));
+				$this->pdf->SetSubject($this->outputlangs->transnoentities("Processrules"));
+				$this->pdf->SetCreator("Dolibarr ".DOL_VERSION);
+				$this->pdf->SetAuthor($this->outputlangs->convToOutputCharset($user->getFullName($this->outputlangs)));
+				$this->pdf->SetKeyWords($this->outputlangs->convToOutputCharset($object->ref)." ".$this->outputlangs->transnoentities("Processrules"));
+				if (! empty($conf->global->MAIN_DISABLE_PDF_COMPRESSION)) $this->pdf->SetCompression(false);
 
-				$pdf->SetMargins($this->marge_gauche, $this->marge_haute, $this->marge_droite);   // Left, Top, Right
+				$this->pdf->SetMargins($this->marge_gauche, $this->marge_haute, $this->marge_droite);   // Left, Top, Right
 
 				// New page
-				$pdf->AddPage();
-				$curentY = $this->prepareNewPage($pdf, true);
-
-
-//				// Display Notes
-//				$displayNoteParam = array('object' => $object, 'y' => $curentY);
-//				$displayNoteMethod = array($this, 'displayNote');
-//				$curentY = $this->pdfPrintCallback($pdf, $displayNoteMethod, true, $displayNoteParam);
-//
-//				// Display Description
-//				$displayParam = array('object' => $object, 'y' => $curentY);
-//				$curentY = $this->pdfPrintCallback($pdf, array($this, 'displayDescription'), true, $displayParam);
+				$this->pdf->AddPage();
+				$curentY = $this->prepareNewPage($this->pdf, true);
 
 				$this->total_ht = 0;
 				$this->subtotals = array();
-				$typeAct = $typeVeh = 0;
 
 				// Loop on each  procedure
 				if(!empty($object->lines)){
@@ -227,163 +220,21 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 						$this->subtotals[$l->activity_type][$l->fk_vehicule_type] += $l->total_ht;
 					}
 
-					foreach ($object->lines as $line)
-					{
-						/*
-						 ce qu'il y a dans la card pour les titres avec le total affiché
+					$this->printProposalLines($object->lines);
 
-						if ($typeAct !== $line->activity_type)
-					{
-						$activityLabel = $dictTypeAct->getValueFromId($line->activity_type);
-						print '<tr>';
-						print '<td colspan="3" align="center" style="background-color: #adadad">';
-						print $activityLabel;
-						print '</td>';
-						print '<td class="linecolht right" style="background-color: #adadad">'.$langs->trans('Total').' '.$activityLabel.' : '.price($subtotals[$line->activity_type]['total']).'</td>';
-						print '<td style="background-color: #adadad"></td>';
-						print '</tr>';
-						$typeAct = $line->activity_type;
-						$typeVeh = 0;
-					}
-
-					if ($typeVeh !== $line->fk_vehicule_type)
-					{
-						$VtypeLabel = $dictTypeVeh->getValueFromId($line->fk_vehicule_type);
-						print '<tr><td colspan="3" align="center" style="background-color: #d4d4d4">';
-						print $VtypeLabel;
-						print '</td>';
-						print '<td class="linecolht right" style="background-color: #d4d4d4">'.$langs->trans('Total').' '.$VtypeLabel.' : '.price($subtotals[$line->activity_type][$line->fk_vehicule_type]).'</td>';
-						print '<td style="background-color: #d4d4d4"></td>';
-						print '</tr>';
-						$typeVeh = $line->fk_vehicule_type;
-					}
-
-						 */
-					}
-
-//					foreach ($object->lines as $procedure)
-//					{
-//						/**
-//						 * @var $procedure Procedure
-//						 */
-//
-//						$curentY + 6;
-//
-//						$displayParam = array(
-//							'y' => $curentY,
-//							'object' => $object,
-//							'procedure' => $procedure
-//						);
-//
-//						$curentY = $this->pdfPrintCallback($pdf, array($this, 'displayProcedure'), true, $displayParam);
-//
-//						$curentY + 6;
-//
-//						$procedure->fetch_lines();
-//
-//						// Loop on each step
-//						if(!empty($procedure->lines)){
-//							foreach ($procedure->lines as $step)
-//							{
-//								/**
-//								 * @var $step ProcessStep
-//								 */
-//
-//								$displayParam = array(
-//									'y' => $curentY,
-//									'object' => $object,
-//									'procedure' => $procedure,
-//									'step' => $step
-//								);
-//
-//								$curentY = $this->pdfPrintCallback($pdf, array($this, 'displayStep'), true, $displayParam);
-//
-//								$TImage = $step->fetch_images();
-//
-//								// Le plus simple c'est de gérer les photos par une liste de lignes pour faciliter les sauts de pages
-//								$TImageMatrix = $this->prepareImagesMatrix($TImage);
-//
-//								if(!empty($TImageMatrix))
-//								{
-//									foreach ($TImageMatrix as $matrixLine)
-//									{
-//										$col = 0; // init du numero de photo
-//
-//										if(!empty($matrixLine['TImage']))
-//										{
-//											$curentY+= $this->ImagesGutter4StepsLines;
-//
-//											// If photo too high, we moved completely on new page
-//											if (($curentY + $matrixLine['lineHeight']) > $this->page_hauteur - $heightforfooter )
-//											{
-//												$pdf->AddPage();
-//												$curentY = $this->prepareNewPage($pdf);
-//											}
-//
-//											foreach ($matrixLine['TImage'] as $image)
-//											{
-//												// Calcule de la position
-//												$x = $this->marge_gauche + $col * ($matrixLine['colWidth'] + $this->ImagesGutter4StepsLines);
-//
-//												// Centrage horizontale
-//												$offsetX = round(($matrixLine['colWidth'] - $image->width) / 2 , 2);
-//
-//												// centrage verticale
-//												$offsetY = round(($matrixLine['lineHeight'] - $image->height) / 2 , 2);
-//
-//												if($image->deg > 0)
-//												{
-//													// Start Transformation
-//													$pdf->StartTransform();
-//													$pdf->Rotate($image->deg, $x + $offsetX + $image->width/2, $curentY + $offsetY + $image->height / 2);
-//												}
-//
-//
-//												// Affichage de l'image
-//												$pdf->Image(
-//													$image->realFilePath,
-//													$x + $offsetX,
-//													$curentY + $offsetY,
-//													$image->width,
-//													$image->height,
-//													'',
-//													'',
-//													'',
-//													2,
-//													150 // use 150 DPI to reduce PDF size
-//												);
-//
-//												if($image->deg > 0)
-//												{
-//													// Stop Transformation
-//													$pdf->StopTransform();
-//												}
-//
-//												$col++;
-//											}
-//
-//											$curentY+= $matrixLine['lineHeight'];
-//										}
-//									}
-//								}
-//							}
-//
-//							$curentY + 6;
-//						}
-//					}
 				}
 
 
 				// Pied de page
-				if (method_exists($pdf,'AliasNbPages')) $pdf->AliasNbPages();
+				if (method_exists($this->pdf,'AliasNbPages')) $this->pdf->AliasNbPages();
 
-				$pdf->Close();
+				$this->pdf->Close();
 
-				$pdf->Output($file,'F');
+				$this->pdf->Output($file,'F');
 
 				// Add pdfgeneration hook
 				$hookmanager->initHooks(array('pdfgeneration'));
-				$parameters=array('file'=>$file,'object'=>$object,'outputlangs'=>$outputlangs);
+				$parameters=array('file'=>$file,'object'=>$object,'outputlangs'=>$this->outputlangs);
 				global $action;
 				$reshook=$hookmanager->executeHooks('afterPDFCreation',$parameters,$this,$action);    // Note that $action and $object may have been modified by some hooks
 
@@ -407,6 +258,133 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 		}
 	}
 
+	function printProposalLines($lines = array())
+	{
+		$typeAct = $typeVeh = $index = 0;
+		$this->nbLines = count($lines);
+
+		foreach ($lines as $line)
+		{
+
+			if ($typeAct !== $line->activity_type)
+			{
+				$this->printActivity($line->activity_type);
+
+				$typeAct = $line->activity_type;
+				$typeVeh = 0;
+			}
+
+			if ($typeVeh !== $line->fk_vehicule_type)
+			{
+				$this->printVehiculeType($typeAct, $line->fk_vehicule_type);
+
+				$typeVeh = $line->fk_vehicule_type;
+			}
+			$isLast = $index == $this->nbLines -1;
+
+			$posYbefore = $this->pdf->GetY();
+			$this->pdf->startTransaction();
+			$this->printProposalLine($line, $isLast);
+
+			$posYafter = $this->pdf->GetY();
+
+			if ($posYafter > $this->page_hauteur - $this->heightForFooter - $this->marge_basse)
+			{
+				$this->pdf = $this->pdf->rollbackTransaction();
+				$this->pdf->Line($this->marge_gauche, $posYbefore, $this->page_largeur - $this->marge_gauche, $posYbefore);
+
+				$this->pdf->AddPage();
+				$this->prepareNewPage($this->pdf, true);
+				$this->printProposalLine($line, $isLast);
+			}
+			else
+			{
+				$this->pdf->commitTransaction();
+			}
+
+			$index++;
+		}
+	}
+
+	function printProposalLine($line, $isLast = false)
+	{
+		$borderStyle = 'LR';
+		if ($isLast) $borderStyle = 'LBR';
+
+		$posy = $this->pdf->GetY();
+		$this->pdf->SetLineStyle(array('width'=>0.2, 'cap'=>'butt', 'color'=>array(125,125,125)));
+
+		$vehicule = new doliFleetVehicule($this->db);
+		$vehicule->fetch($line->fk_vehicule);
+
+		$default_font_size = pdf_getPDFFontSize($this->outputlangs);
+
+		$posx = $this->marge_gauche;
+		$this->pdf->SetXY($posx, $posy);
+		$this->pdf->SetFont('', '', $default_font_size - 1);
+		$str = $vehicule->immatriculation;
+		$this->pdf->MultiCell($this->withForImmat, $this->h_ligne, $str, $borderStyle, 'L');
+
+		$posx += $this->withForImmat;
+		$this->pdf->SetXY($posx, $posy);
+		$this->pdf->SetFont('', '', $default_font_size - 1);
+		$str = dol_print_date($vehicule->date_customer_exploit);
+		$this->pdf->MultiCell($this->widthForDateExploit, $this->h_ligne, $str, $borderStyle, 'L');
+
+		$posx += $this->widthForDateExploit;
+		$this->pdf->SetXY($posx, $posy);
+		$this->pdf->SetFont('', '', $default_font_size - 1);
+		$str = $line->description;
+		$this->pdf->MultiCell($this->widthForDesc, $this->h_ligne, $str, $borderStyle, 'L');
+
+		$posx += $this->widthForDesc;
+		$this->pdf->SetXY($posx, $posy);
+		$this->pdf->SetFont('', '', $default_font_size - 1);
+		$str = price($line->total_ht);
+		$this->pdf->MultiCell($this->widthForTotalHT, $this->h_ligne, $str, $borderStyle, 'R');
+	}
+
+	function printActivity($activityId)
+	{
+		$activityLabel = $this->dictTypeAct->getValueFromId($activityId);
+
+		$posy = $this->pdf->GetY();
+		$this->pdf->SetLineStyle(array('width'=>0.2, 'cap'=>'butt', 'color'=>array(125,125,125)));
+
+		$default_font_size = pdf_getPDFFontSize($this->outputlangs);
+
+		$this->pdf->SetXY($this->marge_gauche, $posy);
+		$this->pdf->SetFont('', '', $default_font_size - 1);
+		$str = $this->outputlangs->transnoentities('VehiculeActivities') . ' : ' . $activityLabel;
+		$this->pdf->MultiCell($this->withForImmat+$this->widthForDateExploit+$this->widthForDesc, $this->h_ligne, $str, 'LRB', 'C');
+
+		$posx = $this->marge_gauche + $this->withForImmat+$this->widthForDateExploit+$this->widthForDesc;
+
+		$this->pdf->SetXY($posx, $posy);
+		$this->pdf->MultiCell($this->widthForTotalHT, $this->h_ligne, price($this->subtotals[$activityId]['total']), 'LRB', 'R');
+
+	}
+
+	function printVehiculeType($activityId, $typeId)
+	{
+		$VtypeLabel = $this->dictTypeVeh->getValueFromId($typeId);
+
+		$posy = $this->pdf->GetY();
+		$this->pdf->SetLineStyle(array('width'=>0.2, 'cap'=>'butt', 'color'=>array(125,125,125)));
+
+		$default_font_size = pdf_getPDFFontSize($this->outputlangs);
+
+		$this->pdf->SetXY($this->marge_gauche, $posy);
+		$this->pdf->SetFont('', '', $default_font_size - 1);
+		$str = $VtypeLabel;
+		$this->pdf->MultiCell($this->withForImmat+$this->widthForDateExploit+$this->widthForDesc, $this->h_ligne, $str, 1, 'C');
+
+		$posx = $this->marge_gauche + $this->withForImmat+$this->widthForDateExploit+$this->widthForDesc;
+
+		$this->pdf->SetXY($posx, $posy);
+		$this->pdf->MultiCell($this->widthForTotalHT, $this->h_ligne, price($this->subtotals[$activityId][$typeId]), 1, 'R');
+	}
+
 
 	/**
 	 *  Show top header of page.
@@ -417,91 +395,7 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 	 *  @param  Translate	$outputlangs	Object lang for output
 	 *  @return	void
 	 */
-//	function _pagehead(&$pdf, $object, $showaddress, $outputlangs)
-//	{
-//		global $conf,$langs,$mysoc;
-//
-//		$langs->load("orders");
-//
-//		$this->default_font_size = pdf_getPDFFontSize($outputlangs);
-//
-//		pdf_pagehead($pdf,$outputlangs,$this->page_hauteur);
-//
-//		// Show Draft Watermark
-//		if($object->statut==0 && (! empty($conf->global->SHIPPING_DRAFT_WATERMARK)) )
-//		{
-//			pdf_watermark($pdf,$outputlangs,$this->page_hauteur,$this->page_largeur,'mm',$conf->global->SHIPPING_DRAFT_WATERMARK);
-//		}
-//
-//		//Prepare la suite
-//		$pdf->SetTextColor(0,0,60);
-//		$pdf->SetFont('','B', $this->default_font_size + 3);
-//
-//		$w = 110;
-//
-//		$posy=$this->marge_haute;
-//		$posx=$this->page_largeur-$this->marge_droite-$w;
-//
-//		$pdf->SetXY($this->marge_gauche,$posy);
-//
-//		// Logo
-//		$logo=$conf->mycompany->dir_output.'/logos/'.$this->emetteur->logo;
-//		if ($this->emetteur->logo)
-//		{
-//			if (is_readable($logo))
-//			{
-//				$height=pdf_getHeightForLogo($logo);
-//				$pdf->Image($logo, $this->marge_gauche, $posy, 0, $height);	// width=0 (auto)
-//			}
-//			else
-//			{
-//				$pdf->SetTextColor(200,0,0);
-//				$pdf->SetFont('','B', $this->default_font_size - 2);
-//				$pdf->MultiCell($w, 3, $outputlangs->transnoentities("ErrorLogoFileNotFound",$logo), 0, 'L');
-//				$pdf->MultiCell($w, 3, $outputlangs->transnoentities("ErrorGoToGlobalSetup"), 0, 'L');
-//			}
-//		}
-//		else
-//		{
-//			$text=$this->emetteur->name;
-//			$pdf->MultiCell($w, 4, $outputlangs->convToOutputCharset($text), 0, 'L');
-//		}
-//
-//		// Show barcode
-//		if (! empty($conf->barcode->enabled))
-//		{
-//			$posx=105;
-//		}
-//		else
-//		{
-//			$posx=$this->marge_gauche+3;
-//		}
-//
-//
-//
-//		$posx=$this->page_largeur - $w - $this->marge_droite;
-//		$posy=$this->marge_haute;
-//
-//		$pdf->SetFont('','B', $this->default_font_size + 2);
-//		$pdf->SetXY($posx,$posy);
-//		$pdf->SetTextColor(0,0,60);
-//		$title=$outputlangs->transnoentities("PDFProcessruleTitle");
-//		$pdf->MultiCell($w, 4, $title, '', 'R');
-//
-//		$pdf->SetFont('','', $this->default_font_size + 1);
-//
-//		$posy+=5;
-//
-//		$pdf->SetXY($posx,$posy);
-//		$pdf->SetTextColor(0,0,60);
-//		$pdf->MultiCell($w, 4, $outputlangs->transnoentities("PDFProcessruleRef") ." : ".$object->ref, '', 'R');
-//
-//
-//		// reset to default font color ans size
-//		$pdf->SetFont('','', $this->default_font_size + 3);
-//		$pdf->SetTextColor(0,0,0);
-//	}
-	protected function _pagehead(&$pdf, $object, $showaddress, $outputlangs, $titlekey = "dolifleetRentalProposal")
+	function _pagehead(&$pdf, $object, $showaddress, $outputlangs, $titlekey = "dolifleetRentalProposal")
 	{
 		// phpcs:enable
 		global $conf,$langs,$hookmanager;
@@ -511,21 +405,21 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 
 		$default_font_size = pdf_getPDFFontSize($outputlangs);
 
-		pdf_pagehead($pdf, $outputlangs, $this->page_hauteur);
+		pdf_pagehead($this->pdf, $outputlangs, $this->page_hauteur);
 
 		// Show Draft Watermark
 		if($object->statut==0 && (! empty($conf->global->COMMANDE_DRAFT_WATERMARK)) )
 		{
-			pdf_watermark($pdf, $outputlangs, $this->page_hauteur, $this->page_largeur, 'mm', $conf->global->COMMANDE_DRAFT_WATERMARK);
+			pdf_watermark($this->pdf, $outputlangs, $this->page_hauteur, $this->page_largeur, 'mm', $conf->global->COMMANDE_DRAFT_WATERMARK);
 		}
 
-		$pdf->SetTextColor(0, 0, 60);
-		$pdf->SetFont('', 'B', $default_font_size + 3);
+		$this->pdf->SetTextColor(0, 0, 60);
+		$this->pdf->SetFont('', 'B', $default_font_size + 3);
 
 		$posy=$this->marge_haute;
 		$posx=$this->page_largeur-$this->marge_droite-100;
 
-		$pdf->SetXY($this->marge_gauche, $posy);
+		$this->pdf->SetXY($this->marge_gauche, $posy);
 
 		// Logo
 		if (empty($conf->global->PDF_DISABLE_MYCOMPANY_LOGO))
@@ -544,59 +438,59 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 				if (is_readable($logo))
 				{
 					$height=pdf_getHeightForLogo($logo);
-					$pdf->Image($logo, $this->marge_gauche, $posy, 0, $height);	// width=0 (auto)
+					$this->pdf->Image($logo, $this->marge_gauche, $posy, 0, $height);	// width=0 (auto)
 				}
 				else
 				{
-					$pdf->SetTextColor(200, 0, 0);
-					$pdf->SetFont('', 'B', $default_font_size -2);
-					$pdf->MultiCell(100, 3, $outputlangs->transnoentities("ErrorLogoFileNotFound", $logo), 0, 'L');
-					$pdf->MultiCell(100, 3, $outputlangs->transnoentities("ErrorGoToGlobalSetup"), 0, 'L');
+					$this->pdf->SetTextColor(200, 0, 0);
+					$this->pdf->SetFont('', 'B', $default_font_size -2);
+					$this->pdf->MultiCell(100, 3, $outputlangs->transnoentities("ErrorLogoFileNotFound", $logo), 0, 'L');
+					$this->pdf->MultiCell(100, 3, $outputlangs->transnoentities("ErrorGoToGlobalSetup"), 0, 'L');
 				}
 			}
 			else
 			{
 				$text=$this->emetteur->name;
-				$pdf->MultiCell(100, 4, $outputlangs->convToOutputCharset($text), 0, 'L');
+				$this->pdf->MultiCell(100, 4, $outputlangs->convToOutputCharset($text), 0, 'L');
 			}
 		}
 
-		$pdf->SetFont('', 'B', $default_font_size + 3);
-		$pdf->SetXY($posx, $posy);
-		$pdf->SetTextColor(0, 0, 60);
+		$this->pdf->SetFont('', 'B', $default_font_size + 3);
+		$this->pdf->SetXY($posx, $posy);
+		$this->pdf->SetTextColor(0, 0, 60);
 		$title=$outputlangs->transnoentities($titlekey);
-		$pdf->MultiCell(100, 3, $title, '', 'R');
+		$this->pdf->MultiCell(100, 3, $title, '', 'R');
 
-		$pdf->SetFont('', 'B', $default_font_size);
+		$this->pdf->SetFont('', 'B', $default_font_size);
 
 		$posy+=5;
-		$pdf->SetXY($posx, $posy);
-		$pdf->SetTextColor(0, 0, 60);
-		$pdf->MultiCell(100, 4, $outputlangs->transnoentities("Ref")." : " . $outputlangs->convToOutputCharset($object->ref), '', 'R');
+		$this->pdf->SetXY($posx, $posy);
+		$this->pdf->SetTextColor(0, 0, 60);
+		$this->pdf->MultiCell(100, 4, $outputlangs->transnoentities("Ref")." : " . $outputlangs->convToOutputCharset($object->ref), '', 'R');
 
 		$posy+=1;
-		$pdf->SetFont('', '', $default_font_size - 1);
+		$this->pdf->SetFont('', '', $default_font_size - 1);
 
 		if ($object->ref_client)
 		{
 			$posy+=5;
-			$pdf->SetXY($posx, $posy);
-			$pdf->SetTextColor(0, 0, 60);
-			$pdf->MultiCell(100, 3, $outputlangs->transnoentities("RefCustomer")." : " . $outputlangs->convToOutputCharset($object->ref_client), '', 'R');
+			$this->pdf->SetXY($posx, $posy);
+			$this->pdf->SetTextColor(0, 0, 60);
+			$this->pdf->MultiCell(100, 3, $outputlangs->transnoentities("RefCustomer")." : " . $outputlangs->convToOutputCharset($object->ref_client), '', 'R');
 		}
 
 		$posy+=4;
-		$pdf->SetXY($posx, $posy);
-		$pdf->SetTextColor(0, 0, 60);
+		$this->pdf->SetXY($posx, $posy);
+		$this->pdf->SetTextColor(0, 0, 60);
 		$montharray = monthArray($outputlangs, 1);
-		$pdf->MultiCell(100, 3, $outputlangs->transnoentities("Period")." : " . $montharray[$object->month] . " " . $object->year, '', 'R');
+		$this->pdf->MultiCell(100, 3, $outputlangs->transnoentities("Period")." : " . $montharray[$object->month] . " " . $object->year, '', 'R');
 
 		if (!empty($conf->global->DOC_SHOW_CUSTOMER_CODE) && ! empty($object->thirdparty->code_client))
 		{
 			$posy+=4;
-			$pdf->SetXY($posx, $posy);
-			$pdf->SetTextColor(0, 0, 60);
-			$pdf->MultiCell(100, 3, $outputlangs->transnoentities("CustomerCode")." : " . $outputlangs->transnoentities($object->thirdparty->code_client), '', 'R');
+			$this->pdf->SetXY($posx, $posy);
+			$this->pdf->SetTextColor(0, 0, 60);
+			$this->pdf->MultiCell(100, 3, $outputlangs->transnoentities("CustomerCode")." : " . $outputlangs->transnoentities($object->thirdparty->code_client), '', 'R');
 		}
 
 		// Get contact
@@ -608,9 +502,9 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 				$usertmp=new User($this->db);
 				$usertmp->fetch($arrayidcontact[0]);
 				$posy+=4;
-				$pdf->SetXY($posx, $posy);
-				$pdf->SetTextColor(0, 0, 60);
-				$pdf->MultiCell(100, 3, $langs->trans("SalesRepresentative")." : ".$usertmp->getFullName($langs), '', 'R');
+				$this->pdf->SetXY($posx, $posy);
+				$this->pdf->SetTextColor(0, 0, 60);
+				$this->pdf->MultiCell(100, 3, $langs->trans("SalesRepresentative")." : ".$usertmp->getFullName($langs), '', 'R');
 			}
 		}
 
@@ -618,11 +512,11 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 
 		$top_shift = 0;
 		// Show list of linked objects
-		$current_y = $pdf->getY();
-		$posy = pdf_writeLinkedObjects($pdf, $object, $outputlangs, $posx, $posy, 100, 3, 'R', $default_font_size);
-		if ($current_y < $pdf->getY())
+		$current_y = $this->pdf->getY();
+		$posy = pdf_writeLinkedObjects($this->pdf, $object, $outputlangs, $posx, $posy, 100, 3, 'R', $default_font_size);
+		if ($current_y < $this->pdf->getY())
 		{
-			$top_shift = $pdf->getY() - $current_y;
+			$top_shift = $this->pdf->getY() - $current_y;
 		}
 
 		if ($showaddress)
@@ -646,26 +540,28 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->page_largeur-$this->marge_droite-80;
 			$hautcadre=40;
 
+			$afterHeader = $posy + $hautcadre;
+
 			// Show sender frame
-			$pdf->SetTextColor(0, 0, 0);
-			$pdf->SetFont('', '', $default_font_size - 2);
-			$pdf->SetXY($posx, $posy-5);
-			$pdf->MultiCell(66, 5, $outputlangs->transnoentities("BillFrom").":", 0, 'L');
-			$pdf->SetXY($posx, $posy);
-			$pdf->SetFillColor(230, 230, 230);
-			$pdf->MultiCell(82, $hautcadre, "", 0, 'R', 1);
-			$pdf->SetTextColor(0, 0, 60);
+			$this->pdf->SetTextColor(0, 0, 0);
+			$this->pdf->SetFont('', '', $default_font_size - 2);
+			$this->pdf->SetXY($posx, $posy-5);
+			$this->pdf->MultiCell(66, 5, $outputlangs->transnoentities("BillFrom").":", 0, 'L');
+			$this->pdf->SetXY($posx, $posy);
+			$this->pdf->SetFillColor(230, 230, 230);
+			$this->pdf->MultiCell(82, $hautcadre, "", 0, 'R', 1);
+			$this->pdf->SetTextColor(0, 0, 60);
 
 			// Show sender name
-			$pdf->SetXY($posx+2, $posy+3);
-			$pdf->SetFont('', 'B', $default_font_size);
-			$pdf->MultiCell(80, 4, $outputlangs->convToOutputCharset($this->emetteur->name), 0, 'L');
-			$posy=$pdf->getY();
+			$this->pdf->SetXY($posx+2, $posy+3);
+			$this->pdf->SetFont('', 'B', $default_font_size);
+			$this->pdf->MultiCell(80, 4, $outputlangs->convToOutputCharset($this->emetteur->name), 0, 'L');
+			$posy=$this->pdf->getY();
 
 			// Show sender information
-			$pdf->SetXY($posx+2, $posy);
-			$pdf->SetFont('', '', $default_font_size - 1);
-			$pdf->MultiCell(80, 4, $carac_emetteur, 0, 'L');
+			$this->pdf->SetXY($posx+2, $posy);
+			$this->pdf->SetFont('', '', $default_font_size - 1);
+			$this->pdf->MultiCell(80, 4, $carac_emetteur, 0, 'L');
 
 
 
@@ -698,27 +594,29 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 			if (! empty($conf->global->MAIN_INVERT_SENDER_RECIPIENT)) $posx=$this->marge_gauche;
 
 			// Show recipient frame
-			$pdf->SetTextColor(0, 0, 0);
-			$pdf->SetFont('', '', $default_font_size - 2);
-			$pdf->SetXY($posx+2, $posy-5);
-			$pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("BillTo").":", 0, 'L');
-			$pdf->Rect($posx, $posy, $widthrecbox, $hautcadre);
+			$this->pdf->SetTextColor(0, 0, 0);
+			$this->pdf->SetFont('', '', $default_font_size - 2);
+			$this->pdf->SetXY($posx+2, $posy-5);
+			$this->pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("BillTo").":", 0, 'L');
+			$this->pdf->Rect($posx, $posy, $widthrecbox, $hautcadre);
 
 			// Show recipient name
-			$pdf->SetXY($posx+2, $posy+3);
-			$pdf->SetFont('', 'B', $default_font_size);
-			$pdf->MultiCell($widthrecbox, 4, $carac_client_name, 0, 'L');
+			$this->pdf->SetXY($posx+2, $posy+3);
+			$this->pdf->SetFont('', 'B', $default_font_size);
+			$this->pdf->MultiCell($widthrecbox, 4, $carac_client_name, 0, 'L');
 
-			$posy = $pdf->getY();
+			$posy = $this->pdf->getY();
 
 			// Show recipient information
-			$pdf->SetFont('', '', $default_font_size - 1);
-			$pdf->SetXY($posx+2, $posy);
-			$pdf->MultiCell($widthrecbox, 4, $carac_client, 0, 'L');
+			$this->pdf->SetFont('', '', $default_font_size - 1);
+			$this->pdf->SetXY($posx+2, $posy);
+			$this->pdf->MultiCell($widthrecbox, 4, $carac_client, 0, 'L');
 		}
 
-		$pdf->SetTextColor(0, 0, 0);
-		return $top_shift;
+		$this->pdf->SetTextColor(0, 0, 0);
+		$this->pdf->SetY($afterHeader);
+
+		return $afterHeader + 5;
 	}
 	/**
 	 *   	Show footer of page. Need this->emetteur object
@@ -733,7 +631,7 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 	{
 		global $conf;
 		$showdetails=$conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS;
-		return pdf_pagefoot($pdf,$outputlangs,'SHIPPING_FREE_TEXT',$this->emetteur,$this->marge_basse,$this->marge_gauche,$this->page_hauteur,$object,$showdetails,$hidefreetext);
+		return pdf_pagefoot($this->pdf,$outputlangs,'SHIPPING_FREE_TEXT',$this->emetteur,$this->marge_basse,$this->marge_gauche,$this->page_hauteur,$object,$showdetails,$hidefreetext);
 	}
 
 	/**
@@ -806,7 +704,7 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 
 		if (! empty($tplidx)) $pdf->useTemplate($tplidx);
 
-		if ($forceHead || empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $this->_pagehead($pdf, $this->object, 1, $outputlangs);
+		if ($forceHead || empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) $afterHeader = $this->_pagehead($pdf, $this->object, 1, $outputlangs);
 		$this->lineTableHeader($pdf, $outputlangs);
 
 		$topY = $pdf->GetY() + 20;
@@ -819,7 +717,7 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 		// The only function to edit the bottom margin of current page to set it.
 		$pdf->setPageOrientation('', 1, $this->heightForFooter);
 
-		$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?42:10);
+		$tab_top_newpage = $afterHeader + $this->h_ligne;
 		$pdf->SetY($tab_top_newpage);
 		return empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)?42:10;
 	}
@@ -830,335 +728,27 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 	 */
 	public function lineTableHeader(&$pdf, $outputlangs = '')
 	{
-		$posy = $pdf->GetY() + 25;
+		$posy = $this->pdf->GetY() + 5;
 
 		$default_font_size = pdf_getPDFFontSize($outputlangs);
 
-		$pdf->SetXY($this->marge_gauche, $posy);
-		$pdf->SetFont('', '', $default_font_size - 1);
-		$pdf->MultiCell($this->withForImmat, 4, $outputlangs->trans("Immatriculation"), 1, 'L');
+		$this->pdf->SetXY($this->marge_gauche, $posy);
+		$this->pdf->SetFont('', '', $default_font_size - 1);
+		$this->pdf->MultiCell($this->withForImmat, $this->h_ligne, $outputlangs->trans("Immatriculation"), 1, 'L');
 
-		$pdf->SetXY($this->marge_gauche + $this->withForImmat, $posy);
-		$pdf->SetFont('', '', $default_font_size - 1);
-		$pdf->MultiCell($this->widthForDateExploit, 4, $outputlangs->trans("Exploitation"), 1, 'L');
+		$this->pdf->SetXY($this->marge_gauche + $this->withForImmat, $posy);
+		$this->pdf->SetFont('', '', $default_font_size - 1);
+		$this->pdf->MultiCell($this->widthForDateExploit, $this->h_ligne, $outputlangs->trans("Exploitation"), 1, 'L');
 
-		$pdf->SetXY($this->marge_gauche + $this->withForImmat + $this->widthForDateExploit, $posy);
-		$pdf->SetFont('', '', $default_font_size - 1);
-		$pdf->MultiCell($this->widthForDesc, 4, $outputlangs->trans("Description"), 1, 'L');
+		$this->pdf->SetXY($this->marge_gauche + $this->withForImmat + $this->widthForDateExploit, $posy);
+		$this->pdf->SetFont('', '', $default_font_size - 1);
+		$this->pdf->MultiCell($this->widthForDesc, $this->h_ligne, $outputlangs->trans("Description"), 1, 'L');
 
-		$pdf->SetXY($this->marge_gauche + $this->withForImmat + $this->widthForDateExploit + $this->widthForDesc, $posy);
-		$pdf->SetFont('', '', $default_font_size - 1);
-		$pdf->MultiCell($this->widthForTotalHT, 4, $outputlangs->trans("TotalHT"), 1, 'R');
-	}
-
-
-	/**
-	 * @param TCPDF $pdf
-	 * @param array $param
-	 * @return float Y position
-	 */
-	public function displayNote($pdf, $param){
-		$y = $param['y'];
-		$object = $param['object'];
-
-		if (! empty($object->note_public))
-		{
-			$pdf->SetFont('','', $this->default_font_size - 1);   // Dans boucle pour gerer multi-page
-			$pdf->writeHTMLCell(190, 3, $this->marge_gauche+1, $y, dol_htmlentitiesbr($object->note_public), 0, 1);
-
-			$nexY = $pdf->GetY();
-			$height_note=$nexY-$y;
-
-			// Rect prend une longueur en 3eme param
-			$pdf->SetDrawColor(192,192,192);
-			$pdf->Rect($this->marge_gauche, $y-1, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $height_note+1);
-
-			$y = $nexY+6;
-			$pdf->SetY($y);
-		}
-
-		return $y;
-	}
-
-
-	/**
-	 * @param TCPDF $pdf
-	 * @param array $param
-	 * @return float Y position
-	 */
-	public function displayDescription($pdf, $param){
-		$y = $param['y'];
-		$object = $param['object'];
-		/**
-		 * @var $object ProcessRules
-		 */
-
-		if (! empty($object->description))
-		{
-
-			$pdf->SetFont('','', $this->default_font_size - 1);   // Dans boucle pour gerer multi-page
-			$pdf->writeHTMLCell(190, 3, $this->marge_gauche+1, $y, dol_htmlentitiesbr($object->description), 0, 1);
-
-
-			$nexY = $pdf->GetY();
-			$height_note=$nexY-$y;
-
-			// Rect prend une longueur en 3eme param
-			$pdf->SetDrawColor(192,192,192);
-			$pdf->Rect($this->marge_gauche, $y-1, $this->page_largeur-$this->marge_gauche-$this->marge_droite, $height_note+1);
-
-			$y = $nexY+6;
-			$pdf->SetY($y);
-		}
-
-		return $y;
-	}
-
-	function displayProcedure($pdf, $param){
-		global $langs;
-
-
-		//($procedure, $htmlId='', $open = true, $editable = true)
-
-		$y = $param['y'];
-		$object = $param['object'];
-		$procedure = $param['procedure'];
-
-		$fullWidth = $this->page_largeur-$this->marge_gauche-$this->marge_droite;
-
-		/**
-		 * @var $procedure Procedure
-		 * @var $pdf TCPDF
-		 */
-
-		$curY = $y;
-		// Titre de la procedure
-		$pdf->SetXY($this->marge_gauche, $curY+1);
-		$pdf->SetFont('','B', $this->default_font_size + 5);
-		$pdf->MultiCell($fullWidth, 3, strtoupper($procedure->getNom()) , 1, 'L');
-
-		// Description
-		$curY = $pdf->getY() + 2;
-
-		if(!empty($procedure->description))
-		{
-			$this->resetDefaultFont($pdf);
-			$pdf->writeHTMLCell($fullWidth, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($procedure->description), 0, 1);
-
-			$curY = $pdf->getY();
-			$pdf->setY($curY + 6);
-		}
+		$this->pdf->SetXY($this->marge_gauche + $this->withForImmat + $this->widthForDateExploit + $this->widthForDesc, $posy);
+		$this->pdf->SetFont('', '', $default_font_size - 1);
+		$this->pdf->MultiCell($this->widthForTotalHT, $this->h_ligne, $outputlangs->trans("TotalHT"), 1, 'R');
 
 	}
-
-	function displayStep($pdf, $param){
-		global $langs;
-
-		//($procedure, $htmlId='', $open = true, $editable = true)
-
-		$y = $param['y'];
-		$object = $param['object'];
-		$procedure = $param['procedure'];
-		$step = $param['step'];
-
-		$fullWidth = $this->page_largeur-$this->marge_gauche-$this->marge_droite;
-
-		/**
-		 * @var $procedure Procedure
-		 * @var $step ProcessStep
-		 * @var $pdf TCPDF
-		 */
-
-		$curY = $y;
-		// Titre de l'etape
-		$pdf->SetXY($this->marge_gauche, $curY+1);
-		$pdf->SetFont('','B', $this->default_font_size + 1);
-		$pdf->MultiCell($fullWidth, 3, dol_html_entity_decode($step->getNom(), ENT_QUOTES) , 0, 'L');
-		$this->resetDefaultFont($pdf);
-
-		// Description
-		$curY = $pdf->getY() + 2;
-
-		if(!empty($step->description))
-		{
-			$this->resetDefaultFont($pdf);
-			$pdf->writeHTMLCell($fullWidth, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($step->description), 0, 1);
-
-			$curY = $pdf->getY();
-			$pdf->setY($curY + 6);
-		}
-
-	}
-
-
-
-
-	public function resetDefaultFont($pdf){
-		$pdf->SetFont('','', $this->default_font_size - 1);
-		$pdf->SetTextColor(0,0,0);
-	}
-
-	/**
-	 * Return dimensions to use for images onto PDF checking that width and height are not higher than
-	 * maximum (16x32 by default).
-	 *
-	 * @param	string		$realpath		Full path to photo file to use
-	 * @param	double		$maxwidth		size in mm
-	 * @param	double		$maxheight		size in mm
-	 * @return	array						Height and width to use to output image (in pdf user unit, so mm)
-	 */
-	function pdf_getSizeForImage($realpath, $maxwidth, $maxheight)
-	{
-		global $conf;
-
-		include_once DOL_DOCUMENT_ROOT.'/core/lib/images.lib.php';
-		$tmp=dol_getImageSize($realpath);
-		$tmpWidth = $tmp['width'];
-		$tmpHeight = $tmp['height'];
-
-		$return = array(
-			'width'=>0,
-			'height'=>0,
-			'deg' => 0
-		);
-
-
-		if(!empty($conf->global->MAIN_USE_EXIF_ROTATION))
-		{
-			$exif = @exif_read_data($realpath);
-
-			if ($exif !== false) {
-				$orientation = intval(@$exif['Orientation']);
-				if (in_array($orientation, array(3, 6, 8))) {
-					switch ($orientation) {
-						case 3:
-							$return['deg'] = 180;
-							break;
-						case 6:
-							$return['deg'] = 270;
-							break;
-						case 8:
-							$return['deg'] = 90;
-							break;
-						default:
-							$return['deg'] = 0;
-					}
-				}
-			}
-		}
-
-		if ($tmpHeight)
-		{
-			if($return['deg'] == 90 || $return['deg'] == 270)
-			{
-				$return['height']=(int) round($maxheight*$tmpHeight/$tmpWidth);	// I try to use maxheight
-				if ($return['height'] > $maxwidth)	// Pb with maxheight, so i use maxwidth
-				{
-					$return['height']=$maxwidth;
-					$return['width']=(int) round($maxwidth*$tmpWidth/$tmpHeight);
-				}
-				else	// No pb with maxheight
-				{
-					$return['width']=$maxheight;
-				}
-			}
-			else
-			{
-				$return['width']=(int) round($maxheight*$tmpWidth/$tmpHeight);	// I try to use maxheight
-				if ($return['width'] > $maxwidth)	// Pb with maxheight, so i use maxwidth
-				{
-					$return['width']=$maxwidth;
-					$return['height']=(int) round($maxwidth*$tmpHeight/$tmpWidth);
-				}
-				else	// No pb with maxheight
-				{
-					$return['height']=$maxheight;
-				}
-			}
-		}
-
-		return $return;
-	}
-
-	/**
-	 * Return a prepared array of images
-	 *
-	 * @param	array		$TImage		list of images
-	 * @return	array
-	 */
-	function prepareImagesMatrix($TImage)
-	{
-		global $conf;
-
-		if(empty($TImage)){
-			return false;
-		}
-
-		$TImageMatrix = array();
-		$imageLineNum = 0;
-
-		$fullWidth = $this->page_largeur - $this->marge_gauche - $this->marge_droite;
-
-		$totalGutterWidth = $this->ImagesGutter4StepsLines * ($this->maxImages4StepsLines - 1);
-		$imageWidth = ($fullWidth - $totalGutterWidth) / $this->maxImages4StepsLines ;
-
-		$defaultLineArray = array(
-			'TImage' => array(),
-			'lineHeight' => 0,
-			'colWidth' => $imageWidth,
-			'fullWidth' => $fullWidth
-		);
-
-		foreach($TImage as $image){
-			$realFilePath = DOL_DATA_ROOT.'/'.$image->filepath.'/'.$image->filename;
-
-			if(is_file($realFilePath)){
-
-				// Ajouter la premiere ligne
-				if(empty($TImageMatrix[$imageLineNum])){
-					$TImageMatrix[$imageLineNum] = $defaultLineArray;
-				}
-
-				// Add new line if needed
-				$imageLineCount = count($TImageMatrix[$imageLineNum]['TImage']);
-				if($imageLineCount >= $this->maxImages4StepsLines)
-				{
-					$imageLineNum++;
-					$TImageMatrix[$imageLineNum] = $defaultLineArray;
-				}
-
-				// Define size of image
-				$imglinesize = $this->pdf_getSizeForImage($realFilePath, $imageWidth, $this->maxImagesHeight4StepsLines);
-
-				if(!empty($imglinesize)){
-					$TImageMatrix[$imageLineNum]['TImage'][$image->id] = $image;
-					$TImageMatrix[$imageLineNum]['TImage'][$image->id]->realFilePath = $realFilePath;
-					$TImageMatrix[$imageLineNum]['TImage'][$image->id]->width  = $imglinesize['width'];
-					$TImageMatrix[$imageLineNum]['TImage'][$image->id]->height = $imglinesize['height'];
-					$TImageMatrix[$imageLineNum]['TImage'][$image->id]->deg = $imglinesize['deg'];
-
-
-
-					if($image->deg == 90 || $image->deg == 270){
-						// Update line height
-						// note after rotate the final height is image width
-						$TImageMatrix[$imageLineNum]['lineHeight'] = max($TImageMatrix[$imageLineNum]['lineHeight'], $imglinesize['width']);
-					}
-					else{
-						// Update line height
-						$TImageMatrix[$imageLineNum]['lineHeight'] = max($TImageMatrix[$imageLineNum]['lineHeight'], $imglinesize['height']);
-					}
-
-
-				}
-			}
-		}
-
-
-		return $TImageMatrix;
-	}
-
-
 
 }
 

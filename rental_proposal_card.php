@@ -540,11 +540,11 @@ else
 			// Documents
 			$propalref = dol_sanitizeFileName($object->ref);
 			$relativepath = $propalref.'/'.$propalref.'.pdf';
-			$filedir = $conf->dolifleet->multidir_output[$object->entity].'/'.$propalref;
+			$filedir = $conf->dolifleet->multidir_output[$conf->entity].'/'.$propalref;
 			$urlsource = $_SERVER["PHP_SELF"]."?id=".$object->id;
 			$genallowed = $user->rights->dolifleet->rentalproposal->read;
 			$delallowed = $user->rights->dolifleet->rentalproposal->write;
-			print $formfile->showdocuments('dolifleet:rentalproposal', $propalref, $filedir, $urlsource, $genallowed, $delallowed, $object->modelpdf, 1, 0, 0, 28, 0, '', '', '', $soc->default_lang, '', $object);
+			print $formfile->showdocuments('dolifleet:rentalproposal', $propalref, $filedir, $urlsource, $genallowed, $delallowed, $object->modelpdf, 1, 0, 0, 28, 0, 'entity='.$conf->entity, '', '', $soc->default_lang, '', $object);
 
 			$linktoelem = $form->showLinkToObjectBlock($object, null, array($object->element));
 			$somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
