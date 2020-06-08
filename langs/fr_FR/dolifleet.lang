@@ -47,7 +47,7 @@ ShareWith=Reprend les données dans
 multicompanySharing=Partage entre entités
 
 # MENU
-TopMenudoliFleet=doliFleet
+TopMenudoliFleet=Vehicule
 MenudoliFleetVehicule=Vehicule
 LeftMenudoliFleetVehiculeCreate=Créer un véhicule
 LeftMenudoliFleetVehiculeList=Liste de véhicule
