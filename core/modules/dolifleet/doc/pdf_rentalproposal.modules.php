@@ -355,13 +355,13 @@ class pdf_rentalproposal extends ModelePDFRentalproposal
 
 		$this->pdf->SetXY($this->marge_gauche, $posy);
 		$this->pdf->SetFont('', '', $default_font_size - 1);
-		$str = $this->outputlangs->transnoentities('VehiculeActivities') . ' : ' . $activityLabel;
-		$this->pdf->MultiCell($this->withForImmat+$this->widthForDateExploit+$this->widthForDesc, $this->h_ligne, $str, 'LRB', 'C');
+		$str = $this->outputlangs->transnoentities('VehiculeActivities') . ' : ' . html_entity_decode($activityLabel);
+		$this->pdf->MultiCell($this->withForImmat+$this->widthForDateExploit+$this->widthForDesc, $this->h_ligne, $str, '1', 'C');
 
 		$posx = $this->marge_gauche + $this->withForImmat+$this->widthForDateExploit+$this->widthForDesc;
 
 		$this->pdf->SetXY($posx, $posy);
-		$this->pdf->MultiCell($this->widthForTotalHT, $this->h_ligne, price($this->subtotals[$activityId]['total']), 'LRB', 'R');
+		$this->pdf->MultiCell($this->widthForTotalHT, $this->h_ligne, price($this->subtotals[$activityId]['total']), '1', 'R');
 
 	}
 
