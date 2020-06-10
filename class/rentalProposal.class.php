@@ -175,7 +175,13 @@ class dolifleetRentalProposal extends SeedObject
 			'searchall' => 1,
 		),
 
-
+		'model_pdf' => array(
+			'type' => 'varchar(255)',
+			'label' => 'model_pdf',
+			'enabled' => 1,
+			'visible' => 0,
+			'position' => 200,
+		),
 
 	);
 
@@ -628,6 +634,41 @@ class dolifleetRentalProposal extends SeedObject
 		else $out.= parent::showOutputField($val, $key, $value, $moreparam, $keysuffix, $keyprefix, $morecss);
 
 		return $out;
+	}
+
+	/**
+	 *  Create a document onto disk according to template module.
+	 *
+	 * 	@param	    string		$modele			Force model to use ('' to not force)
+	 * 	@param		Translate	$outputlangs	Object langs to use for output
+	 *  @param      int			$hidedetails    Hide details of lines
+	 *  @param      int			$hidedesc       Hide description
+	 *  @param      int			$hideref        Hide ref
+	 *  @param   null|array  $moreparams     Array to provide more information
+	 * 	@return     int         				0 if KO, 1 if OK
+	 */
+	public function generateDocument($modele, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $moreparams = null)
+	{
+		global $conf,$langs;
+
+		$langs->load("dolifleet@dolifleet");
+
+		if (! dol_strlen($modele)) {
+
+			$modele = 'rentalproposal';
+
+			if ($this->modelpdf) {
+				$modele = $this->modelpdf;
+			} elseif (! empty($conf->global->DOLIFLEET_RENTALPROPOSAL_ADDON_PDF)) {
+				$modele = $conf->global->DOLIFLEET_RENTALPROPOSAL_ADDON_PDF;
+			}
+		}
+
+		if (empty($this->lines)) $this->fetchLines();
+
+		$modelpath = "core/modules/dolifleet/doc/";
+
+		return $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
 	}
 
 }
