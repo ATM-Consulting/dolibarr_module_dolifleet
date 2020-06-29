@@ -153,4 +153,38 @@ class ActionsdoliFleet
 	{
 //		var_dump($parameters);
 	}
+
+	/**
+	 * @param bool   $parameters
+	 * @param        $object
+	 * @param string $action
+	 * @return int
+	 */
+	public function moreHtmlRef($parameters=false, &$object, &$action='')
+	{
+		global $conf;
+		global $mc;
+
+		// if global sharings is enabled
+		if (! empty($conf->global->MULTICOMPANY_SHARINGS_ENABLED)
+			&& ! empty($conf->global->MULTICOMPANY_DOLIFLEET_SHARING_ENABLED)
+			&& $object->element == 'dolifleet_vehicule'
+			&& ! empty($conf->dolifleet->enabled)
+			&& ! empty($mc->sharings['dolifleet_vehicule'])
+			&& $object->entity!=$conf->entity)
+		{
+			dol_include_once('/multicompany/class/actions_multicompany.class.php');
+			$actMulticomp= new ActionsMulticompany($this->db);
+			$actMulticomp->getInfo($object->entity);
+
+			$this->resprints = "\n" . '<!-- BEGIN DoliFleet moreHtmlRef -->' . "\n";
+
+			$this->resprints .= '<div class="refidno modify-entity multicompany-entity-container">';
+			$this->resprints .= '<span class="fa fa-globe"></span><span class="multiselect-selected-title-text">' . $actMulticomp->label . '</span>';
+			$this->resprints .= '</div>';
+
+			$this->resprints .= "\n" . '<!-- END DoliFleet moreHtmlRef -->' . "\n";
+		}
+		return 0;
+	}
 }
