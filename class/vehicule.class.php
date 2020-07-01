@@ -490,12 +490,18 @@ class doliFleetVehicule extends SeedObject
 					$act = new doliFleetVehiculeActivity($this->db);
 
 					$ret = $act->fetch($obj->rowid);
-					if ($ret > 0) $this->activities[$obj->rowid] = $act;
+					if ($ret > 0) {
+						$this->activities[$obj->rowid] = $act;
+					} else {
+						$this->error=$act->error;
+					}
+
 				}
 			}
 
 			return $num;
 		}
+
 
 		return -1;
 	}
@@ -810,7 +816,7 @@ class doliFleetVehicule extends SeedObject
 
 		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element."_operation";
 		$sql.= " WHERE fk_vehicule = ".$this->id;
-		$sql.= " ORDER BY rank ASC";
+		$sql.= " ORDER BY rang ASC";
 
 		$resql = $this->db->query($sql);
 		if ($resql)
@@ -824,7 +830,12 @@ class doliFleetVehicule extends SeedObject
 				{
 					$ope = new dolifleetVehiculeOperation($this->db);
 					$ret = $ope->fetch($obj->rowid);
-					if ($ret > 0) $this->operations[] = $ope;
+					if ($ret >= 0) {
+						$this->operations[] = $ope;
+					} else {
+						$this->error=$ope->error;
+						return $ret;
+					}
 				}
 			}
 

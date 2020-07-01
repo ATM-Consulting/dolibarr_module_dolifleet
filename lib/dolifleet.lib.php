@@ -502,14 +502,18 @@ function printVehiculeOpérations($object)
 	print '<td align="center">'.$langs->trans('VehiculeOperation').'</td>';
 	print '<td align="center">'.$langs->trans('KM').'</td>';
 	print '<td align="center">'.$langs->trans('VehiculeOperationDelay').'</td>';
-	print '<td align="center"></td>';
+	print '<td align="center">'.$langs->trans('VehiculeOperationLastDateDone').'</td>';
+	print '<td align="center">'.$langs->trans('VehiculeOperationLastKmDone').'</td>';
 	print '<td align="center"></td>';
 	print '</tr>';
 
-	$object->getOperations();
+	$res = $object->getOperations();
+	if ($res < 0) {
+		setEventMessage($object->error,'errors');
+	}
 	if (empty($object->operations))
 	{
-		print '<tr><td align="center" colspan="5">'.$langs->trans('NodoliFleet').'</td></tr>';
+		print '<tr><td align="center" colspan="6">'.$langs->trans('NodoliFleet').'</td></tr>';
 	}
 	else
 	{
@@ -519,7 +523,12 @@ function printVehiculeOpérations($object)
 			print '<td align="center">'.$operation->getName().'</td>';
 			print '<td align="center">'.(!empty($operation->km) ? price2num($operation->km) : '').'</td>';
 			print '<td align="center">'.(!empty($operation->delai_from_last_op) ? $operation->delai_from_last_op.' '.$langs->trans('Months') : '').'</td>';
-			print '<td align="center"></td>';
+			print '<td align="center">';
+			if (!empty($operation->date_done)) {
+				print dol_print_date($operation->date_done, "%d/%m/%Y");
+			}
+			print '</td>';
+			print '<td align="center">'.(!empty($operation->km_done)?$operation->km_done:'').'</td>';
 			print '<td align="center">';
 			print '<a href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delOperation&ope_id='.$operation->id.'">'.img_delete().'</a>';
 			print '</td>';
@@ -542,10 +551,7 @@ function printVehiculeOpérations($object)
 	print '<input type="number" name="delay" id="delay" step="1" value="'.GETPOST('delay').'">&nbsp;'.$langs->trans('Months');
 	print '</td>';
 
-	print '<td align="center">';
-	print '</td>';
-
-	print '<td align="center">';
+	print '<td align="center" colspan="3">';
 	print '<input class="button" type="submit" name="addRental" value="'.$langs->trans("Add").'">';
 	print '</td>';
 
