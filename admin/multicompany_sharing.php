@@ -70,6 +70,8 @@ if ($action == 'save_multicompany_shared_conf')
 				if ($dao->fetch($entityId) > 0)
 				{
 					$dao->options['sharings'][$element] = $dao->options['sharings'][$elementConvertion] = $dao->options['sharings'][$elementConvertionAnotherOne] = $shared;
+					$dao->options['sharings'][$elementConvertion] = $dao->options['sharings'][$element];
+					$dao->options['sharings'][$elementConvertionAnotherOne] = $dao->options['sharings'][$element];
 
 					if ($dao->update($entityId, $user) < 1)
 					{
