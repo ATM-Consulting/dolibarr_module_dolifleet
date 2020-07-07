@@ -453,7 +453,7 @@ class moddoliFleet extends DolibarrModules
 			'langs'=>'dolifleet@dolifleet',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
 			'enabled'=>'$conf->dolifleet->enabled',	// Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled.
-			'perms'=>'$user->rights->rentalproposal->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'perms'=>'$user->rights->dolifleet->rentalproposal->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>0
 		);
@@ -469,7 +469,7 @@ class moddoliFleet extends DolibarrModules
 			'langs'=>'dolifleet@dolifleet',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
 			'enabled'=> '$conf->dolifleet->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms'=> '$user->rights->rentalproposal->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'perms'=> '$user->rights->dolifleet->rentalproposal->write',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>0
 		);				                // 0=Menu for internal users, 1=external users, 2=both
@@ -486,7 +486,7 @@ class moddoliFleet extends DolibarrModules
 			'langs'=>'dolifleet@dolifleet',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position'=>100+$r,
 			'enabled'=> '$conf->dolifleet->enabled',  // Define condition to show or hide menu entry. Use '$conf->missionorder->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms'=> '$user->rights->rentalproposal->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
+			'perms'=> '$user->rights->dolifleet->rentalproposal->read',			                // Use 'perms'=>'$user->rights->missionorder->level1->level2' if you want your menu with a permission rules
 			'target'=>'',
 			'user'=>0
 		);				                // 0=Menu for internal users, 1=external users, 2=both
