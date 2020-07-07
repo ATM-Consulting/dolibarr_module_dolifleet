@@ -155,7 +155,7 @@ if (!empty(array_keys($extralabels)))
 {
 	foreach ($extralabels as $k => $v)
 	{
-		if (abs($extrafields->attributes[$object->table_element]['list'][$k]) != 3) {
+		if (abs($extrafields->attributes[$object->table_element]['list'][$k]) != 3 && !empty(abs($extrafields->attributes[$object->table_element]['list'][$k]))) {
 			$TTitle[] = $v;
 		}
 	}
@@ -225,7 +225,7 @@ if (!empty($extralabels))
 {
 	foreach ($extralabels as $k => $v)
 	{
-		if (abs($extrafields->attributes[$object->table_element]['list'][$k]) != 3) {
+		if (abs($extrafields->attributes[$object->table_element]['list'][$k]) != 3 && !empty(abs($extrafields->attributes[$object->table_element]['list'][$k]))) {
 			$listViewConfig['eval'][$k] = '_evalEF("' . $k . '", "@val@")';
 		}
 	}
