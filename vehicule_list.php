@@ -153,7 +153,12 @@ $TTitle['status'] = $langs->trans('Status');
 
 if (!empty(array_keys($extralabels)))
 {
-	$TTitle = array_merge($TTitle, $extralabels);
+	foreach ($extralabels as $k => $v)
+	{
+		if (abs($extrafields->attributes[$object->table_element]['list'][$k]) != 3 && !empty(abs($extrafields->attributes[$object->table_element]['list'][$k]))) {
+			$TTitle[] = $v;
+		}
+	}
 }
 
 $listViewConfig = array(
@@ -220,11 +225,9 @@ if (!empty($extralabels))
 {
 	foreach ($extralabels as $k => $v)
 	{
-//		$listViewConfig['search'][$k] = array(
-//			'search_type' => 'override'
-//			,'override' => $extrafields->showInputField($k, GETPOST('Listview_dolifleet_search_'.$k), '', '', 'Listview_dolifleet_search_')
-//		);
-        $listViewConfig['eval'][$k] = '_evalEF("'.$k.'", "@val@")';
+		if (abs($extrafields->attributes[$object->table_element]['list'][$k]) != 3 && !empty(abs($extrafields->attributes[$object->table_element]['list'][$k]))) {
+			$listViewConfig['eval'][$k] = '_evalEF("' . $k . '", "@val@")';
+		}
 	}
 
 }
