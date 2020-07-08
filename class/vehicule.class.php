@@ -1053,9 +1053,10 @@ class doliFleetVehicule extends SeedObject
 		return $this->showOutputField($this->fields[$key], $key, $this->{$key}, $moreparam, $keysuffix, $keyprefix, $morecss);
 	}
 
-    function addActionComEvent($label, $note = '', $type_code = 'AC_OTH_AUTO', $percentage = -1){
+    function addActionComEvent($label, $note = '', $type_code = 'AC_OTH_AUTO', $percentage = -1, $time = 0){
         global $user;
 
+        if(empty($time)) $time = time();
         require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
 
         $object = new ActionComm($this->db);
@@ -1063,7 +1064,7 @@ class doliFleetVehicule extends SeedObject
         $object->label = $label;
         $object->note_private = $note;
 
-        $object->datep = time();
+        $object->datep = $time;
 
         $object->fk_element = $this->id;    // Id of record
         $object->elementid = 0;    // Id of record alternative for API
