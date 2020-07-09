@@ -1078,6 +1078,7 @@ class doliFleetVehicule extends SeedObject
         $newEventId = $object->create($user);
         if($newEventId < 1)
         {
+        	$this->errors = array($object->error);
             dol_syslog(__CLASS__ . ":".__METHOD__." launched by " . __FILE__ . ". id=" . $this->id.' error code : '.$object->error, LOG_ERR);
             return -1;
         } else {
