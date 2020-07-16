@@ -514,7 +514,7 @@ else
                     if ($object->status === doliFleetVehicule::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('doliFleetActivate').'</a></div>'."\n";
 
                     // Désactiver
-					if ($object->status === doliFleetVehicule::STATUS_ACTIVE) print '<div class="inline-block divButAction"><a class="butAction" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('doliFleetUnactivate').'</a></div>'."\n";
+					if ($object->status === doliFleetVehicule::STATUS_ACTIVE) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('doliFleetUnactivate').'</a></div>'."\n";
 
                 }
 
