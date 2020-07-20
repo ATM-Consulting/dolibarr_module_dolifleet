@@ -529,16 +529,7 @@ else
             }
             print '</div>'."\n";
 
-            print '<div class="fichecenter"><div class="fichehalfleft">';
-            $linktoelem = $form->showLinkToObjectBlock($object, null, array($object->element));
-            $somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
 
-            print '</div><div class="fichehalfright"><div class="ficheaddleft">';
-
-            // List of actions on element
-            include_once DOL_DOCUMENT_ROOT . '/core/class/html.formactions.class.php';
-            $formactions = new FormActions($db);
-            $somethingshown = $formactions->showactions($object, $object->element, $socid, 1);
 
             print '</div></div></div>';
 
