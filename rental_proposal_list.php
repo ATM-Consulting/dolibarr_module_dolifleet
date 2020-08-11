@@ -126,7 +126,8 @@ $listViewConfig = array(
 		,'noheader' => 0
 		,'messageNothing' => $langs->trans('NodoliFleet')
 		,'picto_search' => img_picto('', 'search.png', '', 0)
-//		,'massactions'=>array(
+		,'param_url' => '&limit='.$nbLine
+		//		,'massactions'=>array(
 //			'yourmassactioncode'  => $langs->trans('YourMassActionLabel')
 //		)
 	)

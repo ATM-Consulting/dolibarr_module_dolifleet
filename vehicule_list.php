@@ -178,6 +178,7 @@ $listViewConfig = array(
 		,'massactions'=>array(
 //			'yourmassactioncode'  => $langs->trans('YourMassActionLabel')
 		)
+		,'param_url' => '&limit='.$nbLine
 	)
 	,'subQuery' => array()
 	,'link' => array()
