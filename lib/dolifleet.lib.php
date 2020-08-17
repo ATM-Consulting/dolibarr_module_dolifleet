@@ -544,15 +544,15 @@ function printVehiculeOpérations($object)
 	print '</td>';
 
 	print '<td align="center">';
-	print '<input type="number" name="km" id="km" step="1" value="'.GETPOST('km').'">';
+	print '<input class="quatrevingtpercent" type="number" name="km" id="km" step="1" value="'.GETPOST('km').'">';
 	print '</td>';
 
 	print '<td align="center">';
-	print '<input type="number" name="delay" id="delay" step="1" value="'.GETPOST('delay').'">&nbsp;'.$langs->trans('Months');
+	print '<input class="soixantepercent" type="number" name="delay" id="delay" step="1" value="'.GETPOST('delay').'">&nbsp;'.$langs->trans('Months');
 	print '</td>';
 
 	print '<td align="center" colspan="3">';
-	print '<input class="button" type="submit" name="addRental" value="'.$langs->trans("Add").'">';
+	print '<input class="button quatrevingtpercent" type="submit" name="addRental" value="'.$langs->trans("Add").'">';
 	print '</td>';
 
 	print '</tr>';
@@ -560,6 +560,12 @@ function printVehiculeOpérations($object)
 	print '</table>';
 
 	print '</form>';
+	?>
+	<script>
+		$("#search_productid").removeClass("minwidth100");
+		$("#search_productid").addClass("quatrevingtpercent");
+	</script>
+	<?php
 }
 
 function printBannerVehicleCard($vehicle){
