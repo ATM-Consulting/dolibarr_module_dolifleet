@@ -134,7 +134,7 @@ $sql.=$hookmanager->resPrint;
 
 //print $sql;
 
-$formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_dolifleet', 'GET');
+$formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_dolifleet', 'POST');
 $form = new Form($db);
 
 $nbLine = GETPOST('limit');
@@ -246,6 +246,31 @@ if ($reshook>0)
 
 
 echo $r->render($sql, $listViewConfig);
+
+if (!empty($_POST)){
+	$addUrl=array();
+	$TExclude = array('token','massaction','button_search_x');
+	foreach ($_POST as $key => $v) {
+		if (!in_array($key, $TExclude)
+			&& preg_match('/search/', $key)
+			&& $v != ''
+			&& $v != -1
+		){
+			if (is_array($v)){
+				foreach ($v as $item) $addUrl[]=$key.'[]='.$item;
+			}else{
+				$addUrl[]=$key.'='.$v;
+			}
+		}
+	}
+}
+?>
+	<script>
+		let url = '/client/theobald/dolibarr/htdocs/bookmarks/card.php?action=create&url='
+		url+="<?php	echo urlencode($_SERVER['PHP_SELF'].'?'.implode("&",$addUrl)); ?>"
+		$('#boxbookmark option[value="newbookmark"]').attr('rel', url);
+	</script>
+<?php
 
 $parameters=array('sql'=>$sql);
 $reshook=$hookmanager->executeHooks('printFieldListFooter', $parameters, $object);    // Note that $action and $object may have been modified by hook
