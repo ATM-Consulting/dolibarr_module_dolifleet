@@ -156,7 +156,7 @@ if (!empty(array_keys($extralabels)))
 	foreach ($extralabels as $k => $v)
 	{
 		if (in_array(abs($extrafields->attributes[$object->table_element]['list'][$k]),array(1,2,4)) && !empty(abs($extrafields->attributes[$object->table_element]['list'][$k]))) {
-			$TTitle[] = $v;
+			$TTitle[$k] = $v;
 		}
 	}
 }
