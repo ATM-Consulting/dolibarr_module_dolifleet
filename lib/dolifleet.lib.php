@@ -282,6 +282,14 @@ function printVehiculeActivities($object, $fromcard = false)
 	print '</table>';
 
 	print '</form>';
+	?>
+	<script>
+	   $("#activityTypes").addClass("soixantepercent");
+	   $("#activityDate_start").addClass("quatrevingtpercent");
+	   $("#activityDate_end").addClass("quatrevingtpercent");
+	</script>
+	<?php
+
 }
 
 /**
