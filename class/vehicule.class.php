@@ -777,7 +777,7 @@ class doliFleetVehicule extends SeedObject
 	{
 		global $user, $langs;
 
-		if (empty($amountHT))
+		if ($amountHT == '')
 		{
 			$this->errors[] = $langs->trans('ErrEmptyAmountForRental');
 			return -1;
