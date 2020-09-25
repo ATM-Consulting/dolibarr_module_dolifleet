@@ -159,10 +159,6 @@ print '<input class="butAction" type="submit" value="'.$langs->trans('Save').'">
 print '</form></td>';
 print '</tr>';
 
-if (empty($conf->global->DOLIFLEET_DEFAULT_RENTAL_AMOUNT))
-{
-	dolibarr_set_const($db, 'DOLIFLEET_DEFAULT_RENTAL_AMOUNT', 500, 'chaine', 0, '', $conf->entity);
-}
 setup_print_input_form_part('DOLIFLEET_DEFAULT_RENTAL_AMOUNT', $langs->trans('DOLIFLEET_DEFAULT_RENTAL_AMOUNT'));
 
 if (empty($conf->global->DOLIFLEET_DELAY_SEARCH_OPERATIONS))
