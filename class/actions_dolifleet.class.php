@@ -67,6 +67,51 @@ class ActionsdoliFleet
 	 */
 	public function doActions($parameters, &$object, &$action, $hookmanager)
 	{
+		global $conf, $langs, $user, $db;
+		$contextArray = explode(':', $parameters['context']);
+
+		if (in_array('operationordercard', $contextArray) && $action == 'clone') {
+			$action = 'cloneOR';
+		}
+	}
+
+	public function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager){
+
+		global $conf, $langs, $user, $db;
+		$contextArray = explode(':', $parameters['context']);
+
+		if (in_array('operationordercard', $contextArray) && $action == 'cloneOR') {
+			$form = new Form($db);
+			$fk_status = GETPOST('fk_status' , 'int');
+			$formquestion = array ( 'text' => $langs->trans("ConfirmClone"),
+				array('type' => 'other', 'name' => 'select_fk_vehicule', 'label' => $langs->trans("SelectVehicule"), 'value' => $form->selectForForms('doliFleetVehicule:dolifleet/class/vehicule.class.php', "select_fk_vehicule", $object->array_options['options_fk_dolifleet_vehicule'])));
+			$body = $langs->trans('ConfirmCloneOperationOrderBody', $object->ref);
+			$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id.'&fk_status='.$fk_status, $langs->trans('ConfirmCloneOperationOrderTitle'), $body, 'confirm_cloneOR', $formquestion, 0, 1);
+			print $formconfirm;
+		}
+
+		if (in_array('operationordercard', $contextArray) && $action == 'confirm_cloneOR' && !empty($user->rights->operationorder->write)) {
+			$newid = $object->cloneObject($user);
+			$new_fk_vehicule = GETPOST('select_fk_vehicule');
+			$sql = 'SELECT fk_soc, km FROM '.MAIN_DB_PREFIX.'dolifleet_vehicule WHERE rowid ='.$new_fk_vehicule;
+			$resql = $db->query($sql);
+			if($resql){
+				$obj = $db->fetch_object($resql);
+				$object->array_options['options_fk_dolifleet_vehicule'] = $new_fk_vehicule;
+				$object->fk_soc = $obj->fk_soc;
+				$object->array_options['options_km_on_creation'] = $obj->km;
+				$object->update($user);
+				if ($newid > 0) {
+					setEventMessage('OperationOrderCloned');
+					header('Location: ' . dol_buildpath('/operationorder/operationorder_card.php', 1) . '?id=' . $object->id);
+					exit;
+				} else {
+					setEventMessage('OperationOrderCloneError', 'errors');
+				}
+			} else {
+				dol_print_error($db);
+			}
+		}
 		/*$error = 0; // Error counter
 		$myvalue = 'test'; // A result value
 
@@ -74,19 +119,15 @@ class ActionsdoliFleet
 		echo "action: " . $action;
 		print_r($object);
 
-		if (in_array('somecontext', explode(':', $parameters['context'])))
-		{
-		  // do something only for the context 'somecontext'
+		if (in_array('somecontext', explode(':', $parameters['context']))) {
+			// do something only for the context 'somecontext'
 		}
 
-		if (! $error)
-		{
+		if (!$error) {
 			$this->results = array('myreturn' => $myvalue);
 			$this->resprints = 'A text to show';
 			return 0; // or return 1 to replace standard code
-		}
-		else
-		{
+		} else {
 			$this->errors[] = 'Error message';
 			return -1;
 		}*/
