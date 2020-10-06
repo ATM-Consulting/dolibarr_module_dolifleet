@@ -73,22 +73,6 @@ class ActionsdoliFleet
 		if (in_array('operationordercard', $contextArray) && $action == 'clone') {
 			$action = 'cloneOR';
 		}
-	}
-
-	public function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager){
-
-		global $conf, $langs, $user, $db;
-		$contextArray = explode(':', $parameters['context']);
-
-		if (in_array('operationordercard', $contextArray) && $action == 'cloneOR') {
-			$form = new Form($db);
-			$fk_status = GETPOST('fk_status' , 'int');
-			$formquestion = array ( 'text' => $langs->trans("ConfirmClone"),
-				array('type' => 'other', 'name' => 'select_fk_vehicule', 'label' => $langs->trans("SelectVehicule"), 'value' => $form->selectForForms('doliFleetVehicule:dolifleet/class/vehicule.class.php', "select_fk_vehicule", $object->array_options['options_fk_dolifleet_vehicule'])));
-			$body = $langs->trans('ConfirmCloneOperationOrderBody', $object->ref);
-			$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id.'&fk_status='.$fk_status, $langs->trans('ConfirmCloneOperationOrderTitle'), $body, 'confirm_cloneOR', $formquestion, 0, 1);
-			print $formconfirm;
-		}
 
 		if (in_array('operationordercard', $contextArray) && $action == 'confirm_cloneOR' && !empty($user->rights->operationorder->write)) {
 			$newid = $object->cloneObject($user);
@@ -112,6 +96,24 @@ class ActionsdoliFleet
 				dol_print_error($db);
 			}
 		}
+	}
+
+	public function addMoreActionsButtons($parameters, &$object, &$action, $hookmanager){
+
+		global $conf, $langs, $user, $db;
+		$contextArray = explode(':', $parameters['context']);
+
+		if (in_array('operationordercard', $contextArray) && $action == 'cloneOR') {
+			$form = new Form($db);
+			$fk_status = GETPOST('fk_status' , 'int');
+			$formquestion = array ( 'text' => $langs->trans("ConfirmClone"),
+				array('type' => 'other', 'name' => 'select_fk_vehicule', 'label' => $langs->trans("SelectVehicule"), 'value' => $form->selectForForms('doliFleetVehicule:dolifleet/class/vehicule.class.php', "select_fk_vehicule", $object->array_options['options_fk_dolifleet_vehicule'])));
+			$body = $langs->trans('ConfirmCloneOperationOrderBody', $object->ref);
+			$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id.'&fk_status='.$fk_status, $langs->trans('ConfirmCloneOperationOrderTitle'), $body, 'confirm_cloneOR', $formquestion, 0, 1);
+			print $formconfirm;
+		}
+
+
 		/*$error = 0; // Error counter
 		$myvalue = 'test'; // A result value
 

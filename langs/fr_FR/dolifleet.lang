@@ -186,3 +186,5 @@ ErrDuplicateMatrix=Il existe déjà une ligne de matrice pour ce type, cette mar
 ErrVehiculeThirPartiesAreDifferent=Les tiers des véhicules à lier sont différents
 ErrEmptyVehiculeImmatDate=Date de mise en circulation invalide
 ErrInvalidSocid=Tiers invalide
+
+SelectVehicule=Selection de vehicule :
